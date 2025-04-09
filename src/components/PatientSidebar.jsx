@@ -26,28 +26,29 @@ const Sidebar = () => {
             <FaBars className="text-xl" />
           </button>
           <ul className="flex-1 overflow-y-auto">
+            {/* Home Link (Dashboard) */}
             <li className="mb-2">
-              <Link to="/home" className="flex items-center p-2 hover:bg-gray-700 rounded">
+              <Link to="/patient-dashboard" className="flex items-center p-2 hover:bg-gray-700 rounded">
                 <FaHome className="text-xl" /> <span className={`${isOpen ? "ml-2" : "hidden"}`}>Home</span>
               </Link>
             </li>
             <li className="mb-2">
-              <Link to="/all-doctors" className="flex items-center p-2 hover:bg-gray-700 rounded">
+              <Link to="/patient-doctors" className="flex items-center p-2 hover:bg-gray-700 rounded">
                 <FaUserMd className="text-xl" /> <span className={`${isOpen ? "ml-2" : "hidden"}`}>All Doctors</span>
               </Link>
             </li>
             <li className="mb-2">
-              <Link to="/scheduled-sessions" className="flex items-center p-2 hover:bg-gray-700 rounded">
+              <Link to="/patient-scheduled" className="flex items-center p-2 hover:bg-gray-700 rounded">
                 <FaCalendarCheck className="text-xl" /> <span className={`${isOpen ? "ml-2" : "hidden"}`}>Scheduled Sessions</span>
               </Link>
             </li>
             <li className="mb-2">
-              <Link to="/my-bookings" className="flex items-center p-2 hover:bg-gray-700 rounded">
+              <Link to="/patient-bookings" className="flex items-center p-2 hover:bg-gray-700 rounded">
                 <FaBookmark className="text-xl" /> <span className={`${isOpen ? "ml-2" : "hidden"}`}>My Bookings</span>
               </Link>
             </li>
             <li className="mb-2">
-              <Link to="/settings" className="flex items-center p-2 hover:bg-gray-700 rounded">
+              <Link to="/patient-settings" className="flex items-center p-2 hover:bg-gray-700 rounded">
                 <FaCog className="text-xl" /> <span className={`${isOpen ? "ml-2" : "hidden"}`}>Settings</span>
               </Link>
             </li>
@@ -66,31 +67,33 @@ const Sidebar = () => {
           </div>
         </div>
       )}
+      {/* Mobile view: When sidebar is open */}
       {isMobile && isOpen && (
         <div className="fixed top-16 left-0 right-0 bg-gray-800 text-white p-4 flex flex-col z-50 shadow-md">
           <ul className="w-full">
+            {/* Home Link (Dashboard) */}
             <li className="mb-2">
-              <Link to="/home" className="flex items-center p-2 hover:bg-gray-700 rounded">
+              <Link to="/patient-dashboard" className="flex items-center p-2 hover:bg-gray-700 rounded">
                 <FaHome className="text-xl" /> <span className="ml-2">Home</span>
               </Link>
             </li>
             <li className="mb-2">
-              <Link to="/all-doctors" className="flex items-center p-2 hover:bg-gray-700 rounded">
+              <Link to="/patient-doctors" className="flex items-center p-2 hover:bg-gray-700 rounded">
                 <FaUserMd className="text-xl" /> <span className="ml-2">All Doctors</span>
               </Link>
             </li>
             <li className="mb-2">
-              <Link to="/scheduled-sessions" className="flex items-center p-2 hover:bg-gray-700 rounded">
+              <Link to="/patient-scheduled" className="flex items-center p-2 hover:bg-gray-700 rounded">
                 <FaCalendarCheck className="text-xl" /> <span className="ml-2">Scheduled Sessions</span>
               </Link>
             </li>
             <li className="mb-2">
-              <Link to="/my-bookings" className="flex items-center p-2 hover:bg-gray-700 rounded">
+              <Link to="/patient-bookings" className="flex items-center p-2 hover:bg-gray-700 rounded">
                 <FaBookmark className="text-xl" /> <span className="ml-2">My Bookings</span>
               </Link>
             </li>
             <li className="mb-2">
-              <Link to="/settings" className="flex items-center p-2 hover:bg-gray-700 rounded">
+              <Link to="/patient-settings" className="flex items-center p-2 hover:bg-gray-700 rounded">
                 <FaCog className="text-xl" /> <span className="ml-2">Settings</span>
               </Link>
             </li>

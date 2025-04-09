@@ -1,36 +1,40 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Sidebar from "../../components/PatientSidebar";
 import Header from "../../components/header";
 
 const PatientProfile = () => {
-  const patient = {
-    id: "123456",
-    name: "John Doe",
-    dob: "1985-01-15",
-    age: 39,
-    gender: "Male",
-    bloodType: "O+",
-    contact: "(123) 456-7890",
-    email: "johndoe@email.com",
-    address: "123 Main St, City, State, ZIP",
-    allergies: ["Penicillin", "Peanuts"],
-    conditions: ["Hypertension", "Type 2 Diabetes"],
-    medications: [
-      { name: "Metformin 500mg", frequency: "2x daily" },
-      { name: "Lisinopril 10mg", frequency: "1x daily" },
-    ],
-    visitHistory: [
-      { date: "2024-08-10", reason: "Routine Check-up", doctor: "Dr. Smith" },
-      { date: "2024-07-15", reason: "Diabetes Management", doctor: "Dr. Brown" },
-      { date: "2024-06-05", reason: "Knee Pain", doctor: "Dr. Green" },
-    ],
-  };
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [patient, setPatient] = useState(null); // dynamic patient data
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    // Replace this with your actual API endpoint
+    fetch("http://localhost:3000/api/patient/123456")
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch patient data");
+        return res.json();
+      })
+      .then((data) => {
+        setPatient(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) return <div className="p-8">Loading patient profile...</div>;
+  if (error) return <div className="p-8 text-red-600">Error: {error}</div>;
+  if (!patient) return null;
 
   return (
     <div className="flex min-h-screen bg-gray-100">
-      <Sidebar />
-      <div className="max-w-4xl mx-auto p-8 bg-white shadow-xl rounded-2xl w-full mt-10">
+      <Sidebar isOpen={isSidebarOpen} toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
+      <div className={`transition-all duration-300 ml-${isSidebarOpen ? "64" : "16"} flex-1 p-8`}>
         <h2 className="text-3xl font-bold text-gray-800 mb-6 border-b pb-3">Patient Profile</h2>
+        
         <div className="grid grid-cols-2 gap-6 border-b pb-6 mb-6">
           <p><strong className="text-gray-700">Name:</strong> {patient.name}</p>
           <p><strong className="text-gray-700">Age:</strong> {patient.age} (DOB: {patient.dob})</p>
@@ -40,6 +44,7 @@ const PatientProfile = () => {
           <p><strong className="text-gray-700">Email:</strong> {patient.email}</p>
           <p className="col-span-2"><strong className="text-gray-700">Address:</strong> {patient.address}</p>
         </div>
+
         <div className="border-b pb-6 mb-6">
           <h3 className="text-xl font-semibold text-gray-800 mb-3">Medical Information</h3>
           <p><strong className="text-gray-700">Allergies:</strong> {patient.allergies.join(", ")}</p>
@@ -51,6 +56,7 @@ const PatientProfile = () => {
             ))}
           </ul>
         </div>
+
         <div>
           <h3 className="text-xl font-semibold text-gray-800 mb-3">Recent Visits</h3>
           <table className="w-full border border-gray-300 text-left rounded-lg overflow-hidden shadow-md">
