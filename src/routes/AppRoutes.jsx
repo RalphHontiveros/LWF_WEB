@@ -7,7 +7,17 @@ import Login from "../pages/Login";
 import Register from "../pages/Register";
 import ForgotPassword from "../pages/ForgotPassword";
 import AdminDashboard from "../pages/Staff/AdminDashboard";
+import AdminDoctors from "../pages/Staff/AdminDoctors";
+import AdminSchedule from "../pages/Staff/AdminSchedule";
+import AdminAppointments from "../pages/Staff/AdminAppointments";
+import AdminPatients from "../pages/Staff/AdminPatients";
+import AdminProfile from "../pages/Staff/AdminProfile";
 import DoctorDashboard from "../pages/Doctor/DoctorDashboard";
+import DoctorAppointments from "../pages/Doctor/DoctorAppointments";
+import DoctorSessions from "../pages/Doctor/DoctorSessions";
+import DoctorPatients from "../pages/Doctor/DoctorPatients";
+import DoctorSettings from "../pages/Doctor/DoctorSettings";
+import DoctorProfile from "../pages/Doctor/DoctorProfile";
 import PatientDashboard from "../pages/Patient/PatientDashboard";
 import PatientProfile from "../pages/Patient/PatientProfile";
 import PatientDoctors from "../pages/Patient/PatientDoctors";
@@ -30,16 +40,25 @@ const AppRoutes = () => {
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
 
-        {/* Admin, Doctor, Patient Dashboards */}
+        {/* testing routes */}
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
+        <Route path="/admin-doctors" element={<AdminDoctors />} />
+        <Route path="/admin-schedule" element={<AdminSchedule />} />
+        <Route path="/admin-appointment" element={<AdminAppointments />} />
+        <Route path="/admin-patients" element={<AdminPatients />} />
+        <Route path="/admin-profile" element={<AdminProfile />} />
         <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
+        <Route path="/doctor-appointments" element={<DoctorAppointments />} />
+        <Route path="/doctor-sessions" element={<DoctorSessions />} />
+        <Route path="/doctor-patients" element={<DoctorPatients />} />
+        <Route path="/doctor-settings" element={<DoctorSettings />} />
+        <Route path="/doctor-profile" element={<DoctorProfile />} />
         <Route path="/patient-dashboard" element={<PatientDashboard />} />
         <Route path="/patient-profile" element={<PatientProfile />} />
         <Route path="/patient-doctors" element={<PatientDoctors />} />
         <Route path="/patient-scheduled" element={<PatientScheduled />} />
         <Route path="/patient-bookings" element={<PatientBookings />} />
         <Route path="/patient-settings" element={<PatientSettings />} />
-
 
 
         {/* Role-based Routing
