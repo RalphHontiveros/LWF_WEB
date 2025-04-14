@@ -76,32 +76,38 @@ const PatientDashboard = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex flex-col md:flex-row min-h-screen bg-gray-100">
       <Sidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
 
-      <main className={`flex-1 p-6 md:p-8 transition-all duration-300 ${isSidebarOpen ? "ml-64" : "ml-16"}`}>
+      <main
+        className={`flex-1 px-4 sm:px-6 md:px-8 py-4 transition-all duration-300 ${
+          isSidebarOpen ? "md:ml-64" : "md:ml-16"
+        } overflow-y-auto sm:overflow-y-auto md:overflow-y-auto`} // Ensures scrollbar for mobile and up
+      >
         {/* Header */}
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Home</h1>
-          <div className="bg-white p-3 rounded-md shadow text-gray-600 flex items-center">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <h1 className="text-xl sm:text-2xl font-bold">Home</h1>
+          <div className="bg-white px-4 py-2 rounded-md shadow text-gray-600 flex items-center text-sm sm:text-base">
             📅 <span className="ml-2">Today's Date: {new Date().toLocaleDateString()}</span>
           </div>
         </div>
 
         {/* Welcome Box */}
-        <section className="bg-blue-100 p-6 rounded-md mt-5">
-          <h2 className="text-xl font-bold">Welcome!</h2>
-          <p className="text-gray-600">
+        <section className="bg-blue-100 p-4 sm:p-6 rounded-md mt-5">
+          <h2 className="text-lg sm:text-xl font-bold">Welcome!</h2>
+          <p className="text-gray-600 text-sm sm:text-base">
             Haven't any idea about doctors? No problem. Visit "All Doctors" or "Sessions"
             to view your appointment history.
           </p>
-          <div className="mt-3 flex items-center bg-white p-2 rounded-md shadow-md">
+          <div className="mt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 bg-white p-3 rounded-md shadow-md">
             <input
               type="text"
               placeholder="Search Doctor and find session available"
-              className="flex-1 p-2 outline-none"
+              className="flex-1 p-2 border rounded-md"
             />
-            <button className="bg-blue-500 text-white px-4 py-2 rounded-md">Search</button>
+            <button className="bg-blue-500 text-white px-4 py-2 rounded-md w-full sm:w-auto">
+              Search
+            </button>
           </div>
         </section>
 
@@ -111,42 +117,47 @@ const PatientDashboard = () => {
             { icon: FaUserMd, count: dashboardData.doctorsCount, label: "All Doctors" },
             { icon: FaUserInjured, count: dashboardData.patientsCount, label: "All Patients" },
             { icon: FaCalendarCheck, count: dashboardData.newBookingsCount, label: "New Booking" },
-            { icon: FaClock, count: dashboardData.todaySessionsCount, label: "Today Sessions" }
+            { icon: FaClock, count: dashboardData.todaySessionsCount, label: "Today Sessions" },
           ].map(({ icon: Icon, count, label }, index) => (
-            <div key={index} className="bg-white p-5 rounded-md shadow-md flex items-center justify-between">
+            <div
+              key={index}
+              className="bg-white p-4 rounded-md shadow-md flex items-center justify-between"
+            >
               <div>
                 <p className="text-lg font-bold">{count ?? 0}</p>
-                <p className="text-gray-600">{label}</p>
+                <p className="text-gray-600 text-sm">{label}</p>
               </div>
-              <Icon className="text-blue-500 text-2xl" />
+              <Icon className="text-blue-500 text-xl sm:text-2xl" />
             </div>
           ))}
         </section>
 
         {/* Add Appointment Button */}
-        <button onClick={toggleModal} className="bg-blue-500 text-white px-6 py-2 rounded-md mt-6">
+        <button
+          onClick={toggleModal}
+          className="bg-blue-500 text-white px-6 py-2 rounded-md mt-6 w-full sm:w-auto"
+        >
           Add Appointment
         </button>
 
-        {/* Add Appointment Modal */}
+        {/* Modal */}
         {isModalOpen && (
-          <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50">
-            <div className="bg-white p-6 rounded-md w-full max-w-md relative">
+          <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50 overflow-y-auto">
+            <div className="bg-white p-6 rounded-md w-full max-w-md mx-4 relative">
               <button
                 onClick={toggleModal}
                 className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-2xl font-bold"
               >
                 &times;
               </button>
-              <h2 className="text-xl font-bold mb-4">Add Appointment</h2>
-              <form onSubmit={handleSubmitAppointment}>
-                {/* Doctor and Specialization Dropdown */}
-                <div className="mb-4">
+              <h2 className="text-lg font-bold mb-4">Add Appointment</h2>
+              <form onSubmit={handleSubmitAppointment} className="space-y-4">
+                <div>
                   <label className="block text-gray-600">Doctor and Specialization</label>
                   <select
                     value={selectedDoctor?.name || ""}
                     onChange={(e) => {
-                      const doctor = availableDoctors.find(doc => doc.name === e.target.value);
+                      const doctor = availableDoctors.find((doc) => doc.name === e.target.value);
                       setSelectedDoctor(doctor);
                     }}
                     className="w-full p-2 border rounded-md"
@@ -161,7 +172,7 @@ const PatientDashboard = () => {
                   </select>
                 </div>
 
-                <div className="mb-4">
+                <div>
                   <label className="block text-gray-600">Date & Time</label>
                   <input
                     type="datetime-local"
@@ -172,7 +183,7 @@ const PatientDashboard = () => {
                   />
                 </div>
 
-                <div className="mb-4">
+                <div>
                   <label className="block text-gray-600">Reason</label>
                   <input
                     type="text"
@@ -183,7 +194,7 @@ const PatientDashboard = () => {
                   />
                 </div>
 
-                <div className="mb-4">
+                <div>
                   <label className="block text-gray-600">Notes</label>
                   <textarea
                     value={notes}
@@ -193,7 +204,7 @@ const PatientDashboard = () => {
                   />
                 </div>
 
-                <div className="mb-4">
+                <div>
                   <label className="block text-gray-600">Contact Info</label>
                   <input
                     type="text"
@@ -204,10 +215,7 @@ const PatientDashboard = () => {
                   />
                 </div>
 
-                <button
-                  type="submit"
-                  className="bg-blue-500 text-white px-6 py-2 rounded-md"
-                >
+                <button type="submit" className="bg-blue-500 text-white px-6 py-2 rounded-md w-full">
                   Save Appointment
                 </button>
               </form>
@@ -215,22 +223,22 @@ const PatientDashboard = () => {
           </div>
         )}
 
-        {/* Upcoming Appointments */}
+        {/* Appointments List */}
         <section className="mt-8">
-          <h2 className="text-xl font-bold mb-4">Upcoming Appointments</h2>
+          <h2 className="text-lg sm:text-xl font-bold mb-4">Upcoming Appointments</h2>
           {appointments.length > 0 ? (
-            <ul>
+            <ul className="space-y-4">
               {appointments.map((appointment, index) => (
-                <li key={index} className="mb-4 p-4 bg-white rounded-md shadow-md">
+                <li key={index} className="p-4 bg-white rounded-md shadow-md">
                   <p className="font-bold">{appointment.doctorName}</p>
-                  <p>{appointment.specialization}</p>
-                  <p>{appointment.dateTime}</p>
-                  <p>{appointment.status}</p>
+                  <p className="text-sm text-gray-600">{appointment.specialization}</p>
+                  <p className="text-sm">{appointment.dateTime}</p>
+                  <p className="text-sm">{appointment.status}</p>
                 </li>
               ))}
             </ul>
           ) : (
-            <p>No upcoming appointments.</p>
+            <p>No upcoming appointments</p>
           )}
         </section>
       </main>

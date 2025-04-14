@@ -4,12 +4,11 @@ import Header from "../../components/header";
 
 const PatientProfile = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [patient, setPatient] = useState(null); // dynamic patient data
+  const [patient, setPatient] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Replace this with your actual API endpoint
     fetch("http://localhost:3000/api/patient/123456")
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch patient data");
@@ -35,7 +34,7 @@ const PatientProfile = () => {
       <div className={`transition-all duration-300 ml-${isSidebarOpen ? "64" : "16"} flex-1 p-8`}>
         <h2 className="text-3xl font-bold text-gray-800 mb-6 border-b pb-3">Patient Profile</h2>
         
-        <div className="grid grid-cols-2 gap-6 border-b pb-6 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 border-b pb-6 mb-6">
           <p><strong className="text-gray-700">Name:</strong> {patient.name}</p>
           <p><strong className="text-gray-700">Age:</strong> {patient.age} (DOB: {patient.dob})</p>
           <p><strong className="text-gray-700">Gender:</strong> {patient.gender}</p>
