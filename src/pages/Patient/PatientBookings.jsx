@@ -9,7 +9,8 @@ const MyBookings = () => {
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const response = await fetch("/api/my-bookings");
+        // Fetch appointments from the backend (make sure it's set up properly)
+        const response = await fetch("/api/my-bookings"); // Endpoint may vary
         const data = await response.json();
         setBookings(data);
       } catch (error) {
@@ -36,27 +37,27 @@ const MyBookings = () => {
         ) : (
           <div className="grid gap-4">
             {bookings.map((booking) => (
-              <div key={booking.appointmentNumber} className="bg-white p-5 rounded-md shadow-md flex justify-between items-center">
+              <div key={booking._id} className="bg-white p-5 rounded-md shadow-md flex justify-between items-center">
                 <div>
-                  <p className="text-lg font-bold">Appointment #{booking.appointmentNumber}</p>
-                  <p className="text-gray-600">Doctor: {booking.doctorName}</p>
-                  <p className="text-gray-600">Session: {booking.sessionTitle}</p>
+                  <p className="text-lg font-bold">Appointment #{booking._id}</p>
+                  <p className="text-gray-600">Doctor: {booking.doctorName}</p> {/* Assuming doctorName is in the data */}
+                  <p className="text-gray-600">Reason: {booking.reason}</p> {/* Reason for the appointment */}
                   <p className="text-gray-600 flex items-center gap-2">
                     <FaClock /> {new Date(booking.scheduledDateTime).toLocaleString()}
                   </p>
                 </div>
                 <div>
-                  {booking.status === "Completed" ? (
+                  {booking.status === "confirmed" ? (
                     <span className="text-green-600 flex items-center gap-2">
-                      <FaCheckCircle /> Completed
+                      <FaCheckCircle /> Confirmed
                     </span>
-                  ) : booking.status === "Cancelled" ? (
+                  ) : booking.status === "canceled" ? (
                     <span className="text-red-600 flex items-center gap-2">
-                      <FaTimesCircle /> Cancelled
+                      <FaTimesCircle /> Canceled
                     </span>
                   ) : (
                     <span className="text-yellow-600 flex items-center gap-2">
-                      <FaClock /> Upcoming
+                      <FaClock /> Pending
                     </span>
                   )}
                 </div>
