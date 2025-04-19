@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate for redirection
 import Sidebar from "../../components/PatientSidebar";
 import Header from "../../components/header";
 
@@ -7,22 +8,62 @@ const PatientProfile = () => {
   const [patient, setPatient] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("http://localhost:3000/api/patient/123456")
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch patient data");
-        return res.json();
-      })
-      .then((data) => {
-        setPatient(data);
+    const checkAuthentication = () => {
+      const token = localStorage.getItem("token");
+      const userRole = localStorage.getItem("userRole");
+
+      // If no token or user role is not 'patient', redirect to login page
+      if (!token || userRole !== "patient") {
+        navigate("/login");
+        return false;
+      }
+
+      return true;
+    };
+
+    const fetchPatientData = async () => {
+      if (!checkAuthentication()) {
+        return;
+      }
+
+      try {
+        const token = localStorage.getItem("token");
+
+        // Fetching patient's own EMR from the backend
+        const res = await fetch("/api/emr/own", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!res.ok) {
+          // Handle non-OK response, e.g., 403 Forbidden
+          throw new Error("Failed to fetch patient data. Please check your token.");
+        }
+
+        const data = await res.json();
+
+        if (data.success) {
+          setPatient(data.emr);
+        } else {
+          // Handle other server errors
+          throw new Error(data.message || "Failed to fetch patient data");
+        }
+
         setLoading(false);
-      })
-      .catch((err) => {
+      } catch (err) {
         setError(err.message);
         setLoading(false);
-      });
-  }, []);
+      }
+    };
+
+    fetchPatientData();
+  }, [navigate]);
 
   if (loading) return <div className="p-8">Loading patient profile...</div>;
   if (error) return <div className="p-8 text-red-600">Error: {error}</div>;
@@ -46,13 +87,17 @@ const PatientProfile = () => {
 
         <div className="border-b pb-6 mb-6">
           <h3 className="text-xl font-semibold text-gray-800 mb-3">Medical Information</h3>
-          <p><strong className="text-gray-700">Allergies:</strong> {patient.allergies.join(", ")}</p>
-          <p><strong className="text-gray-700">Chronic Conditions:</strong> {patient.conditions.join(", ")}</p>
+          <p><strong className="text-gray-700">Allergies:</strong> {patient.allergies?.join(", ") || "None"}</p>
+          <p><strong className="text-gray-700">Chronic Conditions:</strong> {patient.conditions?.join(", ") || "None"}</p>
           <p><strong className="text-gray-700">Current Medications:</strong></p>
           <ul className="list-disc list-inside text-gray-700 ml-4">
-            {patient.medications.map((med, index) => (
-              <li key={index}>{med.name} ({med.frequency})</li>
-            ))}
+            {patient.medications?.length > 0 ? (
+              patient.medications.map((med, index) => (
+                <li key={index}>{med.name} ({med.frequency})</li>
+              ))
+            ) : (
+              <li>None</li>
+            )}
           </ul>
         </div>
 
@@ -67,13 +112,19 @@ const PatientProfile = () => {
               </tr>
             </thead>
             <tbody>
-              {patient.visitHistory.map((visit, index) => (
-                <tr key={index} className="border bg-gray-50 even:bg-gray-100">
-                  <td className="p-3 border text-gray-700">{visit.date}</td>
-                  <td className="p-3 border text-gray-700">{visit.reason}</td>
-                  <td className="p-3 border text-gray-700">{visit.doctor}</td>
+              {patient.visitHistory?.length > 0 ? (
+                patient.visitHistory.map((visit, index) => (
+                  <tr key={index} className="border bg-gray-50 even:bg-gray-100">
+                    <td className="p-3 border text-gray-700">{visit.date}</td>
+                    <td className="p-3 border text-gray-700">{visit.reason}</td>
+                    <td className="p-3 border text-gray-700">{visit.doctor}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="3" className="p-3 text-center text-gray-500">No visits recorded.</td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>

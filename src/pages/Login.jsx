@@ -24,21 +24,18 @@ const Login = () => {
       setRemember(true);
     }
 
-    // Check the query parameters in the URL to see if we need to set roles directly
+    // Check for any query parameters (e.g., role)
     const urlParams = new URLSearchParams(window.location.search);
     const role = urlParams.get("role");
 
     if (role) {
-      // Save the role directly in localStorage for redirection
       localStorage.setItem("auth", "true");
       localStorage.setItem("userRole", role);
-
-      // Redirect to respective dashboard based on role
       navigate(role === "admin" ? "/admin-dashboard" :
                role === "doctor" ? "/doctor-dashboard" :
                "/patient-dashboard");
     }
-  }, [navigate]);  // Make sure navigate is included as a dependency
+  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -55,23 +52,22 @@ const Login = () => {
       if (response.data.success) {
         const { role } = response.data;
 
-        // Save basic login state
+        // Save role to localStorage
         localStorage.setItem("auth", "true");
         localStorage.setItem("userRole", role);
 
-        // Save credentials if "remember me" is checked
-        if (remember) {
-          localStorage.setItem("rememberedUser", JSON.stringify({ email, password }));
-        } else {
-          localStorage.removeItem("rememberedUser");
+        // Navigate based on user role
+        if (role) {
+          if (role === "admin") {
+            navigate("/admin-dashboard");
+          } else if (role === "doctor") {
+            navigate("/doctor-dashboard");
+          } else if (role === "patient") {
+            navigate("/patient-dashboard");
+          } else {
+            setError("Invalid role received.");
+          }
         }
-
-        // Navigate based on user role after login
-        navigate(
-          role === "admin" ? "/admin-dashboard" :
-          role === "doctor" ? "/doctor-dashboard" :
-          "/patient-dashboard"
-        );
       }
     } catch (err) {
       setError(err.response?.data?.message || "Login failed. Please try again.");

@@ -1,23 +1,28 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { useState } from "react";
-// import { testConnection } from "../api"; 
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import ProtectedRoute from "../components/ProtectedRoute";
 
-// Page imports
+// Page imports...
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import ForgotPassword from "../pages/ForgotPassword";
+
+// Admin
 import AdminDashboard from "../pages/Admin/AdminDashboard";
 import AdminDoctors from "../pages/Admin/AdminDoctors";
 import AdminSchedule from "../pages/Admin/AdminSchedule";
 import AdminAppointments from "../pages/Admin/AdminAppointments";
 import AdminPatients from "../pages/Admin/AdminPatients";
 import AdminProfile from "../pages/Admin/AdminProfile";
+
+// Doctor
 import DoctorDashboard from "../pages/Doctor/DoctorDashboard";
 import DoctorAppointments from "../pages/Doctor/DoctorAppointments";
 import DoctorSessions from "../pages/Doctor/DoctorSessions";
 import DoctorPatients from "../pages/Doctor/DoctorPatients";
 import DoctorSettings from "../pages/Doctor/DoctorSettings";
 import DoctorProfile from "../pages/Doctor/DoctorProfile";
+
+// Patient
 import PatientDashboard from "../pages/Patient/PatientDashboard";
 import PatientProfile from "../pages/Patient/PatientProfile";
 import PatientDoctors from "../pages/Patient/PatientDoctors";
@@ -26,11 +31,6 @@ import PatientBookings from "../pages/Patient/PatientBookings";
 import PatientSettings from "../pages/Patient/PatientSettings";
 
 const AppRoutes = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(
-    !!localStorage.getItem("authToken")
-  );
-  const userRole = localStorage.getItem("userRole");
-
   return (
     <Router>
       <Routes>
@@ -39,35 +39,157 @@ const AppRoutes = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
-
-        {/* testing routes */}
-        <Route path="/admin-dashboard" element={<AdminDashboard />} />
-        <Route path="/admin-doctors" element={<AdminDoctors />} />
-        <Route path="/admin-schedule" element={<AdminSchedule />} />
-        <Route path="/admin-appointment" element={<AdminAppointments />} />
-        <Route path="/admin-patients" element={<AdminPatients />} />
-        <Route path="/admin-profile" element={<AdminProfile />} />
-        <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
-        <Route path="/doctor-appointments" element={<DoctorAppointments />} />
-        <Route path="/doctor-sessions" element={<DoctorSessions />} />
-        <Route path="/doctor-patients" element={<DoctorPatients />} />
-        <Route path="/doctor-settings" element={<DoctorSettings />} />
-        <Route path="/doctor-profile" element={<DoctorProfile />} />
-        <Route path="/patient-dashboard" element={<PatientDashboard />} />
-        <Route path="/patient-profile" element={<PatientProfile />} />
-        <Route path="/patient-doctors" element={<PatientDoctors />} />
-        <Route path="/patient-scheduled" element={<PatientScheduled />} />
-        <Route path="/patient-bookings" element={<PatientBookings />} />
-        <Route path="/patient-settings" element={<PatientSettings />} />
-
-
-        {/* Role-based Routing
-        <Route path="/admin-dashboard" element={isAuthenticated && userRole === "admin" ? <AdminDashboard /> : <Navigate to="/login" />} />
-        <Route path="/doctor-dashboard" element={isAuthenticated && userRole === "doctor" ? <DoctorDashboard /> : <Navigate to="/login" />} />
-        <Route path="/patient-dashboard" element={isAuthenticated && userRole === "patient" ? <PatientDashboard /> : <Navigate to="/login" />} /> */}
-
-        {/* Redirect Google Auth */}
         <Route path="/google-auth" element={<Login />} />
+
+        {/* Admin routes */}
+        <Route
+          path="/admin-dashboard"
+          element={
+            <ProtectedRoute role="admin">
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin-doctors"
+          element={
+            <ProtectedRoute role="admin">
+              <AdminDoctors />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin-schedule"
+          element={
+            <ProtectedRoute role="admin">
+              <AdminSchedule />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin-appointment"
+          element={
+            <ProtectedRoute role="admin">
+              <AdminAppointments />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin-patients"
+          element={
+            <ProtectedRoute role="admin">
+              <AdminPatients />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin-profile"
+          element={
+            <ProtectedRoute role="admin">
+              <AdminProfile />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Doctor routes */}
+        <Route
+          path="/doctor-dashboard"
+          element={
+            <ProtectedRoute role="doctor">
+              <DoctorDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/doctor-appointments"
+          element={
+            <ProtectedRoute role="doctor">
+              <DoctorAppointments />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/doctor-sessions"
+          element={
+            <ProtectedRoute role="doctor">
+              <DoctorSessions />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/doctor-patients"
+          element={
+            <ProtectedRoute role="doctor">
+              <DoctorPatients />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/doctor-settings"
+          element={
+            <ProtectedRoute role="doctor">
+              <DoctorSettings />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/doctor-profile"
+          element={
+            <ProtectedRoute role="doctor">
+              <DoctorProfile />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Patient routes */}
+        <Route
+          path="/patient-dashboard"
+          element={
+            <ProtectedRoute role="patient">
+              <PatientDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/patient-profile"
+          element={
+            <ProtectedRoute role="patient">
+              <PatientProfile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/patient-doctors"
+          element={
+            <ProtectedRoute role="patient">
+              <PatientDoctors />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/patient-scheduled"
+          element={
+            <ProtectedRoute role="patient">
+              <PatientScheduled />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/patient-bookings"
+          element={
+            <ProtectedRoute role="patient">
+              <PatientBookings />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/patient-settings"
+          element={
+            <ProtectedRoute role="patient">
+              <PatientSettings />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </Router>
   );

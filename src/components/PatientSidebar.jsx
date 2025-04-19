@@ -1,16 +1,28 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FaBars, FaHome, FaUserMd, FaCalendarCheck, FaBookmark, FaCog, FaUser, FaSignOutAlt } from "react-icons/fa";
+import { signout } from "../api"; // Assuming this is your signout function from api.js
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const navigate = useNavigate(); // For programmatically navigating after signout
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  // Handle signout functionality
+  const handleSignout = async () => {
+    try {
+      await signout(); // Call the signout function to clear cookies and local storage
+      navigate("/login"); // Redirect to login page after signout
+    } catch (error) {
+      console.error("Signout failed", error);
+    }
+  };
 
   return (
     <div>
@@ -26,7 +38,6 @@ const Sidebar = () => {
             <FaBars className="text-xl" />
           </button>
           <ul className="flex-1 overflow-y-auto">
-            {/* Home Link (Dashboard) */}
             <li className="mb-2">
               <Link to="/patient-dashboard" className="flex items-center p-2 hover:bg-gray-700 rounded">
                 <FaHome className="text-xl" /> <span className={`${isOpen ? "ml-2" : "hidden"}`}>Home</span>
@@ -60,9 +71,9 @@ const Sidebar = () => {
               </Link>
             </li>
             <li className="mb-2">
-              <Link to="/logout" className="flex items-center p-2 hover:bg-gray-700 rounded">
+              <button onClick={handleSignout} className="flex items-center p-2 hover:bg-gray-700 rounded">
                 <FaSignOutAlt className="text-xl" /> <span className={`${isOpen ? "ml-2" : "hidden"}`}>Logout</span>
-              </Link>
+              </button>
             </li>
           </div>
         </div>
@@ -71,31 +82,16 @@ const Sidebar = () => {
       {isMobile && isOpen && (
         <div className="fixed top-16 left-0 right-0 bg-gray-800 text-white p-4 flex flex-col z-50 shadow-md">
           <ul className="w-full">
-            {/* Home Link (Dashboard) */}
             <li className="mb-2">
               <Link to="/patient-dashboard" className="flex items-center p-2 hover:bg-gray-700 rounded">
                 <FaHome className="text-xl" /> <span className="ml-2">Home</span>
               </Link>
             </li>
+            {/* Other links */}
             <li className="mb-2">
-              <Link to="/patient-doctors" className="flex items-center p-2 hover:bg-gray-700 rounded">
-                <FaUserMd className="text-xl" /> <span className="ml-2">All Doctors</span>
-              </Link>
-            </li>
-            <li className="mb-2">
-              <Link to="/patient-scheduled" className="flex items-center p-2 hover:bg-gray-700 rounded">
-                <FaCalendarCheck className="text-xl" /> <span className="ml-2">Scheduled Sessions</span>
-              </Link>
-            </li>
-            <li className="mb-2">
-              <Link to="/patient-bookings" className="flex items-center p-2 hover:bg-gray-700 rounded">
-                <FaBookmark className="text-xl" /> <span className="ml-2">My Bookings</span>
-              </Link>
-            </li>
-            <li className="mb-2">
-              <Link to="/patient-settings" className="flex items-center p-2 hover:bg-gray-700 rounded">
-                <FaCog className="text-xl" /> <span className="ml-2">Settings</span>
-              </Link>
+              <button onClick={handleSignout} className="flex items-center p-2 hover:bg-gray-700 rounded">
+                <FaSignOutAlt className="text-xl" /> <span className="ml-2">Logout</span>
+              </button>
             </li>
           </ul>
         </div>

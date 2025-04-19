@@ -44,9 +44,16 @@ export const signin = async ({ email, password }) => {
     const response = await API.post("/auth/signin", {
       email,
       password,
+    }, {
+      withCredentials: true,
     });
 
-    // The login API typically sends back the session cookie automatically
+    const { role } = response.data;
+
+    if (role) {
+      localStorage.setItem("userRole", role);
+    }
+
     return response.data;
   } catch (error) {
     return handleError(error, "Signin failed. Please check your credentials.");
@@ -76,11 +83,15 @@ export const getGoogleUser = async () => {
 // 🔴 Logout API
 export const signout = async () => {
   try {
-    await API.post("/auth/signout"); // Logs out the user on the server-side (removes session cookie)
-    localStorage.removeItem("auth"); // Optional: clear local storage if needed
-    localStorage.removeItem("userRole"); // Optional: clear role
+    const response = await axios.post("/api/auth/signout", null, { withCredentials: true }); // Ensure cookies are sent with the request
+    if (response.status === 200) {
+      localStorage.removeItem("authToken"); // Optional: clear localStorage
+      localStorage.removeItem("userRole"); // Optional: clear role
+    }
+    return response.data; // Return the response (e.g., success message)
   } catch (error) {
     console.error("Logout failed", error);
+    throw error; // Throw error to handle it in the component
   }
 };
 
