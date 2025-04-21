@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate for redirection
+import { useNavigate } from "react-router-dom";
 import Sidebar from "../../components/PatientSidebar";
 import Header from "../../components/header";
 
@@ -12,38 +12,28 @@ const PatientProfile = () => {
 
   useEffect(() => {
     const checkAuthentication = () => {
-      const token = localStorage.getItem("token");
       const userRole = localStorage.getItem("userRole");
-
-      // If no token or user role is not 'patient', redirect to login page
-      if (!token || userRole !== "patient") {
+      if (userRole !== "patient") {
         navigate("/login");
         return false;
       }
-
       return true;
     };
 
     const fetchPatientData = async () => {
-      if (!checkAuthentication()) {
-        return;
-      }
+      if (!checkAuthentication()) return;
 
       try {
-        const token = localStorage.getItem("token");
-
-        // Fetching patient's own EMR from the backend
         const res = await fetch("/api/emr/own", {
           method: "GET",
+          credentials: "include", // <-- This is important to send cookies!
           headers: {
-            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
         });
 
         if (!res.ok) {
-          // Handle non-OK response, e.g., 403 Forbidden
-          throw new Error("Failed to fetch patient data. Please check your token.");
+          throw new Error("Failed to fetch patient data. You may be unauthorized.");
         }
 
         const data = await res.json();
@@ -51,10 +41,8 @@ const PatientProfile = () => {
         if (data.success) {
           setPatient(data.emr);
         } else {
-          // Handle other server errors
           throw new Error(data.message || "Failed to fetch patient data");
         }
-
         setLoading(false);
       } catch (err) {
         setError(err.message);
