@@ -1,132 +1,112 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate for redirection
+import React, { useState } from 'react';
 import Sidebar from "../../components/PatientSidebar";
-import Header from "../../components/header";
+import { useNavigate } from 'react-router-dom';
 
 const PatientProfile = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [patient, setPatient] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [formData, setFormData] = useState({
+    fullName: '',
+    birthDate: '',
+    gender: '',
+    address: '',
+    contactNumber: '',
+    email: '',
+  });
+
+  const [submitted, setSubmitted] = useState(false);
+  const [verificationCode, setVerificationCode] = useState('');
+  const [userInputCode, setUserInputCode] = useState('');
+  const [isVerified, setIsVerified] = useState(false);
+  const [message, setMessage] = useState('');
+
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const checkAuthentication = () => {
-      const token = localStorage.getItem("token");
-      const userRole = localStorage.getItem("userRole");
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
-      // If no token or user role is not 'patient', redirect to login page
-      if (!token || userRole !== "patient") {
-        navigate("/login");
-        return false;
-      }
+  const handleSubmit = (e) => {
+    e.preventDefault();
 
-      return true;
-    };
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    setVerificationCode(code);
+    setSubmitted(true);
+    localStorage.setItem('verificationEmail', formData.email);
+    localStorage.setItem('verificationCode', code);
 
-    const fetchPatientData = async () => {
-      if (!checkAuthentication()) {
-        return;
-      }
+    setMessage(`A verification code has been sent to ${formData.email}. (code: ${code})`);
+    // In real setup, hide the code and send via actual email
+  };
 
-      try {
-        const token = localStorage.getItem("token");
+  const handleVerify = () => {
+    const storedCode = localStorage.getItem('verificationCode');
+    const storedEmail = localStorage.getItem('verificationEmail');
 
-        // Fetching patient's own EMR from the backend
-        const res = await fetch("/api/emr/own", {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (!res.ok) {
-          // Handle non-OK response, e.g., 403 Forbidden
-          throw new Error("Failed to fetch patient data. Please check your token.");
-        }
-
-        const data = await res.json();
-
-        if (data.success) {
-          setPatient(data.emr);
-        } else {
-          // Handle other server errors
-          throw new Error(data.message || "Failed to fetch patient data");
-        }
-
-        setLoading(false);
-      } catch (err) {
-        setError(err.message);
-        setLoading(false);
-      }
-    };
-
-    fetchPatientData();
-  }, [navigate]);
-
-  if (loading) return <div className="p-8">Loading patient profile...</div>;
-  if (error) return <div className="p-8 text-red-600">Error: {error}</div>;
-  if (!patient) return null;
+    if (userInputCode === storedCode && formData.email === storedEmail) {
+      setIsVerified(true);
+      setMessage('Email verified successfully!');
+      localStorage.removeItem('verificationCode');
+      localStorage.removeItem('verificationEmail');
+    } else {
+      setMessage('Invalid verification code. Try again.');
+    }
+  };
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      <Sidebar isOpen={isSidebarOpen} toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
-      <div className={`transition-all duration-300 ml-${isSidebarOpen ? "64" : "16"} flex-1 p-8`}>
-        <h2 className="text-3xl font-bold text-gray-800 mb-6 border-b pb-3">Patient Profile</h2>
-        
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 border-b pb-6 mb-6">
-          <p><strong className="text-gray-700">Name:</strong> {patient.name}</p>
-          <p><strong className="text-gray-700">Age:</strong> {patient.age} (DOB: {patient.dob})</p>
-          <p><strong className="text-gray-700">Gender:</strong> {patient.gender}</p>
-          <p><strong className="text-gray-700">Blood Type:</strong> {patient.bloodType}</p>
-          <p><strong className="text-gray-700">Contact:</strong> {patient.contact}</p>
-          <p><strong className="text-gray-700">Email:</strong> {patient.email}</p>
-          <p className="col-span-2"><strong className="text-gray-700">Address:</strong> {patient.address}</p>
-        </div>
+    <div className="flex min-h-screen">
+      <Sidebar />
+      <div className="flex-1 p-6 bg-gray-100">
+        <div className="max-w-xl mx-auto p-6 bg-white rounded-2xl shadow-lg">
+          <h2 className="text-2xl font-bold mb-6 text-center">
+            {isVerified ? 'Account Verified ✅' : 'Patient Profile Form'}
+          </h2>
 
-        <div className="border-b pb-6 mb-6">
-          <h3 className="text-xl font-semibold text-gray-800 mb-3">Medical Information</h3>
-          <p><strong className="text-gray-700">Allergies:</strong> {patient.allergies?.join(", ") || "None"}</p>
-          <p><strong className="text-gray-700">Chronic Conditions:</strong> {patient.conditions?.join(", ") || "None"}</p>
-          <p><strong className="text-gray-700">Current Medications:</strong></p>
-          <ul className="list-disc list-inside text-gray-700 ml-4">
-            {patient.medications?.length > 0 ? (
-              patient.medications.map((med, index) => (
-                <li key={index}>{med.name} ({med.frequency})</li>
-              ))
-            ) : (
-              <li>None</li>
-            )}
-          </ul>
-        </div>
+          {message && (
+            <div className="mb-4 text-sm text-blue-600 text-center">{message}</div>
+          )}
 
-        <div>
-          <h3 className="text-xl font-semibold text-gray-800 mb-3">Recent Visits</h3>
-          <table className="w-full border border-gray-300 text-left rounded-lg overflow-hidden shadow-md">
-            <thead>
-              <tr className="bg-blue-600 text-white">
-                <th className="p-3">Date</th>
-                <th className="p-3">Reason</th>
-                <th className="p-3">Doctor</th>
-              </tr>
-            </thead>
-            <tbody>
-              {patient.visitHistory?.length > 0 ? (
-                patient.visitHistory.map((visit, index) => (
-                  <tr key={index} className="border bg-gray-50 even:bg-gray-100">
-                    <td className="p-3 border text-gray-700">{visit.date}</td>
-                    <td className="p-3 border text-gray-700">{visit.reason}</td>
-                    <td className="p-3 border text-gray-700">{visit.doctor}</td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="3" className="p-3 text-center text-gray-500">No visits recorded.</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+          {!submitted ? (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Form Inputs */}
+              <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} className="w-full border px-4 py-2 rounded-lg" placeholder="Full Name" required />
+              <input type="date" name="birthDate" value={formData.birthDate} onChange={handleChange} className="w-full border px-4 py-2 rounded-lg" required />
+              <select name="gender" value={formData.gender} onChange={handleChange} className="w-full border px-4 py-2 rounded-lg" required>
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+              <input type="text" name="address" value={formData.address} onChange={handleChange} className="w-full border px-4 py-2 rounded-lg" placeholder="Address" required />
+              <input type="tel" name="contactNumber" value={formData.contactNumber} onChange={handleChange} className="w-full border px-4 py-2 rounded-lg" placeholder="Contact Number" required />
+              <input type="email" name="email" value={formData.email} onChange={handleChange} className="w-full border px-4 py-2 rounded-lg" placeholder="Email" required />
+
+              <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">
+                Submit & Send Code
+              </button>
+            </form>
+          ) : !isVerified ? (
+            <div className="space-y-4">
+              <input
+                type="text"
+                value={userInputCode}
+                onChange={(e) => setUserInputCode(e.target.value)}
+                className="w-full border px-4 py-2 rounded-lg"
+                placeholder="Enter verification code"
+              />
+              <button
+                onClick={handleVerify}
+                className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition"
+              >
+                Verify Email
+              </button>
+            </div>
+          ) : (
+            <div className="text-center text-green-600 font-semibold text-lg">
+              Your profile has been submitted and email is verified! 🎉
+            </div>
+          )}
         </div>
       </div>
     </div>

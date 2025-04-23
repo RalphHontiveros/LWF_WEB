@@ -29,6 +29,7 @@ import PatientDoctors from "../pages/Patient/PatientDoctors";
 import PatientScheduled from "../pages/Patient/PatientScheduled";
 import PatientBookings from "../pages/Patient/PatientBookings";
 import PatientSettings from "../pages/Patient/PatientSettings";
+import PatientEMR from "../pages/Patient/PatientEMR";
 
 const AppRoutes = () => {
   return (
@@ -147,6 +148,14 @@ const AppRoutes = () => {
           element={
             <ProtectedRoute role="patient">
               <PatientDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/patient-emr"
+          element={
+            <ProtectedRoute role="patient">
+              <PatientEMR />
             </ProtectedRoute>
           }
         />

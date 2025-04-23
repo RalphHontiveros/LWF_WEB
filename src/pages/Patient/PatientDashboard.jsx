@@ -14,10 +14,11 @@ const PatientDashboard = () => {
   const [appointments, setAppointments] = useState([]);
   const [availableDoctors, setAvailableDoctors] = useState([]);
   const [selectedDoctor, setSelectedDoctor] = useState("");
+  const [availableSchedules, setAvailableSchedules] = useState([]);
+  const [selectedSchedule, setSelectedSchedule] = useState("");
   const [reason, setReason] = useState("");
   const [notes, setNotes] = useState("");
-  const [contactInfo, setContactInfo] = useState("");
-  const [appointmentDateTime, setAppointmentDateTime] = useState("");
+  const [contactInfo, setContactInfo] = useState({ phone: "", email: "" });
 
   const toggleModal = () => setIsModalOpen(!isModalOpen);
 
@@ -27,6 +28,7 @@ const PatientDashboard = () => {
         const response = await fetch("/api/patient/dashboard");
         const data = await response.json();
         setAppointments(data.upcomingAppointments || []);
+        setDashboardData(data);
       } catch (err) {
         console.error("Dashboard fetch error:", err);
       }
@@ -46,6 +48,24 @@ const PatientDashboard = () => {
     fetchDoctors();
   }, []);
 
+  useEffect(() => {
+    const fetchAvailableSchedules = async () => {
+      if (!selectedDoctor) return;
+      try {
+        const response = await fetch(
+          `/api/patient/available-schedules/${selectedDoctor}`
+        );
+        const data = await response.json();
+        setAvailableSchedules(data);
+      } catch (err) {
+        console.error("Schedule fetch error:", err);
+      }
+    };
+
+    fetchAvailableSchedules();
+    setSelectedSchedule(""); // Reset the selected schedule when doctor changes
+  }, [selectedDoctor]);
+
   const handleSubmitAppointment = async (e) => {
     e.preventDefault();
     try {
@@ -54,9 +74,9 @@ const PatientDashboard = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           doctor: selectedDoctor,
-          scheduledDateTime: appointmentDateTime,
+          scheduledDateTime: selectedSchedule,
           reason,
-          patientId: "", // Leave blank if using JWT (backend uses req.user._id)
+          patientId: "", // backend should identify using JWT
           contactInfo,
         }),
       });
@@ -68,7 +88,7 @@ const PatientDashboard = () => {
       }
 
       setAppointments((prev) => [...prev, result.newAppointment]);
-      toggleModal();
+      toggleModal(); // Close the modal on success
     } catch (err) {
       console.error("Error creating appointment:", err);
     }
@@ -102,16 +122,6 @@ const PatientDashboard = () => {
             Haven't any idea about doctors? No problem. Visit "All Doctors" or
             "Sessions" to view your appointment history.
           </p>
-          <div className="mt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 bg-white p-3 rounded-md shadow-md">
-            <input
-              type="text"
-              placeholder="Search Doctor and find session available"
-              className="flex-1 p-2 border rounded-md"
-            />
-            <button className="bg-blue-500 text-white px-4 py-2 rounded-md w-full sm:w-auto">
-              Search
-            </button>
-          </div>
         </section>
 
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
@@ -188,16 +198,32 @@ const PatientDashboard = () => {
                   </select>
                 </div>
 
-                {/* Date & Time */}
+                {/* Available Date & Time Dropdown */}
                 <div>
-                  <label className="block text-gray-600">Date & Time</label>
-                  <input
-                    type="datetime-local"
-                    value={appointmentDateTime}
-                    onChange={(e) => setAppointmentDateTime(e.target.value)}
+                  <label className="block text-gray-600">Available Date & Time</label>
+                  <select
+                    value={selectedSchedule}
+                    onChange={(e) => setSelectedSchedule(e.target.value)}
                     className="w-full p-2 border rounded-md"
                     required
-                  />
+                  >
+                    <option value="">Select Available Date & Time</option>
+                    {availableSchedules
+                      .sort((a, b) => new Date(a) - new Date(b)) // Optional: sort by earliest time
+                      .map((schedule, i) => (
+                        <option key={i} value={schedule}>
+                          {new Date(schedule).toLocaleString("en-US", {
+                            weekday: "short",
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                            hour: "numeric",
+                            minute: "2-digit",
+                            hour12: true,
+                          })}
+                        </option>
+                      ))}
+                  </select>
                 </div>
 
                 {/* Reason for Appointment */}
@@ -224,31 +250,6 @@ const PatientDashboard = () => {
                   />
                 </div>
 
-                {/* Contact Info */}
-                <div>
-                  <label className="block text-gray-600">Contact Info</label>
-                  <input
-                    type="text"
-                    value={contactInfo.phone}
-                    onChange={(e) =>
-                      setContactInfo({ ...contactInfo, phone: e.target.value })
-                    }
-                    className="w-full p-2 border rounded-md"
-                    placeholder="Phone Number"
-                    required
-                  />
-                  <input
-                    type="email"
-                    value={contactInfo.email}
-                    onChange={(e) =>
-                      setContactInfo({ ...contactInfo, email: e.target.value })
-                    }
-                    className="w-full p-2 border rounded-md mt-2"
-                    placeholder="Email Address"
-                    required
-                  />
-                </div>
-
                 <button
                   type="submit"
                   className="bg-blue-500 text-white px-6 py-2 rounded-md w-full"
@@ -265,21 +266,24 @@ const PatientDashboard = () => {
             Upcoming Appointments
           </h2>
           {appointments.length > 0 ? (
-            <ul className="space-y-4">
-              {appointments.map((appointment, index) => (
-                <li key={index} className="p-4 bg-white rounded-md shadow-md">
-                  <p className="font-bold">
-                    {appointment.doctorName || appointment.doctor}
+            <ul>
+              {appointments.map((appointment) => (
+                <li
+                  key={appointment._id}
+                  className="bg-white p-4 rounded-md shadow mb-4"
+                >
+                  <p className="text-gray-800 font-bold">
+                    {appointment.reason} with Dr. {appointment.doctorName}
                   </p>
-                  <p className="text-sm">
+                  <p className="text-sm text-gray-600">
+                    Scheduled for:{" "}
                     {new Date(appointment.scheduledDateTime).toLocaleString()}
                   </p>
-                  <p className="text-sm">{appointment.status}</p>
                 </li>
               ))}
             </ul>
           ) : (
-            <p>No upcoming appointments</p>
+            <p>No upcoming appointments.</p>
           )}
         </section>
       </main>

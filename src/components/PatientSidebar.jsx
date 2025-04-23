@@ -1,12 +1,16 @@
+// imports stay the same
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaBars, FaHome, FaUserMd, FaCalendarCheck, FaBookmark, FaCog, FaUser, FaSignOutAlt } from "react-icons/fa";
-import { signout } from "../api"; // Assuming this is your signout function from api.js
+import { 
+  FaBars, FaHome, FaUserMd, FaCalendarCheck, 
+  FaBookmark, FaCog, FaUser, FaSignOutAlt, FaWpforms 
+} from "react-icons/fa";
+import { signout } from "../api";
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-  const navigate = useNavigate(); // For programmatically navigating after signout
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
@@ -14,11 +18,10 @@ const Sidebar = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Handle signout functionality
   const handleSignout = async () => {
     try {
-      await signout(); // Call the signout function to clear cookies and local storage
-      navigate("/login"); // Redirect to login page after signout
+      await signout();
+      navigate("/login");
     } catch (error) {
       console.error("Signout failed", error);
     }
@@ -63,13 +66,18 @@ const Sidebar = () => {
                 <FaCog className="text-xl" /> <span className={`${isOpen ? "ml-2" : "hidden"}`}>Settings</span>
               </Link>
             </li>
-          </ul>
-          <div className="border-t border-gray-600 pt-4">
             <li className="mb-2">
               <Link to="/patient-profile" className="flex items-center p-2 hover:bg-gray-700 rounded">
-                <FaUser className="text-xl" /> <span className={`${isOpen ? "ml-2" : "hidden"}`}>Profile</span>
+                <FaWpforms className="text-xl" /> <span className={`${isOpen ? "ml-2" : "hidden"}`}>Fill-Up Form</span>
               </Link>
             </li>
+            <li className="mb-2">
+              <Link to="/patient-emr" className="flex items-center p-2 hover:bg-gray-700 rounded">
+                <FaUser className="text-xl" /> <span className={`${isOpen ? "ml-2" : "hidden"}`}>EMR Profile</span>
+              </Link>
+            </li>
+          </ul>
+          <div className="border-t border-gray-600 pt-4">
             <li className="mb-2">
               <button onClick={handleSignout} className="flex items-center p-2 hover:bg-gray-700 rounded">
                 <FaSignOutAlt className="text-xl" /> <span className={`${isOpen ? "ml-2" : "hidden"}`}>Logout</span>
@@ -78,7 +86,8 @@ const Sidebar = () => {
           </div>
         </div>
       )}
-      {/* Mobile view: When sidebar is open */}
+
+      {/* Mobile view when sidebar is open */}
       {isMobile && isOpen && (
         <div className="fixed top-16 left-0 right-0 bg-gray-800 text-white p-4 flex flex-col z-50 shadow-md">
           <ul className="w-full">
@@ -87,7 +96,16 @@ const Sidebar = () => {
                 <FaHome className="text-xl" /> <span className="ml-2">Home</span>
               </Link>
             </li>
-            {/* Other links */}
+            <li className="mb-2">
+              <Link to="/patient-profile" className="flex items-center p-2 hover:bg-gray-700 rounded">
+                <FaWpforms className="text-xl" /> <span className="ml-2">Fill-Up Form</span>
+              </Link>
+            </li>
+            <li className="mb-2">
+              <Link to="/patient-emr" className="flex items-center p-2 hover:bg-gray-700 rounded">
+                <FaUser className="text-xl" /> <span className="ml-2">EMR Profile</span>
+              </Link>
+            </li>
             <li className="mb-2">
               <button onClick={handleSignout} className="flex items-center p-2 hover:bg-gray-700 rounded">
                 <FaSignOutAlt className="text-xl" /> <span className="ml-2">Logout</span>
