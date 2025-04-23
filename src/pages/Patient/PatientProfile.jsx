@@ -1,25 +1,22 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from 'react';
 import Sidebar from "../../components/PatientSidebar";
 import { useNavigate } from "react-router-dom";
 
 const PatientProfile = () => {
-  // Initialize state with stored values from localStorage or defaults
-  const storedFormData = JSON.parse(localStorage.getItem("formData")) || {
-    fullName: "",
-    birthDate: "",
-    gender: "",
-    address: "",
-    contactNumber: "",
-  };
-  const storedVerificationStatus = JSON.parse(localStorage.getItem("isVerified")) || false;
+  const [formData, setFormData] = useState({
+    fullName: '',
+    birthDate: '',
+    gender: '',
+    address: '',
+    contactNumber: '',
+    email: '',
+  });
 
-  const [formData, setFormData] = useState(storedFormData);
-  const [step, setStep] = useState(storedVerificationStatus ? "done" : "form");
-  const [submittedData, setSubmittedData] = useState(storedFormData);
-  const [isVerified, setIsVerified] = useState(storedVerificationStatus);
-  const [verificationCode, setVerificationCode] = useState("");
-  const [userInputCode, setUserInputCode] = useState("");
-  const [message, setMessage] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+  const [verificationCode, setVerificationCode] = useState('');
+  const [userInputCode, setUserInputCode] = useState('');
+  const [isVerified, setIsVerified] = useState(false);
+  const [message, setMessage] = useState('');
 
   const navigate = useNavigate();
 
@@ -37,8 +34,7 @@ const PatientProfile = () => {
     }));
   };
 
-  // Handle form submission
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
 
     // Skip verification if already verified
@@ -52,31 +48,25 @@ const PatientProfile = () => {
     // Simulate generating a verification code
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     setVerificationCode(code);
+    setSubmitted(true);
+    localStorage.setItem('verificationEmail', formData.email);
+    localStorage.setItem('verificationCode', code);
 
-    // Store the form data in the submittedData state
-    setSubmittedData(formData);
-
-    // Simulate sending the form data to the backend (you can replace this with an API call)
-    setMessage(`A verification code has been sent. (code: ${code})`);
-    setStep("verify");
+    setMessage(`A verification code has been sent to ${formData.email}. (code: ${code})`);
+    // In real setup, hide the code and send via actual email
   };
 
-  // Handle verification of the code
   const handleVerify = () => {
-    if (userInputCode === verificationCode) {
-      setIsVerified(true); // Mark profile as verified
-      setStep("done");
-      setMessage("Profile verified successfully!");
-    } else {
-      setMessage("Invalid verification code. Try again.");
-    }
-  };
+    const storedCode = localStorage.getItem('verificationCode');
+    const storedEmail = localStorage.getItem('verificationEmail');
 
-  // Handle edit button click (go back to form step)
-  const handleEdit = () => {
-    if (isVerified) {
-      setFormData(submittedData); // Populate form with previously submitted data
-      setStep("form");
+    if (userInputCode === storedCode && formData.email === storedEmail) {
+      setIsVerified(true);
+      setMessage('Email verified successfully!');
+      localStorage.removeItem('verificationCode');
+      localStorage.removeItem('verificationEmail');
+    } else {
+      setMessage('Invalid verification code. Try again.');
     }
   };
 
@@ -93,27 +83,7 @@ const PatientProfile = () => {
             <div className="mb-4 text-sm text-blue-600 text-center">{message}</div>
           )}
 
-          {/* Show submitted data and allow editing if verified */}
-          {submittedData && step !== "form" && (
-            <div>
-              <h3>Submitted Profile</h3>
-              <p><strong>Full Name:</strong> {submittedData.fullName}</p>
-              <p><strong>Birth Date:</strong> {submittedData.birthDate}</p>
-              <p><strong>Gender:</strong> {submittedData.gender}</p>
-              <p><strong>Address:</strong> {submittedData.address}</p>
-              <p><strong>Contact Number:</strong> {submittedData.contactNumber}</p>
-              <button
-                onClick={handleEdit}
-                className={`w-full py-2 rounded-lg hover:bg-yellow-700 transition ${isVerified ? "bg-yellow-600 text-white" : "bg-gray-400 text-gray-700 cursor-not-allowed"}`}
-                disabled={!isVerified} // Disable the button if not verified
-              >
-                Edit Profile
-              </button>
-            </div>
-          )}
-
-          {/* Patient form submission step */}
-          {step === "form" && (
+          {!submitted ? (
             <form onSubmit={handleSubmit} className="space-y-4">
               <input
                 type="text"
@@ -144,35 +114,15 @@ const PatientProfile = () => {
                 <option value="female">Female</option>
                 <option value="other">Other</option>
               </select>
-              <input
-                type="text"
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
-                className="w-full border px-4 py-2 rounded-lg"
-                placeholder="Address"
-                required
-              />
-              <input
-                type="tel"
-                name="contactNumber"
-                value={formData.contactNumber}
-                onChange={handleChange}
-                className="w-full border px-4 py-2 rounded-lg"
-                placeholder="Contact Number"
-                required
-              />
-              <button
-                type="submit"
-                className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
-              >
-                {isVerified ? "Update Profile" : "Submit & Generate Code"}
+              <input type="text" name="address" value={formData.address} onChange={handleChange} className="w-full border px-4 py-2 rounded-lg" placeholder="Address" required />
+              <input type="tel" name="contactNumber" value={formData.contactNumber} onChange={handleChange} className="w-full border px-4 py-2 rounded-lg" placeholder="Contact Number" required />
+              <input type="email" name="email" value={formData.email} onChange={handleChange} className="w-full border px-4 py-2 rounded-lg" placeholder="Email" required />
+
+              <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">
+                Submit & Send Code
               </button>
             </form>
-          )}
-
-          {/* Verification step */}
-          {step === "verify" && !isVerified && (
+          ) : !isVerified ? (
             <div className="space-y-4">
               <input
                 type="text"
@@ -188,10 +138,7 @@ const PatientProfile = () => {
                 Verify
               </button>
             </div>
-          )}
-
-          {/* Completion message */}
-          {step === "done" && isVerified && (
+          ) : (
             <div className="text-center text-green-600 font-semibold text-lg">
               🎉 Your profile has been successfully submitted and verified!
             </div>
