@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
-import Sidebar from "../../components/DoctorSidebar"; // Make sure you have a DoctorSidebar component
+import Sidebar from "../../components/DoctorSidebar";
 import { FaUserInjured, FaCalendarAlt, FaStethoscope, FaClipboardList } from "react-icons/fa";
 
 const DoctorDashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [dashboardData, setDashboardData] = useState({});
   const [appointments, setAppointments] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [availableDate, setAvailableDate] = useState("");
+  const [availableTime, setAvailableTime] = useState("");
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -31,6 +34,34 @@ const DoctorDashboard = () => {
     fetchDashboardData();
     fetchAppointments();
   }, []);
+
+  const handleSetSchedule = async (e) => {
+    e.preventDefault();
+    const timeSlots = availableTime.split(",").map((t) => t.trim());
+
+    try {
+      const response = await fetch("/api/set-availability", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ date: availableDate, timeSlots }),
+      });
+
+      if (response.ok) {
+        alert("Schedule saved successfully!");
+        setAvailableDate("");
+        setAvailableTime("");
+        setIsModalOpen(false);
+      } else {
+        const errorData = await response.json();
+        alert("Error: " + errorData.message);
+      }
+    } catch (error) {
+      console.error("Error saving schedule:", error);
+      alert("Failed to save schedule.");
+    }
+  };
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -83,6 +114,16 @@ const DoctorDashboard = () => {
           </div>
         </div>
 
+        {/* Action Button */}
+        <div className="mt-8">
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded"
+          >
+            + Set Availability
+          </button>
+        </div>
+
         {/* Appointments List */}
         <div className="mt-6">
           <h2 className="text-xl font-bold mb-4">Upcoming Appointments</h2>
@@ -101,6 +142,57 @@ const DoctorDashboard = () => {
             ))
           )}
         </div>
+
+        {/* Modal for setting availability */}
+        {isModalOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 w-96">
+              <h2 className="text-xl font-bold mb-4">Set Available Schedule</h2>
+              <form onSubmit={handleSetSchedule}>
+                <div className="mb-4">
+                  <label className="block text-gray-700 mb-1">Date</label>
+                  <input
+                    type="date"
+                    value={availableDate}
+                    onChange={(e) => setAvailableDate(e.target.value)}
+                    className="w-full border rounded px-3 py-2"
+                    required
+                  />
+                </div>
+
+                <div className="mb-4">
+                  <label className="block text-gray-700 mb-1">
+                    Time Slots (comma-separated)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 09:00,13:00,15:30"
+                    value={availableTime}
+                    onChange={(e) => setAvailableTime(e.target.value)}
+                    className="w-full border rounded px-3 py-2"
+                    required
+                  />
+                </div>
+
+                <div className="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsModalOpen(false)}
+                    className="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+                  >
+                    Save
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );

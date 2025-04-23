@@ -1,179 +1,120 @@
-import React, { useState } from "react";
-import Sidebar from "../../components/PatientSidebar";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import Sidebar from "../../components/PatientSidebar";
+import Header from "../../components/header";
 
 const PatientProfile = () => {
-  const [formData, setFormData] = useState({
-    fullName: "",
-    birthDate: "",
-    gender: "",
-    address: "",
-    contactNumber: "",
-  });
-
-  const [step, setStep] = useState("form"); // 'form' | 'verify' | 'done'
-  const [verificationCode, setVerificationCode] = useState("");
-  const [userInputCode, setUserInputCode] = useState("");
-  const [message, setMessage] = useState("");
-
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [patient, setPatient] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const calculateAge = (dob) => {
-    const birth = new Date(dob);
-    const diff = Date.now() - birth.getTime();
-    return Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
-    setVerificationCode(code);
-
-    try {
-      const token = localStorage.getItem("token");
-
-      const response = await fetch("/api/patient/create-profile", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          name: formData.fullName,
-          dob: formData.birthDate,
-          gender: formData.gender.toLowerCase(),
-          address: formData.address,
-          contact: formData.contactNumber,
-          age: calculateAge(formData.birthDate),
-        }),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || "Error submitting profile");
+  useEffect(() => {
+    const checkAuthentication = () => {
+      const userRole = localStorage.getItem("userRole");
+      if (userRole !== "patient") {
+        navigate("/login");
+        return false;
       }
+      return true;
+    };
 
-      setMessage(`A verification code has been sent. (code: ${code})`);
-      setStep("verify");
-    } catch (err) {
-      console.error("Error creating profile:", err);
-      setMessage("Something went wrong. Please try again.");
-    }
-  };
+    const fetchPatientData = async () => {
+      if (!checkAuthentication()) return;
 
-  const handleVerify = () => {
-    if (userInputCode === verificationCode) {
-      setStep("done");
-      setMessage("Profile verified successfully! 🎉");
-    } else {
-      setMessage("Invalid verification code. Try again.");
-    }
-  };
+      try {
+        const res = await fetch("/api/emr/own", {
+          method: "GET",
+          credentials: "include", // <-- This is important to send cookies!
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch patient data. You may be unauthorized.");
+        }
+
+        const data = await res.json();
+
+        if (data.success) {
+          setPatient(data.emr);
+        } else {
+          throw new Error(data.message || "Failed to fetch patient data");
+        }
+        setLoading(false);
+      } catch (err) {
+        setError(err.message);
+        setLoading(false);
+      }
+    };
+
+    fetchPatientData();
+  }, [navigate]);
+
+  if (loading) return <div className="p-8">Loading patient profile...</div>;
+  if (error) return <div className="p-8 text-red-600">Error: {error}</div>;
+  if (!patient) return null;
 
   return (
-    <div className="flex min-h-screen">
-      <Sidebar />
-      <div className="flex-1 p-6 bg-gray-100">
-        <div className="max-w-xl mx-auto p-6 bg-white rounded-2xl shadow-lg">
-          <h2 className="text-2xl font-bold mb-6 text-center">
-            {step === "done" ? "✅ Verified" : "📝 Patient Profile Form"}
-          </h2>
+    <div className="flex min-h-screen bg-gray-100">
+      <Sidebar isOpen={isSidebarOpen} toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
+      <div className={`transition-all duration-300 ml-${isSidebarOpen ? "64" : "16"} flex-1 p-8`}>
+        <h2 className="text-3xl font-bold text-gray-800 mb-6 border-b pb-3">Patient Profile</h2>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 border-b pb-6 mb-6">
+          <p><strong className="text-gray-700">Name:</strong> {patient.name}</p>
+          <p><strong className="text-gray-700">Age:</strong> {patient.age} (DOB: {patient.dob})</p>
+          <p><strong className="text-gray-700">Gender:</strong> {patient.gender}</p>
+          <p><strong className="text-gray-700">Blood Type:</strong> {patient.bloodType}</p>
+          <p><strong className="text-gray-700">Contact:</strong> {patient.contact}</p>
+          <p><strong className="text-gray-700">Email:</strong> {patient.email}</p>
+          <p className="col-span-2"><strong className="text-gray-700">Address:</strong> {patient.address}</p>
+        </div>
 
-          {message && (
-            <div className="mb-4 text-sm text-blue-600 text-center">{message}</div>
-          )}
+        <div className="border-b pb-6 mb-6">
+          <h3 className="text-xl font-semibold text-gray-800 mb-3">Medical Information</h3>
+          <p><strong className="text-gray-700">Allergies:</strong> {patient.allergies?.join(", ") || "None"}</p>
+          <p><strong className="text-gray-700">Chronic Conditions:</strong> {patient.conditions?.join(", ") || "None"}</p>
+          <p><strong className="text-gray-700">Current Medications:</strong></p>
+          <ul className="list-disc list-inside text-gray-700 ml-4">
+            {patient.medications?.length > 0 ? (
+              patient.medications.map((med, index) => (
+                <li key={index}>{med.name} ({med.frequency})</li>
+              ))
+            ) : (
+              <li>None</li>
+            )}
+          </ul>
+        </div>
 
-          {step === "form" && (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <input
-                type="text"
-                name="fullName"
-                value={formData.fullName}
-                onChange={handleChange}
-                className="w-full border px-4 py-2 rounded-lg"
-                placeholder="Full Name"
-                required
-              />
-              <input
-                type="date"
-                name="birthDate"
-                value={formData.birthDate}
-                onChange={handleChange}
-                className="w-full border px-4 py-2 rounded-lg"
-                required
-              />
-              <select
-                name="gender"
-                value={formData.gender}
-                onChange={handleChange}
-                className="w-full border px-4 py-2 rounded-lg"
-                required
-              >
-                <option value="">Select Gender</option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                <option value="other">Other</option>
-              </select>
-              <input
-                type="text"
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
-                className="w-full border px-4 py-2 rounded-lg"
-                placeholder="Address"
-                required
-              />
-              <input
-                type="tel"
-                name="contactNumber"
-                value={formData.contactNumber}
-                onChange={handleChange}
-                className="w-full border px-4 py-2 rounded-lg"
-                placeholder="Contact Number"
-                required
-              />
-              <button
-                type="submit"
-                className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
-              >
-                Submit & Generate Code
-              </button>
-            </form>
-          )}
-
-          {step === "verify" && (
-            <div className="space-y-4">
-              <input
-                type="text"
-                value={userInputCode}
-                onChange={(e) => setUserInputCode(e.target.value)}
-                className="w-full border px-4 py-2 rounded-lg"
-                placeholder="Enter verification code"
-              />
-              <button
-                onClick={handleVerify}
-                className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition"
-              >
-                Verify
-              </button>
-            </div>
-          )}
-
-          {step === "done" && (
-            <div className="text-center text-green-600 font-semibold text-lg">
-              🎉 Your profile has been successfully submitted and verified!
-            </div>
-          )}
+        <div>
+          <h3 className="text-xl font-semibold text-gray-800 mb-3">Recent Visits</h3>
+          <table className="w-full border border-gray-300 text-left rounded-lg overflow-hidden shadow-md">
+            <thead>
+              <tr className="bg-blue-600 text-white">
+                <th className="p-3">Date</th>
+                <th className="p-3">Reason</th>
+                <th className="p-3">Doctor</th>
+              </tr>
+            </thead>
+            <tbody>
+              {patient.visitHistory?.length > 0 ? (
+                patient.visitHistory.map((visit, index) => (
+                  <tr key={index} className="border bg-gray-50 even:bg-gray-100">
+                    <td className="p-3 border text-gray-700">{visit.date}</td>
+                    <td className="p-3 border text-gray-700">{visit.reason}</td>
+                    <td className="p-3 border text-gray-700">{visit.doctor}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="3" className="p-3 text-center text-gray-500">No visits recorded.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
