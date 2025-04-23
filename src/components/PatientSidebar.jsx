@@ -68,12 +68,12 @@ const Sidebar = () => {
             </li>
             <li className="mb-2">
               <Link to="/patient-profile" className="flex items-center p-2 hover:bg-gray-700 rounded">
-                <FaWpforms className="text-xl" /> <span className={`${isOpen ? "ml-2" : "hidden"}`}>Fill-Up Form</span>
+                <FaWpforms className="text-xl" /> <span className={`${isOpen ? "ml-2" : "hidden"}`}>Patient Profile</span>
               </Link>
             </li>
             <li className="mb-2">
               <Link to="/patient-emr" className="flex items-center p-2 hover:bg-gray-700 rounded">
-                <FaUser className="text-xl" /> <span className={`${isOpen ? "ml-2" : "hidden"}`}>EMR Profile</span>
+                <FaUser className="text-xl" /> <span className={`${isOpen ? "ml-2" : "hidden"}`}>EMR</span>
               </Link>
             </li>
           </ul>
@@ -98,12 +98,12 @@ const Sidebar = () => {
             </li>
             <li className="mb-2">
               <Link to="/patient-profile" className="flex items-center p-2 hover:bg-gray-700 rounded">
-                <FaWpforms className="text-xl" /> <span className="ml-2">Fill-Up Form</span>
+                <FaWpforms className="text-xl" /> <span className="ml-2">Patient Profile</span>
               </Link>
             </li>
             <li className="mb-2">
               <Link to="/patient-emr" className="flex items-center p-2 hover:bg-gray-700 rounded">
-                <FaUser className="text-xl" /> <span className="ml-2">EMR Profile</span>
+                <FaUser className="text-xl" /> <span className="ml-2">EMR</span>
               </Link>
             </li>
             <li className="mb-2">
