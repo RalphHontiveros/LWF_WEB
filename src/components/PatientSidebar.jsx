@@ -68,9 +68,16 @@ const Sidebar = () => {
             </li>
             <li className="mb-2">
               <Link to="/patient-profile" className="flex items-center p-2 hover:bg-gray-700 rounded">
-                <FaUser className="text-xl" /> <span className={`${isOpen ? "ml-2" : "hidden"}`}>Profile</span>
+                <FaWpforms className="text-xl" /> <span className={`${isOpen ? "ml-2" : "hidden"}`}>Patient Profile</span>
               </Link>
             </li>
+            <li className="mb-2">
+              <Link to="/patient-emr" className="flex items-center p-2 hover:bg-gray-700 rounded">
+                <FaUser className="text-xl" /> <span className={`${isOpen ? "ml-2" : "hidden"}`}>EMR</span>
+              </Link>
+            </li>
+          </ul>
+          <div className="border-t border-gray-600 pt-4">
             <li className="mb-2">
               <button onClick={handleSignout} className="flex items-center p-2 hover:bg-gray-700 rounded">
                 <FaSignOutAlt className="text-xl" /> <span className={`${isOpen ? "ml-2" : "hidden"}`}>Logout</span>
@@ -89,7 +96,16 @@ const Sidebar = () => {
                 <FaHome className="text-xl" /> <span className="ml-2">Home</span>
               </Link>
             </li>
-            {/* Other links */}
+            <li className="mb-2">
+              <Link to="/patient-profile" className="flex items-center p-2 hover:bg-gray-700 rounded">
+                <FaWpforms className="text-xl" /> <span className="ml-2">Patient Profile</span>
+              </Link>
+            </li>
+            <li className="mb-2">
+              <Link to="/patient-emr" className="flex items-center p-2 hover:bg-gray-700 rounded">
+                <FaUser className="text-xl" /> <span className="ml-2">EMR</span>
+              </Link>
+            </li>
             <li className="mb-2">
               <button onClick={handleSignout} className="flex items-center p-2 hover:bg-gray-700 rounded">
                 <FaSignOutAlt className="text-xl" /> <span className="ml-2">Logout</span>
