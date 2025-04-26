@@ -10,29 +10,27 @@ const DoctorDashboard = () => {
   const [availableDate, setAvailableDate] = useState("");
   const [availableTime, setAvailableTime] = useState("");
 
+  // Fetching data once on component mount
   useEffect(() => {
-    const fetchDashboardData = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch("/api/doctor-dashboard");
-        const data = await response.json();
-        setDashboardData(data);
+        // Fetch dashboard data and appointments concurrently
+        const [dashboardResponse, appointmentsResponse] = await Promise.all([
+          fetch("/api/doctor-dashboard"),
+          fetch("/api/doctor-appointments"),
+        ]);
+
+        const dashboardData = await dashboardResponse.json();
+        const appointmentsData = await appointmentsResponse.json();
+
+        setDashboardData(dashboardData);
+        setAppointments(appointmentsData);
       } catch (error) {
-        console.error("Error fetching dashboard data:", error);
+        console.error("Error fetching data:", error);
       }
     };
 
-    const fetchAppointments = async () => {
-      try {
-        const response = await fetch("/api/doctor-appointments");
-        const data = await response.json();
-        setAppointments(data);
-      } catch (error) {
-        console.error("Error fetching appointments:", error);
-      }
-    };
-
-    fetchDashboardData();
-    fetchAppointments();
+    fetchData();
   }, []);
 
   const handleSetSchedule = async (e) => {
