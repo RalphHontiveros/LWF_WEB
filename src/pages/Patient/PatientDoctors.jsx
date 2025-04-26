@@ -17,22 +17,28 @@ const PatientDoctors = () => {
   const [doctors, setDoctors] = useState([]);
 
   useEffect(() => {
-    // Fetch doctors data from backend
     const fetchDoctors = async () => {
       try {
-        const response = await fetch("/api/doctors"); // Replace with your API endpoint
+        const response = await fetch("/api/doctors");
+  
+        // Check if the response is OK before parsing JSON
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+  
         const data = await response.json();
-        
-        // Filter doctors who are available
+  
+        // Filter only doctors who are available
         const availableDoctors = data.filter(doctor => doctor.isAvailable);
         setDoctors(availableDoctors);
       } catch (error) {
-        console.error("Error fetching doctors:", error);
+        console.error("Error fetching doctors:", error.message);
       }
     };
-
+  
     fetchDoctors();
   }, []);
+  
 
   return (
     <div className="flex h-screen bg-gray-100">

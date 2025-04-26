@@ -1,30 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import Sidebar from "../../components/PatientSidebar";
-import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import axios from "axios";
+import "react-toastify/dist/ReactToastify.css";
 
 const PatientProfile = () => {
   const [formData, setFormData] = useState({
-    fullName: '',
-    birthDate: '',
-    gender: '',
-    address: '',
-    contactNumber: '',
-    email: '',
+    firstName: "",
+    middleName: "",
+    lastName: "",
+    birthDate: "",
+    gender: "",
+    contactNumber: "",
+    address: "",
   });
 
-  const [submitted, setSubmitted] = useState(false);
-  const [verificationCode, setVerificationCode] = useState('');
-  const [userInputCode, setUserInputCode] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submittedData, setSubmittedData] = useState(null);
   const [isVerified, setIsVerified] = useState(false);
-  const [message, setMessage] = useState('');
-
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    // Whenever formData or verification status changes, save them to localStorage
-    localStorage.setItem("formData", JSON.stringify(formData));
-    localStorage.setItem("isVerified", JSON.stringify(isVerified));
-  }, [formData, isVerified]);
+  const [verificationCode, setVerificationCode] = useState("");
+  const [userCode, setUserCode] = useState("");
+  const [isCodeSent, setIsCodeSent] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -34,117 +33,299 @@ const PatientProfile = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const validateForm = () => {
+    const requiredFields = {
+      firstName: "First Name",
+      lastName: "Last Name",
+      birthDate: "Birth Date",
+      gender: "Gender",
+      contactNumber: "Contact Number",
+      address: "Address",
+    };
 
-    // Skip verification if already verified
-    if (isVerified) {
-      setSubmittedData(formData); // If already verified, just save the data and skip verification
-      setStep("done");
-      setMessage("Profile updated successfully!");
-      return;
+    const missingFields = Object.entries(requiredFields)
+      .filter(([key]) => !formData[key])
+      .map(([, label]) => label);
+
+    if (missingFields.length > 0) {
+      toast.error(`Please fill in the following: ${missingFields.join(", ")}`);
+      return false;
     }
 
-    // Simulate generating a verification code
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
-    setVerificationCode(code);
-    setSubmitted(true);
-    localStorage.setItem('verificationEmail', formData.email);
-    localStorage.setItem('verificationCode', code);
-
-    setMessage(`A verification code has been sent to ${formData.email}. (code: ${code})`);
-    // In real setup, hide the code and send via actual email
+    return true;
   };
 
-  const handleVerify = () => {
-    const storedCode = localStorage.getItem('verificationCode');
-    const storedEmail = localStorage.getItem('verificationEmail');
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateForm()) return;
 
-    if (userInputCode === storedCode && formData.email === storedEmail) {
-      setIsVerified(true);
-      setMessage('Email verified successfully!');
-      localStorage.removeItem('verificationCode');
-      localStorage.removeItem('verificationEmail');
-    } else {
-      setMessage('Invalid verification code. Try again.');
+    setIsSubmitting(true);
+
+    try {
+      const token = localStorage.getItem("token");
+      const name = `${formData.firstName} ${formData.middleName} ${formData.lastName}`.trim();
+      const dob = formData.birthDate;
+      const age = new Date().getFullYear() - new Date(dob).getFullYear();
+      const contact = formData.contactNumber;
+      const address = formData.address;
+
+      const response = await axios.post(
+        "/api/patient/create-profile",
+        {
+          name,
+          dob,
+          gender: formData.gender,
+          age,
+          contact,
+          address,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.data.success) {
+        toast.success("Patient data submitted successfully! A verification code has been sent to your contact.");
+        const code = "123456"; // simulate
+        setVerificationCode(code);
+        setIsCodeSent(true);
+
+        setSubmittedData(formData);
+        setIsEditing(false);
+      } else {
+        toast.error("Failed to submit profile.");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
+  };
+
+  const handleVerificationCodeChange = (e) => {
+    setUserCode(e.target.value);
+  };
+
+  const verifyCode = () => {
+    if (userCode === verificationCode) {
+      setIsVerified(true);
+      toast.success("Verification successful!");
+      setErrorMessage("");
+      setIsModalOpen(false);
+    } else {
+      setErrorMessage("Invalid verification code. Please try again.");
+      setIsVerified(false);
+    }
+  };
+
+  const handleEdit = () => {
+    setIsEditing(true);
+    setFormData(submittedData);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setFormData(submittedData);
+  };
+
+  const handleClearForm = () => {
+    setFormData({
+      firstName: "",
+      middleName: "",
+      lastName: "",
+      birthDate: "",
+      gender: "",
+      contactNumber: "",
+      address: "",
+    });
   };
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-gray-100">
       <Sidebar />
-      <div className="flex-1 p-6 bg-gray-100">
-        <div className="max-w-xl mx-auto p-6 bg-white rounded-2xl shadow-lg">
-          <h2 className="text-2xl font-bold mb-6 text-center">
-            {step === "done" ? "✅ Verified" : "📝 Patient Profile Form"}
-          </h2>
+      <main className="flex-1 p-6">
+        <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
+        <div className="max-w-4xl mx-auto p-6 bg-white rounded-xl shadow-md">
+          {submittedData && !isEditing ? (
+            <>
+              <h2 className="text-2xl font-bold mb-6">Submitted Patient Profile</h2>
+              <div className="space-y-4">
+                <div><strong>First Name:</strong> {submittedData.firstName}</div>
+                <div><strong>Middle Name:</strong> {submittedData.middleName}</div>
+                <div><strong>Last Name:</strong> {submittedData.lastName}</div>
+                <div><strong>Birth Date:</strong> {submittedData.birthDate}</div>
+                <div><strong>Gender:</strong> {submittedData.gender}</div>
+                <div><strong>Contact Number:</strong> {submittedData.contactNumber}</div>
+                <div><strong>Address:</strong> {submittedData.address}</div>
+                <div>
+                  <strong>Status:</strong>{" "}
+                  <span className={`font-bold ${isVerified ? "text-green-600" : "text-red-600"}`}>
+                    {isVerified ? "Verified" : "Not Verified"}
+                  </span>
+                </div>
 
-          {message && (
-            <div className="mb-4 text-sm text-blue-600 text-center">{message}</div>
-          )}
-
-          {!submitted ? (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <input
-                type="text"
-                name="fullName"
-                value={formData.fullName}
-                onChange={handleChange}
-                className="w-full border px-4 py-2 rounded-lg"
-                placeholder="Full Name"
-                required
-              />
-              <input
-                type="date"
-                name="birthDate"
-                value={formData.birthDate}
-                onChange={handleChange}
-                className="w-full border px-4 py-2 rounded-lg"
-                required
-              />
-              <select
-                name="gender"
-                value={formData.gender}
-                onChange={handleChange}
-                className="w-full border px-4 py-2 rounded-lg"
-                required
-              >
-                <option value="">Select Gender</option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                <option value="other">Other</option>
-              </select>
-              <input type="text" name="address" value={formData.address} onChange={handleChange} className="w-full border px-4 py-2 rounded-lg" placeholder="Address" required />
-              <input type="tel" name="contactNumber" value={formData.contactNumber} onChange={handleChange} className="w-full border px-4 py-2 rounded-lg" placeholder="Contact Number" required />
-              <input type="email" name="email" value={formData.email} onChange={handleChange} className="w-full border px-4 py-2 rounded-lg" placeholder="Email" required />
-
-              <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">
-                Submit & Send Code
-              </button>
-            </form>
-          ) : !isVerified ? (
-            <div className="space-y-4">
-              <input
-                type="text"
-                value={userInputCode}
-                onChange={(e) => setUserInputCode(e.target.value)}
-                className="w-full border px-4 py-2 rounded-lg"
-                placeholder="Enter verification code"
-              />
-              <button
-                onClick={handleVerify}
-                className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition"
-              >
-                Verify
-              </button>
-            </div>
+                {!isVerified && (
+                  <div className="mt-4">
+                    <button
+                      onClick={() => setIsModalOpen(true)}
+                      className="bg-blue-600 text-white px-6 py-2 rounded transition hover:bg-blue-700"
+                    >
+                      Verify Profile
+                    </button>
+                  </div>
+                )}
+                <div className="mt-4">
+                  <button
+                    onClick={handleEdit}
+                    className="bg-yellow-500 text-white px-6 py-2 rounded transition hover:bg-yellow-600"
+                  >
+                    Edit Profile
+                  </button>
+                </div>
+              </div>
+            </>
           ) : (
-            <div className="text-center text-green-600 font-semibold text-lg">
-              🎉 Your profile has been successfully submitted and verified!
-            </div>
+            <>
+              <h2 className="text-2xl font-bold mb-6">Patient Profile Form</h2>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">First Name</label>
+                    <input
+                      type="text"
+                      name="firstName"
+                      value={formData.firstName}
+                      onChange={handleChange}
+                      className="w-full border border-gray-300 rounded px-3 py-2"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Middle Name</label>
+                    <input
+                      type="text"
+                      name="middleName"
+                      value={formData.middleName}
+                      onChange={handleChange}
+                      className="w-full border border-gray-300 rounded px-3 py-2"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Last Name</label>
+                    <input
+                      type="text"
+                      name="lastName"
+                      value={formData.lastName}
+                      onChange={handleChange}
+                      className="w-full border border-gray-300 rounded px-3 py-2"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Birth Date</label>
+                    <input
+                      type="date"
+                      name="birthDate"
+                      value={formData.birthDate}
+                      onChange={handleChange}
+                      className="w-full border border-gray-300 rounded px-3 py-2"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Gender</label>
+                    <select
+                      name="gender"
+                      value={formData.gender}
+                      onChange={handleChange}
+                      className="w-full border border-gray-300 rounded px-3 py-2"
+                      required
+                    >
+                      <option value="">Select</option>
+                      <option value="male">Male</option>
+                      <option value="female">Female</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Contact Number</label>
+                    <input
+                      type="text"
+                      name="contactNumber"
+                      value={formData.contactNumber}
+                      onChange={handleChange}
+                      className="w-full border border-gray-300 rounded px-3 py-2"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Address</label>
+                    <input
+                      type="text"
+                      name="address"
+                      value={formData.address}
+                      onChange={handleChange}
+                      className="w-full border border-gray-300 rounded px-3 py-2"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="flex justify-end">
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className={`bg-blue-600 text-white px-6 py-2 rounded transition ${
+                      isSubmitting ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-700"
+                    }`}
+                  >
+                    {isSubmitting ? "Submitting..." : "Submit"}
+                  </button>
+                </div>
+              </form>
+            </>
           )}
         </div>
-      </div>
+
+        {/* Modal for Verification Code */}
+        {isModalOpen && (
+          <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center z-50">
+            <div className="bg-white p-6 rounded-lg shadow-md w-96">
+              <h3 className="text-xl font-bold mb-4">Enter Verification Code</h3>
+              <input
+                type="text"
+                value={userCode}
+                onChange={handleVerificationCodeChange}
+                className="w-full border border-gray-300 rounded px-3 py-2 mb-4"
+              />
+              {errorMessage && <div className="text-red-600 text-sm mb-4">{errorMessage}</div>}
+              <div className="flex justify-end space-x-4">
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="text-gray-600 hover:text-gray-800"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={verifyCode}
+                  className="bg-blue-600 text-white px-4 py-2 rounded"
+                >
+                  Verify
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </main>
     </div>
   );
 };
