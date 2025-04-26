@@ -330,4 +330,4 @@ const PatientProfile = () => {
   );
 };
 
-export default DoctorProfile;
+export default PatientProfile;
