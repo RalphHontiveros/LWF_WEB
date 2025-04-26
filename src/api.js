@@ -1,9 +1,8 @@
 import axios from "axios";
 
-// Base API Configuration
 const API = axios.create({
-  baseURL: "http://localhost:8000/api", // Update for production
-  withCredentials: true, // Ensures cookies are sent with each request
+  baseURL: "http://localhost:8000/api",
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },

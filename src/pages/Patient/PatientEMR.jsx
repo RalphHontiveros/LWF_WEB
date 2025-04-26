@@ -26,7 +26,7 @@ const PatientEMR = () => {
       try {
         const res = await fetch("/api/emr/own", {
           method: "GET",
-          credentials: "include", // <-- This is important to send cookies!
+          credentials: "include",
           headers: {
             "Content-Type": "application/json",
           },

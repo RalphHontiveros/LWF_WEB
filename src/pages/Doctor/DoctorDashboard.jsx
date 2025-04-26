@@ -37,17 +37,22 @@ const DoctorDashboard = () => {
 
   const handleSetSchedule = async (e) => {
     e.preventDefault();
-    const timeSlots = availableTime.split(",").map((t) => t.trim());
-
+  
+    // Make sure availableTime is a comma-separated string like "09:00, 10:00, 11:00"
+    const timeSlots = availableTime.split(",").map(t => t.trim());
+  
     try {
-      const response = await fetch("/api/set-availability", {
+      const token = localStorage.getItem("token"); // Or wherever you store JWT
+  
+      const response = await fetch("/api/doctor/availability", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          ...(token && { Authorization: `Bearer ${token}` }),
         },
         body: JSON.stringify({ date: availableDate, timeSlots }),
       });
-
+  
       if (response.ok) {
         alert("Schedule saved successfully!");
         setAvailableDate("");
@@ -61,7 +66,7 @@ const DoctorDashboard = () => {
       console.error("Error saving schedule:", error);
       alert("Failed to save schedule.");
     }
-  };
+  };  
 
   return (
     <div className="flex h-screen bg-gray-100">
