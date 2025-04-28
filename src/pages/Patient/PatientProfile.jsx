@@ -14,24 +14,25 @@ const PatientProfile = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [isVerified, setIsVerified] = useState(false);
-  const [isCodeSent, setIsCodeSent] = useState(false);
-  const [verificationCode, setVerificationCode] = useState("");
-  const [userCode, setUserCode] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [submittedData, setSubmittedData] = useState(null);
+  const [isVerified, setIsVerified] = useState(null); // null = unknown, true/false = status
 
+  // For verification code flow
+  const [verificationSent, setVerificationSent] = useState(false);
+  const [verificationCode, setVerificationCode] = useState("");
+  const [verifying, setVerifying] = useState(false);
+
+  // Fetch profile and verification status on mount
   useEffect(() => {
-    const fetchProfile = async () => {
+    const fetchProfileAndStatus = async () => {
       try {
-        const res = await fetch("/api/patient/my-profile", {
+        const profileRes = await fetch("/api/patient/my-profile", {
           method: "GET",
           credentials: "include",
         });
 
-        if (res.ok) {
-          const data = await res.json();
+        if (profileRes.ok) {
+          const data = await profileRes.json();
           if (data.profile) {
             setFormData({
               name: data.profile.name || "",
@@ -47,7 +48,23 @@ const PatientProfile = () => {
               contact: data.profile.contact || "",
               address: data.profile.address || "",
             });
-            setIsVerified(data.profile.isVerified || false);
+
+            // Fetch verification status
+            if (data.profile._id) {
+              const statusRes = await fetch(
+                `/api/patient/verification-status/${data.profile._id}`,
+                {
+                  method: "GET",
+                  credentials: "include",
+                }
+              );
+              if (statusRes.ok) {
+                const statusData = await statusRes.json();
+                setIsVerified(statusData.isVerified);
+              } else {
+                setIsVerified(false);
+              }
+            }
           }
         }
       } catch (error) {
@@ -55,9 +72,10 @@ const PatientProfile = () => {
       }
     };
 
-    fetchProfile();
+    fetchProfileAndStatus();
   }, []);
 
+  // Handle input changes as before
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -66,6 +84,7 @@ const PatientProfile = () => {
     }));
   };
 
+  // Form validation and submit handlers remain unchanged
   const validateForm = () => {
     const requiredFields = {
       name: "Name",
@@ -122,16 +141,12 @@ const PatientProfile = () => {
         toast.success(
           submittedData
             ? "Profile updated successfully!"
-            : "Profile created! Verification code sent."
+            : "Profile created successfully!"
         );
-        if (!submittedData) {
-          // simulate code only on creation (or you could remove this line if backend sends real code)
-          setVerificationCode("123456"); 
-          setIsCodeSent(true);
-          setIsModalOpen(true);
-        }
         setSubmittedData(formData);
         setIsEditing(false);
+        // After update, re-fetch verification status if you want:
+        // Or keep existing status if it doesn't change
       } else {
         toast.error(data.message || "Failed to submit profile.");
       }
@@ -152,34 +167,37 @@ const PatientProfile = () => {
     setFormData(submittedData);
   };
 
+  // --- Verification handlers ---
+
+  // Send verification code button handler
   const handleSendVerificationCode = async () => {
     try {
       const res = await fetch("/api/auth/send-verification-code", {
         method: "PATCH",
         credentials: "include",
       });
-
       const data = await res.json();
 
       if (res.ok && data.success) {
-        toast.success("Verification code sent successfully!");
-        setIsCodeSent(true);
-        setIsModalOpen(true);
+        toast.success("Verification code sent to your email!");
+        setVerificationSent(true);
       } else {
         toast.error(data.message || "Failed to send verification code.");
       }
     } catch (error) {
       console.error(error);
-      toast.error("Something went wrong.");
+      toast.error("Error sending verification code.");
     }
   };
 
-  // Added missing input handler here
-  const handleVerificationCodeChange = (e) => {
-    setUserCode(e.target.value);
-  };
+  // Verify code submit handler
+  const handleVerifyCode = async () => {
+    if (!verificationCode.trim()) {
+      toast.error("Please enter the verification code.");
+      return;
+    }
+    setVerifying(true);
 
-  const verifyCode = async () => {
     try {
       const res = await fetch("/api/auth/verify-verification-code", {
         method: "PATCH",
@@ -187,25 +205,25 @@ const PatientProfile = () => {
           "Content-Type": "application/json",
         },
         credentials: "include",
-        body: JSON.stringify({ code: userCode }),
+        body: JSON.stringify({
+          providedCode: verificationCode,
+        }),
       });
-
       const data = await res.json();
 
       if (res.ok && data.success) {
+        toast.success("Your account has been verified!");
         setIsVerified(true);
-        toast.success("Verification successful!");
-        setIsModalOpen(false);
-        setErrorMessage("");
+        setVerificationSent(false);
+        setVerificationCode("");
       } else {
-        setIsVerified(false);
-        setErrorMessage(
-          data.message || "Invalid verification code. Try again."
-        );
+        toast.error(data.message || "Verification failed.");
       }
     } catch (error) {
       console.error(error);
-      toast.error("Something went wrong during verification.");
+      toast.error("Verification error.");
+    } finally {
+      setVerifying(false);
     }
   };
 
@@ -234,26 +252,45 @@ const PatientProfile = () => {
                 <div>
                   <strong>Address:</strong> {submittedData.address}
                 </div>
-                <div>
-                  <strong>Status:</strong>{" "}
-                  <span
-                    className={`font-bold ${
-                      isVerified ? "text-green-600" : "text-red-600"
-                    }`}
-                  >
-                    {isVerified ? "Verified" : "Not Verified"}
-                  </span>
-                </div>
-                {!isVerified && (
-                  <div className="mt-4">
-                    <button
-                      onClick={handleSendVerificationCode}
-                      className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
-                    >
-                      Verify Profile
-                    </button>
+
+                {/* Verification Status */}
+                {isVerified === false && (
+                  <div className="mt-4 p-4 border border-red-400 bg-red-100 rounded">
+                    <p className="text-red-700 mb-2">
+                      Your account is not yet verified.
+                    </p>
+                    {!verificationSent ? (
+                      <button
+                        onClick={handleSendVerificationCode}
+                        className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                      >
+                        Verify Account
+                      </button>
+                    ) : (
+                      <div className="space-y-2">
+                        <p>Please enter the verification code sent to your email:</p>
+                        <input
+                          type="text"
+                          value={verificationCode}
+                          onChange={(e) => setVerificationCode(e.target.value)}
+                          className="border border-gray-300 rounded px-3 py-2 w-full max-w-xs"
+                          maxLength={6}
+                          placeholder="Enter code"
+                        />
+                        <button
+                          onClick={handleVerifyCode}
+                          disabled={verifying}
+                          className={`bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 ${
+                            verifying ? "opacity-50 cursor-not-allowed" : ""
+                          }`}
+                        >
+                          {verifying ? "Verifying..." : "Submit Code"}
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
+
                 <div className="mt-4">
                   <button
                     onClick={handleEdit}
@@ -279,12 +316,9 @@ const PatientProfile = () => {
                     required
                   />
                 </div>
-
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm font-medium mb-1">
-                      Birth Date
-                    </label>
+                    <label className="block text-sm font-medium mb-1">Birth Date</label>
                     <input
                       type="date"
                       name="dob"
@@ -295,9 +329,7 @@ const PatientProfile = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">
-                      Gender
-                    </label>
+                    <label className="block text-sm font-medium mb-1">Gender</label>
                     <select
                       name="gender"
                       value={formData.gender}
@@ -306,15 +338,13 @@ const PatientProfile = () => {
                       required
                     >
                       <option value="">Select</option>
-                      <option value="male">Male</option>
-                      <option value="female">Female</option>
-                      <option value="other">Other</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Other">Other</option>
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1">
-                      Contact Number
-                    </label>
+                    <label className="block text-sm font-medium mb-1">Contact Number</label>
                     <input
                       type="text"
                       name="contact"
@@ -325,7 +355,6 @@ const PatientProfile = () => {
                     />
                   </div>
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium mb-1">Address</label>
                   <input
@@ -337,7 +366,6 @@ const PatientProfile = () => {
                     required
                   />
                 </div>
-
                 <div className="flex justify-end gap-4">
                   {isEditing && (
                     <button
@@ -352,9 +380,7 @@ const PatientProfile = () => {
                     type="submit"
                     disabled={isSubmitting}
                     className={`bg-blue-600 text-white px-6 py-2 rounded transition ${
-                      isSubmitting
-                        ? "opacity-50 cursor-not-allowed"
-                        : "hover:bg-blue-700"
+                      isSubmitting ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-700"
                     }`}
                   >
                     {isSubmitting ? "Submitting..." : "Submit"}
@@ -364,37 +390,6 @@ const PatientProfile = () => {
             </>
           )}
         </div>
-
-        {isModalOpen && (
-          <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center z-50">
-            <div className="bg-white p-6 rounded-lg shadow-md w-96">
-              <h3 className="text-xl font-bold mb-4">Enter Verification Code</h3>
-              <input
-                type="text"
-                value={userCode}
-                onChange={handleVerificationCodeChange}
-                className="w-full border border-gray-300 rounded px-3 py-2 mb-4"
-              />
-              {errorMessage && (
-                <div className="text-red-600 text-sm mb-4">{errorMessage}</div>
-              )}
-              <div className="flex justify-end gap-4">
-                <button
-                  onClick={() => setIsModalOpen(false)}
-                  className="text-gray-600 hover:text-gray-800"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={verifyCode}
-                  className="bg-blue-600 text-white px-4 py-2 rounded"
-                >
-                  Verify
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
       </main>
     </div>
   );
