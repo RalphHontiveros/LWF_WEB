@@ -16,6 +16,13 @@ const SimplePatientSettings = () => {
     confirmNewPassword: false,
   });
 
+  // Helper to get cookie value by name
+  const getCookie = (name) => {
+    const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+    if (match) return match[2];
+    return null;
+  };
+
   const handlePasswordChange = (e) => {
     const { name, value } = e.target;
     setPasswords((prev) => ({ ...prev, [name]: value }));
@@ -27,14 +34,35 @@ const SimplePatientSettings = () => {
 
   const handleChangePassword = async (e) => {
     e.preventDefault();
+
+    // Client-side validation before API call
+    if (passwords.newPassword !== passwords.confirmNewPassword) {
+      alert("New password and confirm password do not match!");
+      return;
+    }
+    if (passwords.oldPassword === passwords.newPassword) {
+      alert("New password must be different from old password!");
+      return;
+    }
+
     try {
       const response = await fetch("/api/auth/change-password", {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(passwords),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getCookie("access_token")}`,
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          oldPassword: passwords.oldPassword,
+          newPassword: passwords.newPassword,
+          confirmNewPassword: passwords.confirmNewPassword,
+        }),
       });
+
       const result = await response.json();
-      if (result.success) {
+
+      if (response.ok && result.success) {
         alert(result.message || "Password changed successfully.");
         setPasswords({
           oldPassword: "",
@@ -76,7 +104,6 @@ const SimplePatientSettings = () => {
                 className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-900"
                 aria-label={showPasswords.oldPassword ? "Hide password" : "Show password"}
               >
-                {/* Fix icon logic: show eye when hidden, eye-off when visible */}
                 {showPasswords.oldPassword ? (
                   <AiOutlineEyeInvisible size={20} />
                 ) : (
