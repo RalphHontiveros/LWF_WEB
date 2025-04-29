@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import React, { useState } from "react";
 import Sidebar from "../../components/PatientSidebar";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 
