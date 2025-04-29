@@ -228,42 +228,11 @@ const PatientProfile = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-gray-100">
       <Sidebar />
-      <main className="flex-1 p-6 pt-20 sm:pt-24 bg-gray-100">
+      <main className="flex-1 p-6">
         <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
-        <div className="max-w-4xl mx-auto p-8 bg-white rounded-xl shadow-lg">
-
-          {isModalOpen && (
-            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-              <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
-                <h3 className="text-xl font-bold mb-4 text-center">Enter Verification Code</h3>
-                <input
-                  type="text"
-                  value={userCode}
-                  onChange={handleVerificationCodeChange}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Enter Code"
-                />
-                {errorMessage && <p className="text-red-500 mb-2 text-center">{errorMessage}</p>}
-                <div className="flex justify-between">
-                  <button
-                    onClick={verifyCode}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-                  >
-                    Verify
-                  </button>
-                  <button
-                    onClick={() => setIsModalOpen(false)}
-                    className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
+        <div className="max-w-4xl mx-auto p-6 bg-white rounded-xl shadow-md">
           {submittedData && !isEditing ? (
             <>
               <h2 className="text-2xl font-bold mb-6">Patient Profile</h2>
@@ -355,7 +324,7 @@ const PatientProfile = () => {
                       name="dob"
                       value={formData.dob}
                       onChange={handleChange}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full border border-gray-300 rounded px-3 py-2"
                       required
                     />
                   </div>
@@ -365,7 +334,7 @@ const PatientProfile = () => {
                       name="gender"
                       value={formData.gender}
                       onChange={handleChange}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full border border-gray-300 rounded px-3 py-2"
                       required
                     >
                       <option value="">Select</option>
@@ -381,7 +350,7 @@ const PatientProfile = () => {
                       name="contact"
                       value={formData.contact}
                       onChange={handleChange}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full border border-gray-300 rounded px-3 py-2"
                       required
                     />
                   </div>
@@ -410,7 +379,9 @@ const PatientProfile = () => {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className={`bg-blue-600 text-white px-6 py-2 rounded-lg transition transform ${isSubmitting ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-700"}`}
+                    className={`bg-blue-600 text-white px-6 py-2 rounded transition ${
+                      isSubmitting ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-700"
+                    }`}
                   >
                     {isSubmitting ? "Submitting..." : "Submit"}
                   </button>
@@ -418,7 +389,6 @@ const PatientProfile = () => {
               </form>
             </>
           )}
-
         </div>
       </main>
     </div>
