@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import React, { useState } from "react";
 import Sidebar from "../../components/PatientSidebar";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 
@@ -79,10 +80,10 @@ const SimplePatientSettings = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-gray-50">
       <Sidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
-      <main className={`flex-1 p-8 transition-all duration-300 ${isSidebarOpen ? "ml-64" : "ml-16"}`}>
-        <h1 className="text-2xl font-bold mb-6">Settings</h1>
+      <main className={`flex-1 p-8 transition-all duration-300 `}>
+        <h1 className="text-3xl font-bold mb-8">Settings</h1>
 
         <div className="bg-white p-6 rounded-md shadow-md max-w-md">
           <h2 className="text-xl font-bold mb-4">Change Password</h2>

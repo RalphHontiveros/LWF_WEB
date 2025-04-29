@@ -23,7 +23,7 @@ const MySessions = () => {
   return (
     <div className="flex h-screen bg-gray-100">
       <Sidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
-      <main className={`flex-1 p-8 transition-all duration-300 ${isSidebarOpen ? "ml-64" : "ml-16"}`}>
+      <main className={`flex-1 p-8 transition-all duration-300`}>
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">My Sessions</h1>
           <div className="bg-white p-3 rounded-md shadow text-gray-600 flex items-center">

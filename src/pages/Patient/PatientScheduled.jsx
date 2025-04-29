@@ -23,11 +23,7 @@ const ScheduledSessions = () => {
   return (
     <div className="flex h-screen bg-gray-100">
       <Sidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
-      <main
-        className={`flex-1 p-4 sm:p-6 md:p-8 transition-all duration-300 ${
-          isSidebarOpen ? "ml-64" : "ml-16"
-        }`}
-      >
+      <main className="flex-1 p-4 sm:p-6 md:p-8 transition-all duration-300">
         <div className="flex flex-col sm:flex-row justify-between items-center">
           <h1 className="text-2xl font-bold">Scheduled Sessions</h1>
           <div className="bg-white p-3 rounded-md shadow text-gray-600 flex items-center mt-4 sm:mt-0">

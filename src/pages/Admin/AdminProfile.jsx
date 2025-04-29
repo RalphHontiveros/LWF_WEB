@@ -26,9 +26,7 @@ const AdminProfile = () => {
         setIsSidebarOpen={setIsSidebarOpen}
       />
       <main
-        className={`flex-1 p-8 transition-all duration-300 ${
-          isSidebarOpen ? "ml-64" : "ml-16"
-        }`}
+        className={`flex-1 p-8 transition-all duration-300`}
       >
         <h1 className="text-2xl font-bold text-gray-800 mb-6">
           Admin Profile

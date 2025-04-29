@@ -79,7 +79,7 @@ const DoctorProfile = () => {
     <div className="flex h-screen bg-gray-100">
       <Sidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
 
-      <main className={`flex-1 p-8 transition-all duration-300 ${isSidebarOpen ? "ml-64" : "ml-16"}`}>
+      <main className={`flex-1 p-8 transition-all duration-300 `}>
         <h1 className="text-2xl font-bold mb-6">Doctor Profile</h1>
 
         <div className="bg-white p-6 rounded-lg shadow-md max-w-2xl">

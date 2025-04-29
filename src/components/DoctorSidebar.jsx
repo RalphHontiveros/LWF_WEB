@@ -1,105 +1,120 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { FaBars, FaHome, FaUserMd, FaCalendarCheck, FaBookmark, FaCog, FaUser, FaSignOutAlt } from "react-icons/fa";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import {
+  FaBars, FaHome, FaUserMd, FaCalendarCheck,
+  FaBookmark, FaCog, FaWheelchair, FaSignOutAlt, FaWpforms 
+} from "react-icons/fa";
+import { signout } from "../api";
 
-const Sidebar = () => {
-    const [isOpen, setIsOpen] = useState(true);
-    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-  
-    useEffect(() => {
-      const handleResize = () => setIsMobile(window.innerWidth <= 768);
-      window.addEventListener("resize", handleResize);
-      return () => window.removeEventListener("resize", handleResize);
-    }, []);
-  
-    return (
-      <div>
-        {isMobile ? (
-          <nav className="bg-gray-800 text-white p-4 flex justify-between items-center fixed top-0 left-0 right-0 z-50 shadow-md">
-            <button onClick={() => setIsOpen(!isOpen)} className="p-2 focus:outline-none">
-              <FaBars className="text-xl" />
-            </button>
-          </nav>
-        ) : (
-          <div className={`h-full bg-gray-800 text-white p-4 ${isOpen ? "w-64" : "w-16"} transition-width duration-300 flex flex-col fixed top-0 left-0 bottom-0`}>
-            <button onClick={() => setIsOpen(!isOpen)} className="mb-4 p-2 focus:outline-none self-start">
-              <FaBars className="text-xl" />
-            </button>
-            <ul className="flex-1 overflow-y-auto font-semibold">
-              <li className="mb-2">
-                <Link to="/doctor-dashboard" className="flex items-center p-2 hover:bg-gray-700 rounded">
-                  <FaHome className="text-xl" /> <span className={`${isOpen ? "ml-2 font-semibold" : "hidden"}`}>Dashboard</span>
-                </Link>
-              </li>
-              <li className="mb-2">
-                <Link to="/doctor-appointments" className="flex items-center p-2 hover:bg-gray-700 rounded">
-                  <FaUserMd className="text-xl" /> <span className={`${isOpen ? "ml-2 font-semibold" : "hidden"}`}>My Appointments</span>
-                </Link>
-              </li>
-              <li className="mb-2">
-                <Link to="/doctor-sessions" className="flex items-center p-2 hover:bg-gray-700 rounded">
-                  <FaCalendarCheck className="text-xl" /> <span className={`${isOpen ? "ml-2 font-semibold" : "hidden"}`}>My Sessions</span>
-                </Link>
-              </li>
-              <li className="mb-2">
-                <Link to="/doctor-patients" className="flex items-center p-2 hover:bg-gray-700 rounded">
-                  <FaBookmark className="text-xl" /> <span className={`${isOpen ? "ml-2 font-semibold" : "hidden"}`}>My Patients</span>
-                </Link>
-              </li>
-              <li className="mb-2">
-                <Link to="/doctor-settings" className="flex items-center p-2 hover:bg-gray-700 rounded">
-                  <FaCog className="text-xl" /> <span className={`${isOpen ? "ml-2 font-semibold" : "hidden"}`}>Settings</span>
-                </Link>
-              </li>
-            </ul>
-            <div className="border-t border-gray-600 pt-4">
-              <li className="mb-2">
-                <Link to="/doctor-profile" className="flex items-center p-2 hover:bg-gray-700 rounded">
-                  <FaUser className="text-xl" /> <span className={`${isOpen ? "ml-2" : "hidden"}`}>Profile</span>
-                </Link>
-              </li>
-              <li className="mb-2">
-                <Link to="/logout" className="flex items-center p-2 hover:bg-gray-700 rounded">
-                  <FaSignOutAlt className="text-xl" /> <span className={`${isOpen ? "ml-2" : "hidden"}`}>Logout</span>
-                </Link>
-              </li>
-            </div>
-          </div>
-        )}
-        {isMobile && isOpen && (
-          <div className="fixed top-16 left-0 right-0 bg-gray-800 text-white p-4 flex flex-col z-50 shadow-md font-semibold">
-            <ul className="w-full">
-              <li className="mb-2">
-                <Link to="/doctor-dashboard" className="flex items-center p-2 hover:bg-gray-700 rounded">
-                  <FaHome className="text-xl" /> <span className="ml-2 font-semibold">Dashboard</span>
-                </Link>
-              </li>
-              <li className="mb-2">
-                <Link to="/doctor-appointments" className="flex items-center p-2 hover:bg-gray-700 rounded">
-                  <FaUserMd className="text-xl" /> <span className="ml-2 font-semibold">My Appointments</span>
-                </Link>
-              </li>
-              <li className="mb-2">
-                <Link to="/doctor-sessions" className="flex items-center p-2 hover:bg-gray-700 rounded">
-                  <FaCalendarCheck className="text-xl" /> <span className="ml-2 font-semibold">My Sessions</span>
-                </Link>
-              </li>
-              <li className="mb-2">
-                <Link to="/doctor-patients" className="flex items-center p-2 hover:bg-gray-700 rounded">
-                  <FaBookmark className="text-xl" /> <span className="ml-2 font-semibold">My Patients</span>
-                </Link>
-              </li>
-              <li className="mb-2">
-                <Link to="/doctor-settings" className="flex items-center p-2 hover:bg-gray-700 rounded">
-                  <FaCog className="text-xl" /> <span className="ml-2 font-semibold">Settings</span>
-                </Link>
-              </li>
-            </ul>
-          </div>
-        )}
-      </div>
-    );
+const Sidebar = ({ children }) => {
+  const [isOpen, setIsOpen] = useState(true);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const handleSignout = async () => {
+    try {
+      await signout();
+      navigate("/login");
+    } catch (error) {
+      console.error("Signout failed", error);
+    }
   };
-  
-  export default Sidebar;
-  
+
+  const navItems = [
+    { to: "/doctor-dashboard", icon: <FaHome />, label: "Home" },
+    { to: "/doctor-appointments", icon: <FaUserMd />, label: "My Appointments" },
+    { to: "/doctor-sessions", icon: <FaCalendarCheck />, label: "My Sessions" },
+    { to: "/doctor-patients", icon: <FaWheelchair />, label: "My Patients" },
+    { to: "/doctor-settings", icon: <FaCog />, label: "Settings" },
+    { to: "/doctor-profile", icon: <FaWpforms />, label: "Profile" },
+  ];
+
+  const linkClasses = (path) =>
+    `flex items-center p-2 rounded transition-all duration-300 ${
+      location.pathname === path ? "bg-blue-600" : "hover:bg-gray-700"
+    }`;
+
+  const renderNavLinks = () => (
+    <>
+      {navItems.map((item) => (
+        <Link key={item.to} to={item.to} className={linkClasses(item.to)} onClick={() => isMobile && setIsOpen(false)}>
+          <span className="text-xl">{item.icon}</span>
+          <span
+            className={`ml-3 whitespace-nowrap overflow-hidden transition-all duration-300 ${
+              isOpen ? "opacity-100" : isMobile ? "opacity-100" : "opacity-0 w-0"
+            }`}
+          >
+            {item.label}
+          </span>
+        </Link>
+      ))}
+      <button
+        onClick={handleSignout}
+        className="flex items-center p-2 hover:bg-red-600 rounded transition-all duration-300 w-full"
+      >
+        <FaSignOutAlt className="text-xl" />
+        <span
+          className={`ml-3 whitespace-nowrap overflow-hidden transition-all duration-300 ${
+            isOpen ? "opacity-100" : isMobile ? "opacity-100" : "opacity-0 w-0"
+          }`}
+        >
+          Logout
+        </span>
+      </button>
+    </>
+  );
+
+  return (
+    <div className="flex">
+      {/* Top Navbar for Mobile */}
+      {isMobile && (
+        <nav className="bg-gradient-to-r from-gray-800 to-gray-900 text-white p-4 flex justify-between items-center fixed top-0 left-0 right-0 z-50 shadow-md">
+          <button onClick={() => setIsOpen(!isOpen)} className="p-2 focus:outline-none">
+            <FaBars className="text-2xl" />
+          </button>
+        </nav>
+      )}
+
+      {/* Sidebar */}
+      {!isMobile && (
+        <div
+          className={`h-screen bg-gradient-to-b from-gray-800 to-gray-900 text-white p-4
+            flex flex-col fixed top-0 left-0 shadow-lg transition-all duration-300 z-40
+            ${isOpen ? "w-64" : "w-20"}`}
+        >
+          <button onClick={() => setIsOpen(!isOpen)} className="mb-6 p-2 focus:outline-none">
+            <FaBars className="text-2xl" />
+          </button>
+          <div className="flex-1 flex flex-col gap-2 overflow-y-auto">
+            {renderNavLinks()}
+          </div>
+        </div>
+      )}
+
+      {/* Sidebar Overlay for Mobile */}
+      {isMobile && isOpen && (
+        <div className="fixed top-16 left-0 right-0 bg-gradient-to-b from-gray-800 to-gray-900 text-white p-4 flex flex-col gap-2 z-50 shadow-md">
+          {renderNavLinks()}
+        </div>
+      )}
+
+      {/* Main Content */}
+      <div
+        className={`flex-1 pt-0 transition-all duration-300 ${
+          isMobile ? "mt-16" : isOpen ? "ml-64" : "ml-20"
+        }`}
+      >
+        {children}
+      </div>
+    </div>
+  );
+};
+
+export default Sidebar;

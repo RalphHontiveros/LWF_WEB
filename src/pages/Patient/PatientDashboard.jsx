@@ -52,9 +52,7 @@ const PatientDashboard = () => {
     const fetchAvailableSchedules = async () => {
       if (!selectedDoctor) return;
       try {
-        const response = await fetch(
-          `/api/patient/available-schedules/${selectedDoctor}`
-        );
+        const response = await fetch(`/api/patient/available-schedules/${selectedDoctor}`);
         const data = await response.json();
         setAvailableSchedules(data);
       } catch (err) {
@@ -63,7 +61,7 @@ const PatientDashboard = () => {
     };
 
     fetchAvailableSchedules();
-    setSelectedSchedule(""); // Reset the selected schedule when doctor changes
+    setSelectedSchedule("");
   }, [selectedDoctor]);
 
   const handleSubmitAppointment = async (e) => {
@@ -76,214 +74,177 @@ const PatientDashboard = () => {
           doctor: selectedDoctor,
           scheduledDateTime: selectedSchedule,
           reason,
-          patientId: "", // backend should identify using JWT
+          patientId: "", // backend should handle JWT
           contactInfo,
         }),
       });
 
       const result = await response.json();
 
-      if (!response.ok) {
-        throw new Error(result.message || "Unknown error");
-      }
+      if (!response.ok) throw new Error(result.message || "Unknown error");
 
       setAppointments((prev) => [...prev, result.newAppointment]);
-      toggleModal(); // Close the modal on success
+      toggleModal();
     } catch (err) {
       console.error("Error creating appointment:", err);
     }
   };
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-gray-100">
-      <Sidebar
-        isSidebarOpen={isSidebarOpen}
-        setIsSidebarOpen={setIsSidebarOpen}
-      />
+    <div className="flex flex-col md:flex-row min-h-screen bg-gray-50">
+      <Sidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
 
-      <main
-        className={`flex-1 px-4 sm:px-6 md:px-8 py-4 transition-all duration-300 ${
-          isSidebarOpen ? "md:ml-64" : "md:ml-16"
-        } overflow-y-auto`}
-      >
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <h1 className="text-xl sm:text-2xl font-bold">Home</h1>
-          <div className="bg-white px-4 py-2 rounded-md shadow text-gray-600 flex items-center text-sm sm:text-base">
-            📅{" "}
-            <span className="ml-2">
-              Today's Date: {new Date().toLocaleDateString()}
-            </span>
+      <main className="flex-1 transition-all duration-300 overflow-y-auto px-6 mt-0 md:mt-8 mr-0 md:mr-4">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+          <h1 className="text-2xl font-bold">Patient Dashboard</h1>
+          <div className="flex items-center gap-2 bg-white shadow rounded-md px-4 py-2 text-gray-700 text-sm">
+            📅 <span>{new Date().toLocaleDateString()}</span>
           </div>
         </div>
 
-        <section className="bg-blue-100 p-4 sm:p-6 rounded-md mt-5">
-          <h2 className="text-lg sm:text-xl font-bold">Welcome!</h2>
-          <p className="text-gray-600 text-sm sm:text-base">
-            Haven't any idea about doctors? No problem. Visit "All Doctors" or
-            "Sessions" to view your appointment history.
+        {/* Welcome Section */}
+        <div className="bg-gradient-to-r from-blue-100 via-blue-50 to-blue-100 p-6 rounded-lg shadow mb-8">
+          <h2 className="text-xl font-semibold mb-2">Welcome!</h2>
+          <p className="text-gray-600 text-sm">
+            Don't know which doctor to consult? Visit{" "}
+            <span className="font-medium text-blue-600 cursor-pointer hover:underline">All Doctors</span> or{" "}
+            <span className="font-medium text-blue-600 cursor-pointer hover:underline">Sessions</span> to see your appointment history.
           </p>
-        </section>
+        </div>
 
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+        {/* Stat Cards */}
+        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
           {[
-            {
-              icon: FaUserMd,
-              count: dashboardData.doctorsCount,
-              label: "All Doctors",
-            },
-            {
-              icon: FaUserInjured,
-              count: dashboardData.patientsCount,
-              label: "All Patients",
-            },
-            {
-              icon: FaCalendarCheck,
-              count: dashboardData.newBookingsCount,
-              label: "New Booking",
-            },
-            {
-              icon: FaClock,
-              count: dashboardData.todaySessionsCount,
-              label: "Today Sessions",
-            },
-          ].map(({ icon: Icon, count, label }, index) => (
-            <div
-              key={index}
-              className="bg-white p-4 rounded-md shadow-md flex items-center justify-between"
-            >
+            { icon: FaUserMd, count: dashboardData.doctorsCount, label: "All Doctors" },
+            { icon: FaUserInjured, count: dashboardData.patientsCount, label: "All Patients" },
+            { icon: FaCalendarCheck, count: dashboardData.newBookingsCount, label: "New Bookings" },
+            { icon: FaClock, count: dashboardData.todaySessionsCount, label: "Today's Sessions" },
+          ].map(({ icon: Icon, count, label }, idx) => (
+            <div key={idx} className="bg-white p-5 rounded-lg shadow hover:shadow-lg transition flex items-center justify-between">
               <div>
-                <p className="text-lg font-bold">{count ?? 0}</p>
-                <p className="text-gray-600 text-sm">{label}</p>
+                <p className="text-2xl font-bold text-gray-800">{count ?? 0}</p>
+                <p className="text-gray-500">{label}</p>
               </div>
-              <Icon className="text-blue-500 text-xl sm:text-2xl" />
+              <Icon className="text-blue-500 text-3xl" />
             </div>
           ))}
         </section>
 
-        <button
-          onClick={toggleModal}
-          className="bg-blue-500 text-white px-6 py-2 rounded-md mt-6 w-full sm:w-auto"
-        >
-          Add Appointment
-        </button>
+        {/* Add Appointment Button */}
+        <div className="flex justify-end mb-6">
+          <button
+            onClick={toggleModal}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition"
+          >
+            + Book Appointment
+          </button>
+        </div>
 
+        {/* Modal */}
         {isModalOpen && (
-          <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50 overflow-y-auto">
-            <div className="bg-white p-6 rounded-md w-full max-w-md mx-4 relative">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+            <div className="bg-white p-8 rounded-lg w-full max-w-lg shadow-lg relative">
               <button
                 onClick={toggleModal}
-                className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-2xl font-bold"
+                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl"
               >
                 &times;
               </button>
-              <h2 className="text-lg font-bold mb-4">Add Appointment</h2>
+              <h2 className="text-xl font-bold mb-6 text-center">Book New Appointment</h2>
               <form onSubmit={handleSubmitAppointment} className="space-y-4">
-                {/* Doctor and Specialization */}
                 <div>
-                  <label className="block text-gray-600">
-                    Doctor and Specialization
-                  </label>
+                  <label className="block text-sm font-medium mb-1">Select Doctor</label>
                   <select
                     value={selectedDoctor}
                     onChange={(e) => setSelectedDoctor(e.target.value)}
-                    className="w-full p-2 border rounded-md"
+                    className="w-full border rounded-md p-2 focus:ring-2 focus:ring-blue-300"
                     required
                   >
-                    <option value="">Select Doctor</option>
+                    <option value="">-- Choose Doctor --</option>
                     {availableDoctors.map((doctor) => (
                       <option key={doctor._id} value={doctor._id}>
-                        {doctor.name} - {doctor.specialization}
+                        {doctor.name} ({doctor.specialization})
                       </option>
                     ))}
                   </select>
                 </div>
 
-                {/* Available Date & Time Dropdown */}
                 <div>
-                  <label className="block text-gray-600">Available Date & Time</label>
+                  <label className="block text-sm font-medium mb-1">Select Schedule</label>
                   <select
                     value={selectedSchedule}
                     onChange={(e) => setSelectedSchedule(e.target.value)}
-                    className="w-full p-2 border rounded-md"
+                    className="w-full border rounded-md p-2 focus:ring-2 focus:ring-blue-300"
                     required
                   >
-                    <option value="">Select Available Date & Time</option>
+                    <option value="">-- Choose Schedule --</option>
                     {availableSchedules
-                      .sort((a, b) => new Date(a) - new Date(b)) // Optional: sort by earliest time
-                      .map((schedule, i) => (
-                        <option key={i} value={schedule}>
+                      .sort((a, b) => new Date(a) - new Date(b))
+                      .map((schedule, idx) => (
+                        <option key={idx} value={schedule}>
                           {new Date(schedule).toLocaleString("en-US", {
                             weekday: "short",
-                            year: "numeric",
                             month: "short",
                             day: "numeric",
                             hour: "numeric",
                             minute: "2-digit",
-                            hour12: true,
                           })}
                         </option>
                       ))}
                   </select>
                 </div>
 
-                {/* Reason for Appointment */}
                 <div>
-                  <label className="block text-gray-600">Reason</label>
+                  <label className="block text-sm font-medium mb-1">Reason</label>
                   <input
                     type="text"
                     value={reason}
                     onChange={(e) => setReason(e.target.value)}
-                    className="w-full p-2 border rounded-md"
-                    placeholder="Reason for the visit"
+                    className="w-full border rounded-md p-2 focus:ring-2 focus:ring-blue-300"
                     required
                   />
                 </div>
 
-                {/* Notes */}
                 <div>
-                  <label className="block text-gray-600">Notes</label>
+                  <label className="block text-sm font-medium mb-1">Notes</label>
                   <textarea
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
-                    className="w-full p-2 border rounded-md"
-                    placeholder="Any additional notes"
+                    className="w-full border rounded-md p-2 focus:ring-2 focus:ring-blue-300"
+                    placeholder="Optional notes"
                   />
                 </div>
 
                 <button
                   type="submit"
-                  className="bg-blue-500 text-white px-6 py-2 rounded-md w-full"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-md shadow-md"
                 >
-                  Save Appointment
+                  Confirm Appointment
                 </button>
               </form>
             </div>
           </div>
         )}
 
-        <section className="mt-8">
-          <h2 className="text-lg sm:text-xl font-bold mb-4">
-            Upcoming Appointments
-          </h2>
+        {/* Upcoming Appointments */}
+        <section>
+          <h2 className="text-xl font-bold mb-4">Upcoming Appointments</h2>
           {appointments.length > 0 ? (
-            <ul>
-              {appointments.map((appointment) => (
-                <li
-                  key={appointment._id}
-                  className="bg-white p-4 rounded-md shadow mb-4"
-                >
-                  <p className="text-gray-800 font-bold">
-                    {appointment.reason} with Dr. {appointment.doctorName}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    Scheduled for:{" "}
-                    {new Date(appointment.scheduledDateTime).toLocaleString()}
-                  </p>
+            <ul className="space-y-4">
+              {appointments.map((appt) => (
+                <li key={appt._id} className="bg-white p-4 rounded-lg shadow flex flex-col">
+                  <span className="text-lg font-semibold text-blue-700">
+                    {appt.reason} - Dr. {appt.doctorName}
+                  </span>
+                  <span className="text-sm text-gray-600 mt-1">
+                    {new Date(appt.scheduledDateTime).toLocaleString()}
+                  </span>
                 </li>
               ))}
             </ul>
           ) : (
-            <p>No upcoming appointments.</p>
+            <p className="text-gray-500">No upcoming appointments yet.</p>
           )}
         </section>
       </main>

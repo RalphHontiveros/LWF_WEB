@@ -27,9 +27,7 @@ const AdminPatients = () => {
         setIsSidebarOpen={setIsSidebarOpen}
       />
       <main
-        className={`flex-1 p-8 transition-all duration-300 ${
-          isSidebarOpen ? "ml-64" : "ml-16"
-        }`}
+        className={`flex-1 p-8 transition-all duration-300`}
       >
         {/* Header */}
         <div className="flex justify-between items-center mb-6">

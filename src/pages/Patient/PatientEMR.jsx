@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../../components/PatientSidebar";
-import Header from "../../components/header";
 
 const PatientEMR = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -60,65 +59,91 @@ const PatientEMR = () => {
   return (
     <div className="flex min-h-screen bg-gray-100">
       <Sidebar isOpen={isSidebarOpen} toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
-      <div className={`transition-all duration-300 ml-${isSidebarOpen ? "64" : "16"} flex-1 p-8`}>
-        <h2 className="text-3xl font-bold text-gray-800 mb-6 border-b pb-3">Patient Profile</h2>
-        
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 border-b pb-6 mb-6">
-          <p><strong className="text-gray-700">Name:</strong> {patient.name}</p>
-          <p><strong className="text-gray-700">Age:</strong> {patient.age} (DOB: {patient.dob})</p>
-          <p><strong className="text-gray-700">Gender:</strong> {patient.gender}</p>
-          <p><strong className="text-gray-700">Blood Type:</strong> {patient.bloodType}</p>
-          <p><strong className="text-gray-700">Contact:</strong> {patient.contact}</p>
-          <p><strong className="text-gray-700">Email:</strong> {patient.email}</p>
-          <p className="col-span-2"><strong className="text-gray-700">Address:</strong> {patient.address}</p>
-        </div>
+      <div className={`transition-all duration-300 ml-${isSidebarOpen ? "64" : "16"} flex-1 p-6 md:p-10`}>
+        <div className="bg-white p-6 rounded-xl shadow-lg">
+          <h2 className="text-3xl font-bold text-blue-700 mb-6 border-b pb-3">Patient Profile</h2>
 
-        <div className="border-b pb-6 mb-6">
-          <h3 className="text-xl font-semibold text-gray-800 mb-3">Medical Information</h3>
-          <p><strong className="text-gray-700">Allergies:</strong> {patient.allergies?.join(", ") || "None"}</p>
-          <p><strong className="text-gray-700">Chronic Conditions:</strong> {patient.conditions?.join(", ") || "None"}</p>
-          <p><strong className="text-gray-700">Current Medications:</strong></p>
-          <ul className="list-disc list-inside text-gray-700 ml-4">
-            {patient.medications?.length > 0 ? (
-              patient.medications.map((med, index) => (
-                <li key={index}>{med.name} ({med.frequency})</li>
-              ))
-            ) : (
-              <li>None</li>
-            )}
-          </ul>
-        </div>
+          {/* Personal Information */}
+          <section className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+            <Info label="Name" value={patient.name} />
+            <Info label="Age" value={`${patient.age} (DOB: ${patient.dob})`} />
+            <Info label="Gender" value={patient.gender} />
+            <Info label="Blood Type" value={patient.bloodType} />
+            <Info label="Contact" value={patient.contact} />
+            <Info label="Email" value={patient.email} />
+            <div className="sm:col-span-2">
+              <Info label="Address" value={patient.address} />
+            </div>
+          </section>
 
-        <div>
-          <h3 className="text-xl font-semibold text-gray-800 mb-3">Recent Visits</h3>
-          <table className="w-full border border-gray-300 text-left rounded-lg overflow-hidden shadow-md">
-            <thead>
-              <tr className="bg-blue-600 text-white">
-                <th className="p-3">Date</th>
-                <th className="p-3">Reason</th>
-                <th className="p-3">Doctor</th>
-              </tr>
-            </thead>
-            <tbody>
-              {patient.visitHistory?.length > 0 ? (
-                patient.visitHistory.map((visit, index) => (
-                  <tr key={index} className="border bg-gray-50 even:bg-gray-100">
-                    <td className="p-3 border text-gray-700">{visit.date}</td>
-                    <td className="p-3 border text-gray-700">{visit.reason}</td>
-                    <td className="p-3 border text-gray-700">{visit.doctor}</td>
+          {/* Medical Information */}
+          <section className="mb-8">
+            <h3 className="text-2xl font-semibold text-gray-800 mb-4">Medical Information</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <Info label="Allergies" value={patient.allergies?.join(", ") || "None"} />
+              <Info label="Chronic Conditions" value={patient.conditions?.join(", ") || "None"} />
+            </div>
+
+            <div className="mt-6">
+              <h4 className="text-lg font-semibold text-gray-700 mb-2">Current Medications:</h4>
+              <ul className="list-disc list-inside text-gray-600 ml-4">
+                {patient.medications?.length > 0 ? (
+                  patient.medications.map((med, idx) => (
+                    <li key={idx}>
+                      {med.name} ({med.frequency})
+                    </li>
+                  ))
+                ) : (
+                  <li>None</li>
+                )}
+              </ul>
+            </div>
+          </section>
+
+          {/* Recent Visits */}
+          <section>
+            <h3 className="text-2xl font-semibold text-gray-800 mb-4">Recent Visits</h3>
+            <div className="overflow-x-auto shadow rounded-lg">
+              <table className="w-full text-sm text-gray-700 bg-white border border-gray-300 rounded-md">
+                <thead className="bg-blue-600 text-white">
+                  <tr>
+                    <th className="px-6 py-3 text-left">Date</th>
+                    <th className="px-6 py-3 text-left">Reason</th>
+                    <th className="px-6 py-3 text-left">Doctor</th>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="3" className="p-3 text-center text-gray-500">No visits recorded.</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                </thead>
+                <tbody>
+                  {patient.visitHistory?.length > 0 ? (
+                    patient.visitHistory.map((visit, index) => (
+                      <tr key={index} className="odd:bg-gray-100 even:bg-gray-50">
+                        <td className="px-6 py-4">{visit.date}</td>
+                        <td className="px-6 py-4">{visit.reason}</td>
+                        <td className="px-6 py-4">{visit.doctor}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="3" className="text-center px-6 py-4 text-gray-500">
+                        No visits recorded.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </section>
         </div>
       </div>
     </div>
   );
 };
+
+// Reusable Info Component
+const Info = ({ label, value }) => (
+  <div>
+    <p className="text-sm text-gray-500 mb-1">{label}</p>
+    <p className="font-medium text-gray-800">{value}</p>
+  </div>
+);
 
 export default PatientEMR;

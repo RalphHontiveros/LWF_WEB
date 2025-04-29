@@ -23,7 +23,7 @@ const AdminSchedule = () => {
   return (
     <div className="flex h-screen bg-gray-100">
       <AdminSidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
-      <main className={`flex-1 p-8 transition-all duration-300 ${isSidebarOpen ? "ml-64" : "ml-16"}`}>
+      <main className={`flex-1 p-8 transition-all duration-300`}>
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold flex items-center gap-2">
             <FaCalendarAlt className="text-green-600" /> Doctor Schedules
