@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Sidebar from "../../components/PatientSidebar";
 import {
   FaUserMd,
@@ -10,89 +10,16 @@ import {
 const PatientDashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [dashboardData, setDashboardData] = useState({});
-  const [appointments, setAppointments] = useState([]);
-  const [availableDoctors, setAvailableDoctors] = useState([]);
   const [selectedDoctor, setSelectedDoctor] = useState("");
-  const [availableSchedules, setAvailableSchedules] = useState([]);
-  const [selectedSchedule, setSelectedSchedule] = useState("");
-  const [reason, setReason] = useState("");
-  const [notes, setNotes] = useState("");
-  const [contactInfo, setContactInfo] = useState({ phone: "", email: "" });
 
   const toggleModal = () => setIsModalOpen(!isModalOpen);
 
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        const response = await fetch("/api/patient/dashboard");
-        const data = await response.json();
-        setAppointments(data.upcomingAppointments || []);
-        setDashboardData(data);
-      } catch (err) {
-        console.error("Dashboard fetch error:", err);
-      }
-    };
-
-    const fetchDoctors = async () => {
-      try {
-        const response = await fetch("/api/patient/available-doctors");
-        const data = await response.json();
-        setAvailableDoctors(data);
-      } catch (err) {
-        console.error("Available doctors fetch error:", err);
-      }
-    };
-
-    fetchDashboardData();
-    fetchDoctors();
-  }, []);
-
-  useEffect(() => {
-    const fetchAvailableSchedules = async () => {
-      if (!selectedDoctor) return;
-      try {
-        const response = await fetch(`/api/patient/available-schedules/${selectedDoctor}`);
-        const data = await response.json();
-        setAvailableSchedules(data);
-      } catch (err) {
-        console.error("Schedule fetch error:", err);
-      }
-    };
-
-    fetchAvailableSchedules();
-    setSelectedSchedule("");
-  }, [selectedDoctor]);
-
-  const handleSubmitAppointment = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await fetch("/api/patient/book-appointment", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          doctor: selectedDoctor,
-          scheduledDateTime: selectedSchedule,
-          reason,
-          patientId: "", // backend should handle JWT
-          contactInfo,
-        }),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) throw new Error(result.message || "Unknown error");
-
-      setAppointments((prev) => [...prev, result.newAppointment]);
-      toggleModal();
-    } catch (err) {
-      console.error("Error creating appointment:", err);
-    }
-  };
-
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-gray-50">
-      <Sidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
+      <Sidebar
+        isSidebarOpen={isSidebarOpen}
+        setIsSidebarOpen={setIsSidebarOpen}
+      />
 
       <main className="flex-1 transition-all duration-300 overflow-y-auto px-6 mt-0 md:mt-8 mr-0 md:mr-4">
         {/* Header */}
@@ -108,22 +35,31 @@ const PatientDashboard = () => {
           <h2 className="text-xl font-semibold mb-2">Welcome!</h2>
           <p className="text-gray-600 text-sm">
             Don't know which doctor to consult? Visit{" "}
-            <span className="font-medium text-blue-600 cursor-pointer hover:underline">All Doctors</span> or{" "}
-            <span className="font-medium text-blue-600 cursor-pointer hover:underline">Sessions</span> to see your appointment history.
+            <span className="font-medium text-blue-600 cursor-pointer hover:underline">
+              All Doctors
+            </span>{" "}
+            or{" "}
+            <span className="font-medium text-blue-600 cursor-pointer hover:underline">
+              Sessions
+            </span>{" "}
+            to see your appointment history.
           </p>
         </div>
 
         {/* Stat Cards */}
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
           {[
-            { icon: FaUserMd, count: dashboardData.doctorsCount, label: "All Doctors" },
-            { icon: FaUserInjured, count: dashboardData.patientsCount, label: "All Patients" },
-            { icon: FaCalendarCheck, count: dashboardData.newBookingsCount, label: "New Bookings" },
-            { icon: FaClock, count: dashboardData.todaySessionsCount, label: "Today's Sessions" },
+            { icon: FaUserMd, count: 10, label: "All Doctors" },
+            { icon: FaUserInjured, count: 24, label: "All Patients" },
+            { icon: FaCalendarCheck, count: 3, label: "New Bookings" },
+            { icon: FaClock, count: 5, label: "Today's Sessions" },
           ].map(({ icon: Icon, count, label }, idx) => (
-            <div key={idx} className="bg-white p-5 rounded-lg shadow hover:shadow-lg transition flex items-center justify-between">
+            <div
+              key={idx}
+              className="bg-white p-5 rounded-lg shadow hover:shadow-lg transition flex items-center justify-between"
+            >
               <div>
-                <p className="text-2xl font-bold text-gray-800">{count ?? 0}</p>
+                <p className="text-2xl font-bold text-gray-800">{count}</p>
                 <p className="text-gray-500">{label}</p>
               </div>
               <Icon className="text-blue-500 text-3xl" />
@@ -151,66 +87,59 @@ const PatientDashboard = () => {
               >
                 &times;
               </button>
-              <h2 className="text-xl font-bold mb-6 text-center">Book New Appointment</h2>
-              <form onSubmit={handleSubmitAppointment} className="space-y-4">
+              <h2 className="text-xl font-bold mb-6 text-center">
+                Book New Appointment
+              </h2>
+              <form className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Select Doctor</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Select Doctor
+                  </label>
                   <select
+                    className="w-full border rounded-md p-2 focus:ring-2 focus:ring-blue-300"
                     value={selectedDoctor}
                     onChange={(e) => setSelectedDoctor(e.target.value)}
-                    className="w-full border rounded-md p-2 focus:ring-2 focus:ring-blue-300"
                     required
                   >
                     <option value="">-- Choose Doctor --</option>
-                    {availableDoctors.map((doctor) => (
-                      <option key={doctor._id} value={doctor._id}>
-                        {doctor.name} ({doctor.specialization})
-                      </option>
-                    ))}
+                    <option value="1">Dr. Jane Doe – Dermatology</option>
+                    <option value="2">Dr. John Smith – Cardiology</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1">Select Schedule</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Select Schedule
+                  </label>
                   <select
-                    value={selectedSchedule}
-                    onChange={(e) => setSelectedSchedule(e.target.value)}
-                    className="w-full border rounded-md p-2 focus:ring-2 focus:ring-blue-300"
+                    className={`w-full border rounded-md p-2 focus:ring-2 focus:ring-blue-300 ${
+                      !selectedDoctor ? "bg-gray-100 cursor-not-allowed text-gray-400" : ""
+                    }`}
+                    disabled={!selectedDoctor}
                     required
                   >
                     <option value="">-- Choose Schedule --</option>
-                    {availableSchedules
-                      .sort((a, b) => new Date(a) - new Date(b))
-                      .map((schedule, idx) => (
-                        <option key={idx} value={schedule}>
-                          {new Date(schedule).toLocaleString("en-US", {
-                            weekday: "short",
-                            month: "short",
-                            day: "numeric",
-                            hour: "numeric",
-                            minute: "2-digit",
-                          })}
-                        </option>
-                      ))}
+                    <option value="1">Mon, May 6 – 10:00 AM</option>
+                    <option value="2">Tue, May 7 – 3:00 PM</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1">Reason</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Reason
+                  </label>
                   <input
                     type="text"
-                    value={reason}
-                    onChange={(e) => setReason(e.target.value)}
                     className="w-full border rounded-md p-2 focus:ring-2 focus:ring-blue-300"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1">Notes</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Notes
+                  </label>
                   <textarea
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
                     className="w-full border rounded-md p-2 focus:ring-2 focus:ring-blue-300"
                     placeholder="Optional notes"
                   />
@@ -230,22 +159,24 @@ const PatientDashboard = () => {
         {/* Upcoming Appointments */}
         <section>
           <h2 className="text-xl font-bold mb-4">Upcoming Appointments</h2>
-          {appointments.length > 0 ? (
-            <ul className="space-y-4">
-              {appointments.map((appt) => (
-                <li key={appt._id} className="bg-white p-4 rounded-lg shadow flex flex-col">
-                  <span className="text-lg font-semibold text-blue-700">
-                    {appt.reason} - Dr. {appt.doctorName}
-                  </span>
-                  <span className="text-sm text-gray-600 mt-1">
-                    {new Date(appt.scheduledDateTime).toLocaleString()}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-gray-500">No upcoming appointments yet.</p>
-          )}
+          <ul className="space-y-4">
+            <li className="bg-white p-4 rounded-lg shadow flex flex-col">
+              <span className="text-lg font-semibold text-blue-700">
+                Skin Check – Dr. Jane Doe
+              </span>
+              <span className="text-sm text-gray-600 mt-1">
+                Mon, May 6, 2025 – 10:00 AM
+              </span>
+            </li>
+            <li className="bg-white p-4 rounded-lg shadow flex flex-col">
+              <span className="text-lg font-semibold text-blue-700">
+                Heart Consultation – Dr. John Smith
+              </span>
+              <span className="text-sm text-gray-600 mt-1">
+                Tue, May 7, 2025 – 3:00 PM
+              </span>
+            </li>
+          </ul>
         </section>
       </main>
     </div>
