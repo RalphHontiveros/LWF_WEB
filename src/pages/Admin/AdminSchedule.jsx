@@ -1,24 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import AdminSidebar from "../../components/AdminSidebar";
 import { FaCalendarAlt } from "react-icons/fa";
 
 const AdminSchedule = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [schedules, setSchedules] = useState([]);
-
-  useEffect(() => {
-    const fetchSchedules = async () => {
-      try {
-        const response = await fetch("/api/admin/schedules");
-        const data = await response.json();
-        setSchedules(data);
-      } catch (error) {
-        console.error("Error fetching schedules:", error);
-      }
-    };
-
-    fetchSchedules();
-  }, []);
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -30,38 +15,43 @@ const AdminSchedule = () => {
           </h1>
         </div>
 
-        {schedules.length === 0 ? (
-          <p className="text-gray-600">No schedules found.</p>
-        ) : (
-          <div className="overflow-x-auto bg-white shadow-md rounded-lg">
-            <table className="min-w-full table-auto text-left">
-              <thead className="bg-gray-200 text-gray-700">
-                <tr>
-                  <th className="px-6 py-3">Doctor</th>
-                  <th className="px-6 py-3">Date</th>
-                  <th className="px-6 py-3">Time</th>
-                  <th className="px-6 py-3">Patient</th>
-                  <th className="px-6 py-3">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {schedules.map((sched) => (
-                  <tr key={sched.id} className="border-t hover:bg-gray-50">
-                    <td className="px-6 py-4">{sched.doctorName}</td>
-                    <td className="px-6 py-4">{sched.date}</td>
-                    <td className="px-6 py-4">{sched.time}</td>
-                    <td className="px-6 py-4">{sched.patientName}</td>
-                    <td className="px-6 py-4">
-                      <span className={`px-2 py-1 rounded-full text-xs ${sched.status === "Confirmed" ? "bg-green-200 text-green-800" : "bg-yellow-200 text-yellow-800"}`}>
-                        {sched.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+        <div className="overflow-x-auto bg-white shadow-md rounded-lg">
+          <table className="min-w-full table-auto text-left">
+            <thead className="bg-gray-200 text-gray-700">
+              <tr>
+                <th className="px-6 py-3">Doctor</th>
+                <th className="px-6 py-3">Date</th>
+                <th className="px-6 py-3">Time</th>
+                <th className="px-6 py-3">Patient</th>
+                <th className="px-6 py-3">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="border-t hover:bg-gray-50">
+                <td className="px-6 py-4">Dr. Smith</td>
+                <td className="px-6 py-4">2025-05-01</td>
+                <td className="px-6 py-4">10:00 AM</td>
+                <td className="px-6 py-4">John Doe</td>
+                <td className="px-6 py-4">
+                  <span className="px-2 py-1 rounded-full text-xs bg-green-200 text-green-800">
+                    Confirmed
+                  </span>
+                </td>
+              </tr>
+              <tr className="border-t hover:bg-gray-50">
+                <td className="px-6 py-4">Dr. Lee</td>
+                <td className="px-6 py-4">2025-05-02</td>
+                <td className="px-6 py-4">11:30 AM</td>
+                <td className="px-6 py-4">Jane Roe</td>
+                <td className="px-6 py-4">
+                  <span className="px-2 py-1 rounded-full text-xs bg-yellow-200 text-yellow-800">
+                    Pending
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </main>
     </div>
   );

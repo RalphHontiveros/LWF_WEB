@@ -91,174 +91,173 @@ const EditModal = ({ emr, onClose, onSave }) => {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50 p-6 overflow-y-auto">
-  <div className="bg-white w-full max-w-2xl p-6 rounded-2xl shadow-lg mx-auto max-h-screen overflow-y-auto">
-    
-    <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">Edit EMR</h2>
-    
-    <div className="space-y-6">
-      <input
-        type="text"
-        name="name"
-        value={formData.name || ""}
-        onChange={handleChange}
-        className="p-3 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        placeholder="Name"
-      />
-
-      <input
-        type="date"
-        name="dob"
-        value={formData.dob || ""}
-        onChange={handleChange}
-        className="p-3 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
-
-      <input
-        type="number"
-        name="age"
-        value={formData.age || ""}
-        onChange={handleChange}
-        className="p-3 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        placeholder="Age"
-      />
-
-      <select
-        name="gender"
-        value={formData.gender || ""}
-        onChange={handleChange}
-        className="p-3 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-      >
-        <option value="">Select Gender</option>
-        <option value="Male">Male</option>
-        <option value="Female">Female</option>
-        <option value="Other">Other</option>
-      </select>
-
-      <input
-        type="text"
-        name="bloodType"
-        value={formData.bloodType || ""}
-        onChange={handleChange}
-        className="p-3 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        placeholder="Blood Type"
-      />
-
-      <input
-        type="text"
-        name="contact"
-        value={formData.contact || ""}
-        onChange={handleChange}
-        className="p-3 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        placeholder="Contact"
-      />
-
-      <input
-        type="email"
-        name="email"
-        value={formData.email || ""}
-        onChange={handleChange}
-        className="p-3 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        placeholder="Email"
-      />
-
-      <textarea
-        name="address"
-        value={formData.address || ""}
-        onChange={handleChange}
-        className="p-3 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        placeholder="Address"
-      />
-
-      <textarea
-        name="allergies"
-        value={formData.allergies?.join(", ") || ""}
-        onChange={(e) => handleChange({ target: { name: "allergies", value: e.target.value.split(",") } })}
-        className="p-3 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        placeholder="Allergies (comma separated)"
-      />
-
-      <textarea
-        name="conditions"
-        value={formData.conditions?.join(", ") || ""}
-        onChange={(e) => handleChange({ target: { name: "conditions", value: e.target.value.split(",") } })}
-        className="p-3 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        placeholder="Conditions (comma separated)"
-      />
-
-      <h3 className="font-semibold mt-6 text-lg text-gray-800">Medications:</h3>
-      <div className="space-y-4">
-        {formData.medications?.map((med, index) => (
-          <div key={index} className="flex flex-col sm:flex-row gap-4">
-            <input
-              type="text"
-              name={`medicationName-${index}`}
-              value={med.name || ""}
-              onChange={(e) => {
-                const updatedMedications = [...formData.medications];
-                updatedMedications[index].name = e.target.value;
-                setFormData({ ...formData, medications: updatedMedications });
-              }}
-              className="p-3 border rounded-lg w-full sm:w-1/2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Medication Name"
-            />
-
-            <input
-              type="text"
-              name={`medicationFrequency-${index}`}
-              value={med.frequency || ""}
-              onChange={(e) => {
-                const updatedMedications = [...formData.medications];
-                updatedMedications[index].frequency = e.target.value;
-                setFormData({ ...formData, medications: updatedMedications });
-              }}
-              className="p-3 border rounded-lg w-full sm:w-1/2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Frequency"
-            />
+      <div className="bg-white w-full max-w-2xl p-6 rounded-2xl shadow-lg mx-auto max-h-screen overflow-y-auto">
+        
+        <h2 className="text-2xl font-bold mb-6 text-center">Edit EMR</h2>
+        
+        <div className="space-y-6">
+          <input
+            type="text"
+            name="name"
+            value={formData.name || ""}
+            onChange={handleChange}
+            className="p-3 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Name"
+          />
+  
+          <input
+            type="date"
+            name="dob"
+            value={formData.dob || ""}
+            onChange={handleChange}
+            className="p-3 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+  
+          <input
+            type="number"
+            name="age"
+            value={formData.age || ""}
+            onChange={handleChange}
+            className="p-3 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Age"
+          />
+  
+          <select
+            name="gender"
+            value={formData.gender || ""}
+            onChange={handleChange}
+            className="p-3 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Select Gender</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+  
+          <input
+            type="text"
+            name="bloodType"
+            value={formData.bloodType || ""}
+            onChange={handleChange}
+            className="p-3 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Blood Type"
+          />
+  
+          <input
+            type="text"
+            name="contact"
+            value={formData.contact || ""}
+            onChange={handleChange}
+            className="p-3 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Contact"
+          />
+  
+          <input
+            type="email"
+            name="email"
+            value={formData.email || ""}
+            onChange={handleChange}
+            className="p-3 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Email"
+          />
+  
+          <textarea
+            name="address"
+            value={formData.address || ""}
+            onChange={handleChange}
+            className="p-3 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Address"
+          />
+  
+          <textarea
+            name="allergies"
+            value={formData.allergies?.join(", ") || ""}
+            onChange={(e) => handleChange({ target: { name: "allergies", value: e.target.value.split(",") } })}
+            className="p-3 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Allergies (comma separated)"
+          />
+  
+          <textarea
+            name="conditions"
+            value={formData.conditions?.join(", ") || ""}
+            onChange={(e) => handleChange({ target: { name: "conditions", value: e.target.value.split(",") } })}
+            className="p-3 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Conditions (comma separated)"
+          />
+  
+          <h3 className="font-semibold mt-6 text-lg">Medications:</h3>
+          <div className="space-y-4">
+            {formData.medications?.map((med, index) => (
+              <div key={index} className="flex flex-col sm:flex-row gap-4">
+                <input
+                  type="text"
+                  name={`medicationName-${index}`}
+                  value={med.name || ""}
+                  onChange={(e) => {
+                    const updatedMedications = [...formData.medications];
+                    updatedMedications[index].name = e.target.value;
+                    setFormData({ ...formData, medications: updatedMedications });
+                  }}
+                  className="p-3 border rounded-lg w-full sm:w-1/2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Medication Name"
+                />
+  
+                <input
+                  type="text"
+                  name={`medicationFrequency-${index}`}
+                  value={med.frequency || ""}
+                  onChange={(e) => {
+                    const updatedMedications = [...formData.medications];
+                    updatedMedications[index].frequency = e.target.value;
+                    setFormData({ ...formData, medications: updatedMedications });
+                  }}
+                  className="p-3 border rounded-lg w-full sm:w-1/2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Frequency"
+                />
+              </div>
+            ))}
+            <div className="flex justify-center gap-4 mt-4">
+              <button
+                type="button"
+                onClick={() => {
+                  setFormData({ ...formData, medications: [...formData.medications, { name: "", frequency: "" }] });
+                }}
+                className="p-3 bg-blue-600 text-white rounded-lg w-full sm:w-auto hover:bg-blue-700 transition duration-300"
+              >
+                Add Medication
+              </button>
+  
+              <button
+                type="button"
+                onClick={() => {
+                  const newMedications = [...formData.medications];
+                  newMedications.pop();
+                  setFormData({ ...formData, medications: newMedications });
+                }}
+                className="p-3 bg-red-600 text-white rounded-lg w-full sm:w-auto hover:bg-red-700 transition duration-300"
+              >
+                Remove Medication
+              </button>
+            </div>
           </div>
-        ))}
-        <div className="flex justify-center gap-4 mt-4">
+        </div>
+  
+        <div className="flex flex-col sm:flex-row justify-between gap-4 mt-8">
           <button
-            type="button"
-            onClick={() => {
-              setFormData({ ...formData, medications: [...formData.medications, { name: "", frequency: "" }] });
-            }}
-            className="p-3 bg-blue-600 text-white rounded-lg w-full sm:w-auto hover:bg-blue-700 transition duration-300"
+            onClick={onClose}
+            className="p-3 bg-gray-600 text-white rounded-lg w-full sm:w-auto hover:bg-gray-700 transition duration-300"
           >
-            Add Medication
+            Cancel
           </button>
-
           <button
-            type="button"
-            onClick={() => {
-              const newMedications = [...formData.medications];
-              newMedications.pop();
-              setFormData({ ...formData, medications: newMedications });
-            }}
-            className="p-3 bg-red-600 text-white rounded-lg w-full sm:w-auto hover:bg-red-700 transition duration-300"
+            onClick={handleSave}
+            className="p-3 bg-green-600 text-white rounded-lg w-full sm:w-auto hover:bg-green-700 transition duration-300"
           >
-            Remove Medication
+            Save
           </button>
         </div>
       </div>
     </div>
-
-    <div className="flex flex-col sm:flex-row justify-between gap-4 mt-8">
-      <button
-        onClick={onClose}
-        className="p-3 bg-gray-600 text-white rounded-lg w-full sm:w-auto hover:bg-gray-700 transition duration-300"
-      >
-        Cancel
-      </button>
-      <button
-        onClick={handleSave}
-        className="p-3 bg-green-600 text-white rounded-lg w-full sm:w-auto hover:bg-green-700 transition duration-300"
-      >
-        Save
-      </button>
-    </div>
-  </div>
-</div>
-
   );
 };
 
