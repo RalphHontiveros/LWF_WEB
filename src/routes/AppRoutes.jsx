@@ -12,6 +12,7 @@ import AdminDoctors from "../pages/Admin/AdminDoctors";
 import AdminSchedule from "../pages/Admin/AdminSchedule";
 import AdminAppointments from "../pages/Admin/AdminAppointments";
 import AdminPatients from "../pages/Admin/AdminPatients";
+import AdminPatientEMR from "../pages/Admin/AdminPatientEMR";
 import AdminProfile from "../pages/Admin/AdminProfile";
 
 // Doctor
@@ -80,6 +81,14 @@ const AppRoutes = () => {
           element={
             <ProtectedRoute role="admin">
               <AdminPatients />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin-patient-emr"
+          element={
+            <ProtectedRoute role="admin">
+              <AdminPatientEMR />
             </ProtectedRoute>
           }
         />

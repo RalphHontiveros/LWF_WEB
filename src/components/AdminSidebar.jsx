@@ -33,6 +33,7 @@ const Sidebar = ({ children }) => {
     { to: "/admin-schedule", icon: <FaCalendarCheck />, label: "Scheduled" },
     { to: "/admin-appointment", icon: <FaBookmark />, label: "Appointment" },
     { to: "/admin-patients", icon: <FaWheelchair />, label: "Patients" },
+    { to: "/admin-patient-emr", icon: <FaWpforms />, label: "Patient EMR" }, // ✅ Added this line
     { to: "/admin-profile", icon: <FaWpforms />, label: "Profile" },
   ];
 
