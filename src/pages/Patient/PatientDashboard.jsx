@@ -30,12 +30,13 @@ const PatientDashboard = () => {
         const res = await fetch("/api/patient/dashboard");
         const data = await res.json();
         setDashboardData(data);
-        setAppointments(data.upcomingAppointments || []);
+        setAppointments(data.upcomingAppointments || []);  // Ensure it's always an array
       } catch (err) {
         console.error("Dashboard fetch error:", err);
+        setAppointments([]);  // Fallback to an empty array if there is an error
       }
     };
-
+  
     const fetchDoctors = async () => {
       try {
         const res = await fetch("/api/patient/available-doctors");
@@ -45,20 +46,26 @@ const PatientDashboard = () => {
         console.error("Available doctors fetch error:", err);
       }
     };
-
+  
     const fetchAppointmentStatus = async () => {
       try {
         const res = await fetch("/api/patient/my-appointments/status");
+        if (res.status === 404) {
+          console.log("No appointments found for this patient");
+          setAppointments([]);  // Fallback to an empty array if no appointments exist
+          return;
+        }
         const data = await res.json();
-        setAppointments(data.appointments);
+        setAppointments(data.appointments || []);  // Ensure it's always an array
       } catch (err) {
         console.error("Error fetching appointment status:", err);
+        setAppointments([]);  // Fallback to an empty array if there's an error
       }
     };
-
+  
     fetchDashboardData();
     fetchDoctors();
-    fetchAppointmentStatus();  // Fetch the appointment status here
+    fetchAppointmentStatus();
   }, []);
 
   useEffect(() => {
@@ -286,28 +293,28 @@ const PatientDashboard = () => {
 
         {/* Appointments List */}
         <section className="mt-10">
-          <h2 className="text-xl font-bold mb-4">Upcoming Appointments</h2>
-          {appointments.length ? (
-            <ul className="space-y-4">
-              {appointments.map((appt) => (
-                <li
-                  key={appt.appointmentId}
-                  className={`bg-white p-4 rounded-lg shadow flex flex-col ${getStatusClass(appt.status)}`}
-                >
-                  <span className="text-lg font-semibold text-blue-700">
-                    {appt.reason} - Dr. {appt.doctorName}
-                  </span>
-                  <span className="text-sm text-gray-600 mt-1">
-                    {new Date(appt.scheduledDateTime).toLocaleString()}
-                  </span>
-                  <span className="text-xs text-gray-500 mt-1">Status: {appt.status}</span>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-gray-500">No upcoming appointments yet.</p>
-          )}
-        </section>
+  <h2 className="text-xl font-bold mb-4">Upcoming Appointments</h2>
+  {Array.isArray(appointments) && appointments.length ? ( // Ensure appointments is an array
+    <ul className="space-y-4">
+      {appointments.map((appt) => (
+        <li
+          key={appt.appointmentId}
+          className={`bg-white p-4 rounded-lg shadow flex flex-col ${getStatusClass(appt.status)}`}
+        >
+          <span className="text-lg font-semibold text-blue-700">
+            {appt.reason} - Dr. {appt.doctorName || 'Unknown'} {/* Default to 'Unknown' */}
+          </span>
+          <span className="text-sm text-gray-600 mt-1">
+            {new Date(appt.scheduledDateTime).toLocaleString()}
+          </span>
+          <span className="text-xs text-gray-500 mt-1">Status: {appt.status}</span>
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <p className="text-gray-500">No upcoming appointments yet.</p>
+  )}
+</section>
       </main>
     </div>
   );
