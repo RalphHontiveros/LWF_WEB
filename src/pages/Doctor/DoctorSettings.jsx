@@ -63,6 +63,7 @@ const SimplePatientSettings = () => {
               />
             </div>
 
+
             <div className="flex justify-center">
               <button
                 type="submit"
