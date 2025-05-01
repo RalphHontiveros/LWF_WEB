@@ -9,21 +9,7 @@ const AdminAppointments = () => {
   const [newDate, setNewDate] = useState("");
   const [newTime, setNewTime] = useState("");
 
-  const handleRescheduleClick = (appointment) => {
-    setSelectedAppointment(appointment);
-    setShowModal(true);
-  };
-
-  const handleRescheduleSubmit = (e) => {
-    e.preventDefault();
-    // Handle the logic to update the appointment with newDate & newTime
-    console.log("Rescheduled:", selectedAppointment, newDate, newTime);
-    setShowModal(false);
-    setNewDate("");
-    setNewTime("");
-  };
-
-  const appointments = [
+  const [appointments, setAppointments] = useState([
     {
       id: 1,
       patient: "John Doe",
@@ -40,7 +26,28 @@ const AdminAppointments = () => {
       time: "11:30 AM",
       status: "Cancelled",
     },
-  ];
+  ]);
+
+  const handleRescheduleClick = (appointment) => {
+    setSelectedAppointment(appointment);
+    setShowModal(true);
+  };
+
+  const handleRescheduleSubmit = (e) => {
+    e.preventDefault();
+    console.log("Rescheduled:", selectedAppointment, newDate, newTime);
+    setShowModal(false);
+    setNewDate("");
+    setNewTime("");
+  };
+
+  const handleStatusChange = (id, newStatus) => {
+    setAppointments((prev) =>
+      prev.map((appt) =>
+        appt.id === id ? { ...appt, status: newStatus } : appt
+      )
+    );
+  };
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -73,23 +80,24 @@ const AdminAppointments = () => {
                   <td className="px-6 py-4">{appt.date}</td>
                   <td className="px-6 py-4">{appt.time}</td>
                   <td className="px-6 py-4">
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs ${
+                    <select
+                      value={appt.status}
+                      onChange={(e) => handleStatusChange(appt.id, e.target.value)}
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${
                         appt.status === "Confirmed"
                           ? "bg-green-200 text-green-800"
-                          : "bg-red-200 text-red-800"
+                          : appt.status === "Cancelled"
+                          ? "bg-red-200 text-red-800"
+                          : "bg-yellow-200 text-yellow-800"
                       }`}
                     >
-                      {appt.status}
-                    </span>
+                      <option value="Confirmed">Confirmed</option>
+                      <option value="Pending">Pending</option>
+                      <option value="Cancelled">Cancelled</option>
+                    </select>
                   </td>
                   <td className="px-6 py-4 space-x-2">
-                    <button className="bg-blue-500 text-white px-3 py-1 rounded text-sm">
-                      View
-                    </button>
-                    <button className="bg-red-500 text-white px-3 py-1 rounded text-sm">
-                      Cancel
-                    </button>
+
                     <button
                       onClick={() => handleRescheduleClick(appt)}
                       className="bg-yellow-500 text-white px-3 py-1 rounded text-sm"
