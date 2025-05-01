@@ -4,10 +4,9 @@ import { FaEye } from "react-icons/fa";
 // Modal Component (Details View)
 const Modal = ({ emr, onClose, onEditClick }) => {
   return (
-    <div className="fixed inset-0  bg-black/50 bg-opacity-50 flex justify-center items-center z-50">
-    <div className="bg-white p-6 md:p-8 rounded-2xl shadow-2xl w-full max-w-3xl mx-4 md:mx-auto overflow-y-auto max-h-screen">
+    <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50 overflow-x-hidden px-4 sm:px-6">
+     <div className="bg-white p-6 md:p-8 rounded-2xl shadow-2xl w-full max-w-3xl max-h-screen overflow-y-auto">
       <h2 className="text-3xl font-bold text-gray-800 mb-6 border-b pb-2">EMR Details</h2>
-  
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
         <p><span className="font-semibold">Name:</span> {emr.name || "N/A"}</p>
         <p><span className="font-semibold">Date of Birth:</span> {emr.dob ? new Date(emr.dob).toLocaleDateString() : "N/A"}</p>

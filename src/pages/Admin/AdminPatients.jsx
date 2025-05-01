@@ -69,7 +69,7 @@ const AdminPatients = () => {
       if (response.ok && data.success) {
         alert("Profile updated successfully");
         setEditingPatient(null);
-        window.location.reload(); // or re-fetch patient list instead
+        window.location.reload(); // or re-fetch patient list
       } else {
         alert("Failed to update profile: " + data.message);
       }
@@ -79,46 +79,43 @@ const AdminPatients = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      <Sidebar
-        isSidebarOpen={isSidebarOpen}
-        setIsSidebarOpen={setIsSidebarOpen}
-      />
-      <main className="flex-1 p-8 transition-all duration-300">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-800">Patients</h1>
+    <div className="flex flex-col lg:flex-row h-screen bg-gray-100">
+      <Sidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
+      <main className="flex-1 p-4 sm:p-6 md:p-8 transition-all duration-300 overflow-auto">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-2">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-800">Patients</h1>
         </div>
 
-        <div className="overflow-x-auto shadow-md rounded-lg p-4">
+        <div className="w-full overflow-x-auto shadow-md rounded-lg p-2 sm:p-4 bg-white">
           {patients.length === 0 ? (
             <p className="text-gray-500 italic">No patients found.</p>
           ) : (
-            <table className="min-w-full table-auto text-left text-sm">
+            <table className="min-w-full text-left text-sm table-auto">
               <thead className="bg-gray-200 text-gray-700">
                 <tr>
-                  <th className="px-6 py-4 whitespace-nowrap">Name</th>
-                  <th className="px-6 py-4 whitespace-nowrap">DOB</th>
-                  <th className="px-6 py-4 whitespace-nowrap">Gender</th>
-                  <th className="px-6 py-4 whitespace-nowrap">Age</th>
-                  <th className="px-6 py-4 whitespace-nowrap">Contact</th>
-                  <th className="px-6 py-4 whitespace-nowrap">Address</th>
-                  <th className="px-6 py-4 whitespace-nowrap">Email</th>
-                  <th className="px-6 py-4 whitespace-nowrap">Actions</th>
+                  <th className="px-4 py-3">Name</th>
+                  <th className="px-4 py-3">DOB</th>
+                  <th className="px-4 py-3">Gender</th>
+                  <th className="px-4 py-3">Age</th>
+                  <th className="px-4 py-3">Contact</th>
+                  <th className="px-4 py-3">Address</th>
+                  <th className="px-4 py-3">Email</th>
+                  <th className="px-4 py-3">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-black">
                 {patients.map((patient) => (
                   <tr key={patient._id} className="hover:bg-gray-50">
-                    <td className="px-6 py-5 border-t border-black">{patient.name}</td>
-                    <td className="px-6 py-5 border-t border-black">
+                    <td className="px-4 py-3 border-t border-black">{patient.name}</td>
+                    <td className="px-4 py-3 border-t border-black">
                       {new Date(patient.dob).toLocaleDateString()}
                     </td>
-                    <td className="px-6 py-5 border-t border-black capitalize">{patient.gender}</td>
-                    <td className="px-6 py-5 border-t border-black">{patient.age}</td>
-                    <td className="px-6 py-5 border-t border-black">{patient.contact}</td>
-                    <td className="px-6 py-5 border-t border-black break-words max-w-xs">{patient.address}</td>
-                    <td className="px-6 py-5 border-t border-black break-words max-w-xs">{patient.user?.email}</td>
-                    <td className="px-6 py-5 border-t border-black">
+                    <td className="px-4 py-3 border-t border-black capitalize">{patient.gender}</td>
+                    <td className="px-4 py-3 border-t border-black">{patient.age}</td>
+                    <td className="px-4 py-3 border-t border-black">{patient.contact}</td>
+                    <td className="px-4 py-3 border-t border-black break-words max-w-xs">{patient.address}</td>
+                    <td className="px-4 py-3 border-t border-black break-words max-w-xs">{patient.user?.email}</td>
+                    <td className="px-4 py-3 border-t border-black">
                       <button
                         onClick={() => handleEditClick(patient)}
                         className="text-blue-600 hover:text-blue-800"
@@ -134,14 +131,12 @@ const AdminPatients = () => {
           )}
         </div>
 
-
-
         {/* Edit Profile Modal */}
         {editingPatient && (
-          <div className="fixed inset-0 bg-black/50 bg-opacity-40 flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded shadow-lg max-w-md w-full">
-              <h2 className="text-xl font-bold mb-4">Edit Patient Profile</h2>
-              <div className="space-y-2">
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+            <div className="bg-white p-4 sm:p-6 rounded shadow-lg w-full max-w-lg max-h-[90vh] overflow-y-auto">
+              <h2 className="text-lg sm:text-xl font-bold mb-4">Edit Patient Profile</h2>
+              <div className="space-y-3">
                 <input
                   name="name"
                   value={editFormData.name}

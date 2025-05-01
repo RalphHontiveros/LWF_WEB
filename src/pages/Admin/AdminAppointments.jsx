@@ -16,7 +16,7 @@ const AdminAppointments = () => {
       doctor: "Dr. Smith",
       date: "2025-05-01",
       time: "10:00 AM",
-      status: "Confirmed",
+      status: "Pending",
     },
     {
       id: 2,
@@ -41,10 +41,18 @@ const AdminAppointments = () => {
     setNewTime("");
   };
 
-  const handleStatusChange = (id, newStatus) => {
+  const handleConfirmClick = (id) => {
     setAppointments((prev) =>
       prev.map((appt) =>
-        appt.id === id ? { ...appt, status: newStatus } : appt
+        appt.id === id ? { ...appt, status: "Confirmed" } : appt
+      )
+    );
+  };
+
+  const handleCancelClick = (id) => {
+    setAppointments((prev) =>
+      prev.map((appt) =>
+        appt.id === id ? { ...appt, status: "Cancelled" } : appt
       )
     );
   };
@@ -53,7 +61,7 @@ const AdminAppointments = () => {
     <div className="flex h-screen bg-gray-100">
       <AdminSidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
 
-      <main className="flex-1 p-8 transition-all duration-300">
+      <main className="flex-1 p-4 lg:p-8 transition-all duration-300">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold flex items-center gap-2">
             <FaClipboardList className="text-blue-600" /> Appointments
@@ -80,10 +88,8 @@ const AdminAppointments = () => {
                   <td className="px-6 py-4">{appt.date}</td>
                   <td className="px-6 py-4">{appt.time}</td>
                   <td className="px-6 py-4">
-                    <select
-                      value={appt.status}
-                      onChange={(e) => handleStatusChange(appt.id, e.target.value)}
-                      className={`px-2 py-1  rounded-full text-xs font-medium ${
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${
                         appt.status === "Confirmed"
                           ? "bg-green-200 text-green-800"
                           : appt.status === "Cancelled"
@@ -91,13 +97,22 @@ const AdminAppointments = () => {
                           : "bg-yellow-200 text-yellow-800"
                       }`}
                     >
-                      <option value="Confirmed">Confirmed</option>
-                      <option value="Pending">Pending</option>
-                      <option value="Cancelled">Cancelled</option>
-                    </select>
+                      {appt.status}
+                    </span>
                   </td>
                   <td className="px-6 py-4 space-x-2">
-
+                    <button
+                      onClick={() => handleConfirmClick(appt.id)}
+                      className="bg-green-500 text-white px-4 py-2 rounded text-sm"
+                    >
+                      Confirm
+                    </button>
+                    <button
+                      onClick={() => handleCancelClick(appt.id)}
+                      className="bg-red-500 text-white px-4 py-2 rounded text-sm"
+                    >
+                      Cancel
+                    </button>
                     <button
                       onClick={() => handleRescheduleClick(appt)}
                       className="bg-yellow-500 text-white px-3 py-1 rounded text-sm"

@@ -39,12 +39,12 @@ const AdminDashboard = () => {
   const formatDate = (dateStr) => new Date(dateStr).toLocaleString();
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex flex-col lg:flex-row h-screen bg-gray-100">
       <Sidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
-      <main className={`flex-1 p-8 transition-all duration-300`}>
-        <div className="flex justify-between items-center mb-6">
+      <main className={`flex-1 p-4 lg:p-8 transition-all duration-300`}>
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-gray-800">Admin Dashboard</h1>
-          <div className="bg-white px-4 py-2 rounded shadow text-gray-600 flex items-center">
+          <div className="bg-white px-4 py-2 rounded shadow text-gray-600 flex items-center mt-2 sm:mt-0">
             🗓️ <span className="ml-2">Today's Date: {new Date().toLocaleDateString()}</span>
           </div>
         </div>
@@ -58,7 +58,7 @@ const AdminDashboard = () => {
           <p className="mt-6 text-gray-600">Loading dashboard data...</p>
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
               <DashboardCard label="Today’s Appointments" value={dashboardData?.todayAppointments || 0} icon={FaCalendarAlt} />
               <DashboardCard label="Patients Seen" value={dashboardData?.totalPatients || 0} icon={FaUserInjured} />
               <DashboardCard label="Sessions Today" value={dashboardData?.sessionsToday || 0} icon={FaStethoscope} />
