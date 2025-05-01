@@ -5,6 +5,8 @@ import ProtectedRoute from "../components/ProtectedRoute";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import ForgotPassword from "../pages/ForgotPassword";
+import Queue from "../pages/Queue";
+import CreateQueue from "../pages/CreateQueue";
 
 // Admin
 import AdminDashboard from "../pages/Admin/AdminDashboard";
@@ -14,6 +16,7 @@ import AdminAppointments from "../pages/Admin/AdminAppointments";
 import AdminPatients from "../pages/Admin/AdminPatients";
 import AdminPatientEMR from "../pages/Admin/AdminPatientEMR";
 import AdminProfile from "../pages/Admin/AdminProfile";
+import AdminQueueing from "../pages/Admin/AdminQueueing";
 
 // Doctor
 import DoctorDashboard from "../pages/Doctor/DoctorDashboard";
@@ -39,6 +42,8 @@ const AppRoutes = () => {
         {/* Auth routes */}
         <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/queue" element={<Queue />} />
+        <Route path="/create-queue" element={<CreateQueue />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/google-auth" element={<Login />} />
@@ -97,6 +102,14 @@ const AppRoutes = () => {
           element={
             <ProtectedRoute role="admin">
               <AdminProfile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin-queueing"
+          element={
+            <ProtectedRoute role="admin">
+              <AdminQueueing />
             </ProtectedRoute>
           }
         />

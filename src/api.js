@@ -37,6 +37,102 @@ export const signup = async ({ email, password, confirmPassword }) => {
   }
 };
 
+// Helper function to get cookies by name
+const getCookie = (name) => {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+};
+
+export const createQueue = async (queueData) => {
+  try {
+      const response = await API.post("/queue/create", queueData, {
+          headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${getCookie("access_token")}`,
+          },
+      });
+      return response;
+  } catch (error) {
+      console.error("Error creating queue:", error);
+      throw error;
+  }
+}
+
+export const cancelQueueEntry = async () => {
+  try {
+    const response = await API.post("/queue/cancel", {}, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${getCookie("access_token")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    console.error("Error canceling queue entry:", error);
+    throw error;
+  }
+}
+
+export const completeQueueEntry = async () => {
+  try {
+    const response = await API.post("/queue/complete", {}, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${getCookie("access_token")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    console.error("Error completing queue entry:", error);
+    throw error;
+  }
+}
+
+export const nextQueueEntry = async () => {
+  try {
+    const response = await API.get("/queue/next", {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${getCookie("access_token")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    console.error("Error fetching next queue entry:", error);
+    throw error;
+  }
+}
+
+export const getCurrentQueueEntry = async () => {
+  try {
+    const response = await API.get("/queue/current", {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${getCookie("access_token")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export const getQueues = async () => {
+  try {
+    const response = await API.get("/queue", {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${getCookie("access_token")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    console.error("Error fetching queues:", error);
+    throw error;
+  }
+}
+
 // 🟢 Login API
 export const signin = async ({ email, password }) => {
   try {

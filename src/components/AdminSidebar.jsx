@@ -35,6 +35,7 @@ const Sidebar = ({ children }) => {
     { to: "/admin-patients", icon: <FaWheelchair />, label: "Patients" },
     { to: "/admin-patient-emr", icon: <FaWpforms />, label: "Patient EMR" }, // ✅ Added this line
     { to: "/admin-profile", icon: <FaWpforms />, label: "Profile" },
+    { to: "/admin-queueing", icon: <FaWpforms />, label: "Queueing" },
   ];
 
   const linkClasses = (path) =>
