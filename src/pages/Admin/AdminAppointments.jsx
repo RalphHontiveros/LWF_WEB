@@ -83,7 +83,7 @@ const AdminAppointments = () => {
                     <select
                       value={appt.status}
                       onChange={(e) => handleStatusChange(appt.id, e.target.value)}
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      className={`px-2 py-1  rounded-full text-xs font-medium ${
                         appt.status === "Confirmed"
                           ? "bg-green-200 text-green-800"
                           : appt.status === "Cancelled"

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../../components/AdminSidebar";
+import { FaEdit } from "react-icons/fa";
 
 const AdminPatients = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -88,41 +89,42 @@ const AdminPatients = () => {
           <h1 className="text-2xl font-bold text-gray-800">Patients</h1>
         </div>
 
-        <div className="bg-white rounded-md shadow p-4">
+        <div className="overflow-x-auto shadow-md rounded-lg p-4">
           {patients.length === 0 ? (
-            <p className="text-gray-600">No patients found.</p>
+            <p className="text-gray-500 italic">No patients found.</p>
           ) : (
-            <table className="w-full table-auto">
-              <thead>
-                <tr className="text-left border-b">
-                  <th className="p-2">Name</th>
-                  <th className="p-2">DOB</th>
-                  <th className="p-2">Gender</th>
-                  <th className="p-2">Age</th>
-                  <th className="p-2">Contact</th>
-                  <th className="p-2">Address</th>
-                  <th className="p-2">Email</th>
-                  <th className="p-2">Actions</th>
+            <table className="min-w-full table-auto text-left text-sm">
+              <thead className="bg-gray-200 text-gray-700">
+                <tr>
+                  <th className="px-6 py-4 whitespace-nowrap">Name</th>
+                  <th className="px-6 py-4 whitespace-nowrap">DOB</th>
+                  <th className="px-6 py-4 whitespace-nowrap">Gender</th>
+                  <th className="px-6 py-4 whitespace-nowrap">Age</th>
+                  <th className="px-6 py-4 whitespace-nowrap">Contact</th>
+                  <th className="px-6 py-4 whitespace-nowrap">Address</th>
+                  <th className="px-6 py-4 whitespace-nowrap">Email</th>
+                  <th className="px-6 py-4 whitespace-nowrap">Actions</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-black">
                 {patients.map((patient) => (
-                  <tr key={patient._id} className="border-b hover:bg-gray-50">
-                    <td className="p-2">{patient.name}</td>
-                    <td className="p-2">
+                  <tr key={patient._id} className="hover:bg-gray-50">
+                    <td className="px-6 py-5 border-t border-black">{patient.name}</td>
+                    <td className="px-6 py-5 border-t border-black">
                       {new Date(patient.dob).toLocaleDateString()}
                     </td>
-                    <td className="p-2 capitalize">{patient.gender}</td>
-                    <td className="p-2">{patient.age}</td>
-                    <td className="p-2">{patient.contact}</td>
-                    <td className="p-2">{patient.address}</td>
-                    <td className="p-2">{patient.user?.email}</td>
-                    <td className="p-2">
+                    <td className="px-6 py-5 border-t border-black capitalize">{patient.gender}</td>
+                    <td className="px-6 py-5 border-t border-black">{patient.age}</td>
+                    <td className="px-6 py-5 border-t border-black">{patient.contact}</td>
+                    <td className="px-6 py-5 border-t border-black break-words max-w-xs">{patient.address}</td>
+                    <td className="px-6 py-5 border-t border-black break-words max-w-xs">{patient.user?.email}</td>
+                    <td className="px-6 py-5 border-t border-black">
                       <button
                         onClick={() => handleEditClick(patient)}
                         className="text-blue-600 hover:text-blue-800"
+                        title="Edit Patient"
                       >
-                        Edit
+                        <FaEdit className="text-xl" />
                       </button>
                     </td>
                   </tr>
@@ -131,6 +133,8 @@ const AdminPatients = () => {
             </table>
           )}
         </div>
+
+
 
         {/* Edit Profile Modal */}
         {editingPatient && (

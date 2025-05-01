@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../../components/AdminSidebar";
-
+import { FaEye } from "react-icons/fa";
 // Modal Component (Details View)
 const Modal = ({ emr, onClose, onEditClick }) => {
   return (
@@ -352,39 +352,43 @@ const AdminPatientEMR = () => {
           <h1 className="text-2xl font-bold text-gray-800">Patient EMRs</h1>
         </div>
 
-        <div className="bg-white rounded-md shadow p-4 overflow-auto">
-          {loading ? (
-            <p className="text-gray-600">Loading EMRs...</p>
-          ) : error ? (
-            <p className="text-red-600">{error}</p>
-          ) : emrs.length === 0 ? (
-            <p className="text-gray-600">No EMRs found.</p>
-          ) : (
-            <table className="w-full table-auto">
-              <thead>
-                <tr className="text-left border-b">
-                  <th className="p-2">Name</th>
-                  <th className="p-2">Details</th> {/* Removed Edit Column */}
-                </tr>
-              </thead>
-              <tbody>
-                {emrs.map((emr) => (
-                  <tr key={emr._id} className="border-b hover:bg-gray-50">
-                    <td className="p-2">{emr.name || "N/A"}</td>
-                    <td className="p-2">
-                      <button
-                        className="text-blue-500 hover:underline"
-                        onClick={() => handleDetailsClick(emr)}
-                      >
-                        Details
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
+        <div className="overflow-x-auto bg-white shadow-md rounded-lg">
+  {loading ? (
+    <p className="text-gray-500 italic p-4">Loading EMRs...</p>
+  ) : error ? (
+    <p className="text-red-500 font-medium p-4">{error}</p>
+  ) : emrs.length === 0 ? (
+    <p className="text-gray-500 italic p-4">No EMRs found.</p>
+  ) : (
+    <table className="min-w-full table-auto text-left">
+      <thead className="bg-gray-200 text-gray-700">
+        <tr>
+          <th className="px-6 py-3">Name</th>
+          <th className="px-6 py-3">Details</th>
+        </tr>
+      </thead>
+      <tbody>
+        {emrs.map((emr) => (
+          <tr key={emr._id} className="border-t hover:bg-gray-50">
+          <td className="px-6 py-4">{emr.name || <span className="text-gray-400">N/A</span>}</td>
+          <td className="px-6 py-4">
+          <button
+          onClick={() => handleDetailsClick(emr)}
+          className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 text-sm"
+          title="View Details"
+        >
+          <FaEye />
+          Details View
+        </button>
+          </td>
+          </tr>
+        
+        ))}
+      </tbody>
+    </table>
+  )}
+</div>
+
       </main>
 
       {/* Modal for Details */}
