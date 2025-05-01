@@ -87,7 +87,7 @@ const AdminDoctors = () => {
 
         {/* Modal */}
         {selectedDoctor && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="fixed inset-0 bg-black/50 bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white p-6 rounded-md shadow-md w-full max-w-md">
               <h2 className="text-xl font-semibold mb-4">Edit Doctor Profile</h2>
               <label className="block mb-2">
