@@ -9,28 +9,17 @@ const AdminAppointments = () => {
   const [newDate, setNewDate] = useState("");
   const [newTime, setNewTime] = useState("");
 
-  const handleRescheduleClick = (appointment) => {
-    setSelectedAppointment(appointment);
-    setShowModal(true);
-  };
+  const [confirmAction, setConfirmAction] = useState(null); // 'confirm' or 'cancel'
+  const [showConfirmModal, setShowConfirmModal] = useState(false); // confirm/cancel modal
 
-  const handleRescheduleSubmit = (e) => {
-    e.preventDefault();
-    // Handle the logic to update the appointment with newDate & newTime
-    console.log("Rescheduled:", selectedAppointment, newDate, newTime);
-    setShowModal(false);
-    setNewDate("");
-    setNewTime("");
-  };
-
-  const appointments = [
+  const [appointments, setAppointments] = useState([
     {
       id: 1,
       patient: "John Doe",
       doctor: "Dr. Smith",
       date: "2025-05-01",
       time: "10:00 AM",
-      status: "Confirmed",
+      status: "Pending",
     },
     {
       id: 2,
@@ -40,13 +29,56 @@ const AdminAppointments = () => {
       time: "11:30 AM",
       status: "Cancelled",
     },
-  ];
+  ]);
+
+  const handleRescheduleClick = (appointment) => {
+    setSelectedAppointment(appointment);
+    setShowModal(true);
+  };
+
+  const handleRescheduleSubmit = (e) => {
+    e.preventDefault();
+    setAppointments((prev) =>
+      prev.map((appt) =>
+        appt.id === selectedAppointment.id
+          ? { ...appt, date: newDate, time: newTime }
+          : appt
+      )
+    );
+    setShowModal(false);
+    setNewDate("");
+    setNewTime("");
+  };
+
+  const openConfirmModal = (appointment, actionType) => {
+    setSelectedAppointment(appointment);
+    setConfirmAction(actionType); // 'confirm' or 'cancel'
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmAction = () => {
+    if (!selectedAppointment) return;
+
+    setAppointments((prev) =>
+      prev.map((appt) =>
+        appt.id === selectedAppointment.id
+          ? {
+              ...appt,
+              status: confirmAction === "confirm" ? "Confirmed" : "Cancelled",
+            }
+          : appt
+      )
+    );
+    setShowConfirmModal(false);
+    setSelectedAppointment(null);
+    setConfirmAction(null);
+  };
 
   return (
     <div className="flex h-screen bg-gray-100">
       <AdminSidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
 
-      <main className="flex-1 p-8 transition-all duration-300">
+      <main className="flex-1 p-4 lg:p-8 transition-all duration-300">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold flex items-center gap-2">
             <FaClipboardList className="text-blue-600" /> Appointments
@@ -74,25 +106,33 @@ const AdminAppointments = () => {
                   <td className="px-6 py-4">{appt.time}</td>
                   <td className="px-6 py-4">
                     <span
-                      className={`px-2 py-1 rounded-full text-xs ${
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${
                         appt.status === "Confirmed"
                           ? "bg-green-200 text-green-800"
-                          : "bg-red-200 text-red-800"
+                          : appt.status === "Cancelled"
+                          ? "bg-red-200 text-red-800"
+                          : "bg-yellow-200 text-yellow-800"
                       }`}
                     >
                       {appt.status}
                     </span>
                   </td>
                   <td className="px-6 py-4 space-x-2">
-                    <button className="bg-blue-500 text-white px-3 py-1 rounded text-sm">
-                      View
+                    <button
+                      onClick={() => openConfirmModal(appt, "confirm")}
+                      className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm"
+                    >
+                      Confirm
                     </button>
-                    <button className="bg-red-500 text-white px-3 py-1 rounded text-sm">
+                    <button
+                      onClick={() => openConfirmModal(appt, "cancel")}
+                      className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"
+                    >
                       Cancel
                     </button>
                     <button
                       onClick={() => handleRescheduleClick(appt)}
-                      className="bg-yellow-500 text-white px-3 py-1 rounded text-sm"
+                      className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-sm"
                     >
                       Reschedule
                     </button>
@@ -103,9 +143,9 @@ const AdminAppointments = () => {
           </table>
         </div>
 
-        {/* Modal for Reschedule */}
+        {/* Reschedule Modal */}
         {showModal && (
-          <div className="fixed inset-0 bg-black/50 bg-opacity-40 flex justify-center items-center z-50">
+          <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
             <div className="bg-white rounded-lg p-6 w-full max-w-md">
               <h2 className="text-xl font-bold mb-4">Reschedule Appointment</h2>
               <form onSubmit={handleRescheduleSubmit} className="space-y-4">
@@ -145,6 +185,38 @@ const AdminAppointments = () => {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* Confirm/Cancel Modal */}
+        {showConfirmModal && (
+          <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
+            <div className="bg-white rounded-lg p-6 w-full max-w-sm">
+              <h2 className="text-lg font-semibold mb-4">Are you sure?</h2>
+              <p className="mb-6">
+                Do you want to{" "}
+                <strong>{confirmAction === "confirm" ? "confirm" : "cancel"}</strong> this
+                appointment for <strong>{selectedAppointment?.patient}</strong>?
+              </p>
+              <div className="flex justify-end gap-2">
+                <button
+                  onClick={() => setShowConfirmModal(false)}
+                  className="bg-gray-300 text-gray-800 px-4 py-2 rounded"
+                >
+                  No
+                </button>
+                <button
+                  onClick={handleConfirmAction}
+                  className={`${
+                    confirmAction === "confirm"
+                      ? "bg-green-500 hover:bg-green-600"
+                      : "bg-red-500 hover:bg-red-600"
+                  } text-white px-4 py-2 rounded`}
+                >
+                  Yes
+                </button>
+              </div>
             </div>
           </div>
         )}

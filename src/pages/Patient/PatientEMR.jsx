@@ -59,7 +59,7 @@ const PatientEMR = () => {
   return (
     <div className="flex min-h-screen bg-gray-100">
       <Sidebar isOpen={isSidebarOpen} toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
-      <div className={`transition-all duration-300 ml-${isSidebarOpen ? "64" : "16"} flex-1 p-6 md:p-10`}>
+      <div className={`transition-all duration-300 flex-1 p-6 md:p-10`}>
         <div className="bg-white p-6 rounded-xl shadow-lg">
           <h2 className="text-3xl font-bold text-blue-700 mb-6 border-b pb-3">Patient Profile</h2>
 
