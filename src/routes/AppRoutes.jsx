@@ -14,6 +14,7 @@ import AdminAppointments from "../pages/Admin/AdminAppointments";
 import AdminPatients from "../pages/Admin/AdminPatients";
 import AdminPatientEMR from "../pages/Admin/AdminPatientEMR";
 import AdminProfile from "../pages/Admin/AdminProfile";
+import AdminActivityLogs from "../pages/Admin/AdminActivityLogs";
 
 // Doctor
 import DoctorDashboard from "../pages/Doctor/DoctorDashboard";
@@ -44,6 +45,15 @@ const AppRoutes = () => {
         <Route path="/google-auth" element={<Login />} />
 
         {/* Admin routes */}
+        <Route
+          path="/admin-activity-logs"
+          element={
+            <ProtectedRoute role="admin">
+              <AdminActivityLogs />
+            </ProtectedRoute>
+          }
+        />
+
         <Route
           path="/admin-dashboard"
           element={
