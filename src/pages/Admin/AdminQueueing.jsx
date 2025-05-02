@@ -231,7 +231,6 @@ const AdminQueueing = () => {
                                                             <th className="px-4 py-1 text-left">Department</th>
                                                             <th className="px-4 py-1 text-left">Patient Name</th>
                                                             <th className="px-4 py-1 text-left">Status</th>
-                                                            <th className="px-4 py-1 text-left">Date & Time</th>
         
                                                     </tr>
                                             </thead>
@@ -263,7 +262,6 @@ const AdminQueueing = () => {
                                                                                     )
                                                                                 }
                                                                             </td>
-                                                                            <td className="px-4 py-2 text-center">{DateFormat(queue.date)}</td>
                                                                     </tr>
                                                                 
                                                             ))
