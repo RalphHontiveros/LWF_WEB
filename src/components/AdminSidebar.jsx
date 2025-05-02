@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
   FaBars, FaHome, FaUserMd, FaCalendarCheck,
   FaBookmark, FaWheelchair, FaSignOutAlt, FaWpforms, FaHistory,
-  FaUser
+  FaUser, FaWalking
 } from "react-icons/fa";
 import { signout } from "../api";
 
@@ -35,7 +35,7 @@ const Sidebar = ({ children }) => {
     { to: "/admin-appointment", icon: <FaBookmark />, label: "Appointment" },
     { to: "/admin-patients", icon: <FaWheelchair />, label: "Patients" },
     { to: "/admin-patient-emr", icon: <FaWpforms />, label: "Patient EMR" }, // ✅ Added this line
-    { to: "/admin-queueing", icon: <FaWpforms />, label: "Queueing" },
+    { to: "/admin-queueing", icon: <FaWalking />, label: "Queueing" },
     { to: "/admin-profile", icon: <FaUser />, label: "Profile" },
     { to: "/admin-activity-logs", icon: <FaHistory />, label: "Activity Logs" },
   ];
