@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../../components/DoctorSidebar";
 import { FaClock } from "react-icons/fa";
+import DateFormat from "../../utils/dateFormat";
+import axios from "axios";
+
 
 const MySessions = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [appointments, setAppointments] = useState([]);
   const [rescheduleModal, setRescheduleModal] = useState({ open: false, appointmentId: null });
   const [newDateTime, setNewDateTime] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchAppointments();
@@ -61,30 +65,34 @@ const MySessions = () => {
     }
   };
 
-  const handleReschedule = async () => {
+  const handleRescheduleSubmit = async (e) => {
+    e.preventDefault();
+  
     try {
+      setLoading(true);
       const token = localStorage.getItem("token");
-
-      const res = await fetch(`/api/admin/appointments/reschedule/${rescheduleModal.appointmentId}`, {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+  
+      await axios.patch(
+        `/api/admin/appointments/reschedule/${rescheduleModal.appointmentId}`,
+        {
+          newScheduledDateTime: newDateTime,
         },
-        body: JSON.stringify({ newDateTime }),
-      });
-
-      if (res.ok) {
-        alert("Appointment rescheduled.");
-        setRescheduleModal({ open: false, appointmentId: null });
-        setNewDateTime("");
-        fetchAppointments();
-      } else {
-        alert("Failed to reschedule.");
-      }
-    } catch (err) {
-      console.error("Reschedule error:", err);
-      alert("Something went wrong.");
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+  
+      await fetchAppointments(); // refresh the updated list
+      setRescheduleModal({ open: false, appointmentId: null });
+      setNewDateTime("");
+    } catch (error) {
+      console.error("Error rescheduling appointment:", error);
+      alert("Failed to reschedule appointment. You may not have permission.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -177,7 +185,7 @@ const MySessions = () => {
                   Cancel
                 </button>
                 <button
-                  onClick={handleReschedule}
+                  onClick={handleRescheduleSubmit}
                   className="px-4 py-2 bg-blue-500 text-white rounded"
                 >
                   Confirm
