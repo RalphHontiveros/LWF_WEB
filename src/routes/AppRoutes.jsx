@@ -21,10 +21,12 @@ import AdminActivityLogs from "../pages/Admin/AdminActivityLogs";
 
 // Doctor
 import DoctorDashboard from "../pages/Doctor/DoctorDashboard";
+import DoctorAvailabilty from "../pages/Doctor/DoctorAvailabilty"
 import DoctorAppointments from "../pages/Doctor/DoctorAppointments";
 import DoctorPatients from "../pages/Doctor/DoctorPatients";
 import DoctorSettings from "../pages/Doctor/DoctorSettings";
 import DoctorProfile from "../pages/Doctor/DoctorProfile";
+
 
 // Patient
 import PatientDashboard from "../pages/Patient/PatientDashboard";
@@ -129,6 +131,14 @@ const AppRoutes = () => {
           element={
             <ProtectedRoute role="doctor">
               <DoctorDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/doctor-availabilty"
+          element={
+            <ProtectedRoute role="doctor">
+              <DoctorAvailabilty />
             </ProtectedRoute>
           }
         />
