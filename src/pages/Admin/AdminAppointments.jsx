@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import AdminSidebar from "../../components/AdminSidebar";
 import { FaClipboardList } from "react-icons/fa";
+import DateFormat from "../../utils/dateFormat";
+import axios from "axios";
 
 const AdminAppointments = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -8,28 +10,25 @@ const AdminAppointments = () => {
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [newDate, setNewDate] = useState("");
   const [newTime, setNewTime] = useState("");
-
+  const [loading, setLoading] = useState(false);
   const [confirmAction, setConfirmAction] = useState(null); // 'confirm' or 'cancel'
   const [showConfirmModal, setShowConfirmModal] = useState(false); // confirm/cancel modal
 
-  const [appointments, setAppointments] = useState([
-    {
-      id: 1,
-      patient: "John Doe",
-      doctor: "Dr. Smith",
-      date: "2025-05-01",
-      time: "10:00 AM",
-      status: "Pending",
-    },
-    {
-      id: 2,
-      patient: "Jane Roe",
-      doctor: "Dr. Lee",
-      date: "2025-05-02",
-      time: "11:30 AM",
-      status: "Cancelled",
-    },
-  ]);
+  const [appointments, setAppointments] = useState([ ])
+
+  const handleGetAppointments = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get("/api/admin/appointments/")
+      setAppointments(response.data.appointments)
+    } catch (error) {
+      console.log(error)
+    } finally {
+      setLoading(false);
+    }
+  }, [setAppointments]); 
+  useEffect(()=>{handleGetAppointments()}, [handleGetAppointments])
+  
 
   const handleRescheduleClick = (appointment) => {
     setSelectedAppointment(appointment);
@@ -74,6 +73,8 @@ const AdminAppointments = () => {
     setConfirmAction(null);
   };
 
+  console.log(appointments);
+
   return (
     <div className="flex h-screen bg-gray-100">
       <AdminSidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
@@ -100,16 +101,16 @@ const AdminAppointments = () => {
             <tbody>
               {appointments.map((appt) => (
                 <tr key={appt.id} className="border-t hover:bg-gray-50">
-                  <td className="px-6 py-4">{appt.patient}</td>
-                  <td className="px-6 py-4">{appt.doctor}</td>
-                  <td className="px-6 py-4">{appt.date}</td>
-                  <td className="px-6 py-4">{appt.time}</td>
+                  <td className="px-6 py-4">{appt.patient.fullName}</td>
+                  <td className="px-6 py-4">{appt.doctorName}</td>
+                  <td className="px-6 py-4">{DateFormat(appt.scheduledDateTime)}</td>
+                  <td className="px-6 py-4">{appt.timeSlot}</td>
                   <td className="px-6 py-4">
                     <span
                       className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        appt.status === "Confirmed"
+                        appt.status === "confirmed"
                           ? "bg-green-200 text-green-800"
-                          : appt.status === "Cancelled"
+                          : appt.status === "cancelled"
                           ? "bg-red-200 text-red-800"
                           : "bg-yellow-200 text-yellow-800"
                       }`}
@@ -120,18 +121,22 @@ const AdminAppointments = () => {
                   <td className="px-6 py-4 space-x-2">
                     <button
                       onClick={() => openConfirmModal(appt, "confirm")}
+                      type="button"
+
                       className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm"
                     >
                       Confirm
                     </button>
                     <button
                       onClick={() => openConfirmModal(appt, "cancel")}
+                      type="button"
                       className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"
                     >
                       Cancel
                     </button>
                     <button
                       onClick={() => handleRescheduleClick(appt)}
+                      type="button"
                       className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-sm"
                     >
                       Reschedule
