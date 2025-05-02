@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../../components/DoctorSidebar";
 import { FaClock } from "react-icons/fa";
-import DateFormat from "../../utils/dateFormat";
 import axios from "axios";
 
-
-const MySessions = () => {
+const DoctorAppointments = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [appointments, setAppointments] = useState([]);
   const [rescheduleModal, setRescheduleModal] = useState({ open: false, appointmentId: null });
@@ -19,7 +17,6 @@ const MySessions = () => {
   const fetchAppointments = async () => {
     try {
       const token = localStorage.getItem("token");
-
       const response = await fetch("/api/doctor/appointments/confirmed", {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -67,11 +64,11 @@ const MySessions = () => {
 
   const handleRescheduleSubmit = async (e) => {
     e.preventDefault();
-  
+
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
-  
+
       await axios.patch(
         `/api/admin/appointments/reschedule/${rescheduleModal.appointmentId}`,
         {
@@ -84,7 +81,7 @@ const MySessions = () => {
           },
         }
       );
-  
+
       await fetchAppointments(); // refresh the updated list
       setRescheduleModal({ open: false, appointmentId: null });
       setNewDateTime("");
@@ -99,7 +96,7 @@ const MySessions = () => {
   return (
     <div className="flex h-screen bg-gray-100">
       <Sidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
-      <main className="flex-1 p-8 transition-all duration-300">
+      <main className="flex-1 p-8 transition-all duration-300 overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">My Appointments</h1>
           <div className="bg-white p-3 rounded-md shadow text-gray-600 flex items-center">
@@ -110,7 +107,7 @@ const MySessions = () => {
         {appointments.length === 0 ? (
           <p className="text-gray-600">You currently have no scheduled sessions.</p>
         ) : (
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {appointments.map((session) => {
               const date = new Date(session.scheduledDateTime);
               const time = date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
@@ -119,45 +116,42 @@ const MySessions = () => {
               return (
                 <div
                   key={session._id}
-                  className="bg-white p-5 rounded-md shadow-md hover:shadow-lg transition"
+                  className="bg-white p-6 rounded-md shadow-md hover:shadow-lg transition w-full max-w-sm flex flex-col justify-between"
                 >
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <h2 className="text-lg font-bold">
-                        Appointment with {session.patientProfile?.name || "Unknown Patient"}
-                      </h2>
-                      <p className="text-gray-700">Email: {session.patient?.email}</p>
-                      <p className="text-gray-700">Contact: {session.patient?.contactNumber}</p>
-                      {session.patientProfile && (
-                        <>
-                          <p className="text-gray-600">Age: {session.patientProfile.age}</p>
-                          <p className="text-gray-600">Gender: {session.patientProfile.gender}</p>
-                          <p className="text-gray-600">Address: {session.patientProfile.address}</p>
-                        </>
-                      )}
-                      <p className="text-gray-600">Time: {time}</p>
-                      <p className="text-gray-600">Date: {dateStr}</p>
+                  <div>
+                    <h2 className="text-lg font-bold mb-2">
+                      Appointment with {session.patientProfile?.name || "Unknown Patient"}
+                    </h2>
+                    <p className="text-gray-700">Email: {session.patient?.email}</p>
+                    <p className="text-gray-700">Contact: {session.patient?.contactNumber}</p>
+                    {session.patientProfile && (
+                      <>
+                        <p className="text-gray-600">Age: {session.patientProfile.age}</p>
+                        <p className="text-gray-600">Gender: {session.patientProfile.gender}</p>
+                        <p className="text-gray-600">Address: {session.patientProfile.address}</p>
+                      </>
+                    )}
+                    <p className="text-gray-600">Time: {time}</p>
+                    <p className="text-gray-600">Date: {dateStr}</p>
+                    <div className="flex items-center mt-3 text-blue-500">
+                      <FaClock className="mr-1" />
+                      <span className="text-sm capitalize">{session.status || "scheduled"}</span>
                     </div>
-                    <div className="text-right text-blue-500">
-                      <FaClock className="text-2xl mb-2" />
-                      <p className="text-sm capitalize">{session.status || "scheduled"}</p>
-                      <div className="mt-2 space-x-2">
-                        <button
-                          onClick={() =>
-                            setRescheduleModal({ open: true, appointmentId: session._id })
-                          }
-                          className="text-sm bg-yellow-400 text-white px-3 py-1 rounded hover:bg-yellow-500"
-                        >
-                          Reschedule
-                        </button>
-                        <button
-                          onClick={() => handleCancel(session._id)}
-                          className="text-sm bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    </div>
+                  </div>
+
+                  <div className="mt-4 flex justify-center space-x-4">
+                    <button
+                      onClick={() => setRescheduleModal({ open: true, appointmentId: session._id })}
+                      className="bg-yellow-400 text-white px-5 py-2.5 rounded-lg hover:bg-yellow-500 transition duration-300 text-base"
+                    >
+                      Reschedule
+                    </button>
+                    <button
+                      onClick={() => handleCancel(session._id)}
+                      className="bg-red-500 text-white px-5 py-2.5 rounded-lg hover:bg-red-600 transition duration-300 text-base"
+                    >
+                      Cancel
+                    </button>
                   </div>
                 </div>
               );
@@ -187,8 +181,9 @@ const MySessions = () => {
                 <button
                   onClick={handleRescheduleSubmit}
                   className="px-4 py-2 bg-blue-500 text-white rounded"
+                  disabled={loading}
                 >
-                  Confirm
+                  {loading ? "Saving..." : "Confirm"}
                 </button>
               </div>
             </div>
@@ -199,4 +194,4 @@ const MySessions = () => {
   );
 };
 
-export default MySessions;
+export default DoctorAppointments;

@@ -6,6 +6,8 @@ const AdminActivityLogs = () => {
   const [logs, setLogs] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRole, setSelectedRole] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10); // Number of logs per page
 
   useEffect(() => {
     const fetchLogs = async () => {
@@ -37,6 +39,26 @@ const AdminActivityLogs = () => {
 
     return matchesSearch && matchesRole;
   });
+
+  // Pagination logic
+  const indexOfLastLog = currentPage * itemsPerPage;
+  const indexOfFirstLog = indexOfLastLog - itemsPerPage;
+  const currentLogs = filteredLogs.slice(indexOfFirstLog, indexOfLastLog);
+
+  const totalPages = Math.ceil(filteredLogs.length / itemsPerPage);
+
+  // Pagination buttons
+  const nextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const prevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
 
   return (
     <AdminSidebar>
@@ -74,10 +96,10 @@ const AdminActivityLogs = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredLogs.length > 0 ? (
-                filteredLogs.map((log, index) => (
+              {currentLogs.length > 0 ? (
+                currentLogs.map((log, index) => (
                   <tr key={log._id} className="border-t hover:bg-gray-50">
-                    <td className="px-4 py-2">{index + 1}</td>
+                    <td className="px-4 py-2">{index + 1 + (currentPage - 1) * itemsPerPage}</td>
                     <td className="px-4 py-2">{log.email}</td>
                     <td className="px-4 py-2">{log.action}</td>
                     <td className="px-4 py-2">
@@ -94,6 +116,27 @@ const AdminActivityLogs = () => {
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Pagination Controls */}
+        <div className="flex justify-between mt-4">
+          <button
+            onClick={prevPage}
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            disabled={currentPage === 1}
+          >
+            Prev
+          </button>
+          <span className="self-center text-gray-700">
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            onClick={nextPage}
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </button>
         </div>
       </div>
     </AdminSidebar>
