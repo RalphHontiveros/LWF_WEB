@@ -1,24 +1,34 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../../components/PatientSidebar";
 import { FaCalendarAlt } from "react-icons/fa";
+import axios from "axios";
 
 const ScheduledSessions = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [appointments, setAppointments] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
-        const response = await fetch("/api/upcoming-appointments");
-        const data = await response.json();
-        setAppointments(data);
+        const response = await axios.get(
+          "/api/patient/my-appointments/status",
+          {
+            withCredentials: true, // Enables sending cookies (e.g., JWT)
+          }
+        );
+
+        setAppointments(response.data.appointments || []);
       } catch (error) {
-        console.error("Error fetching appointments:", error);
+        console.error("Error fetching appointments:", error.response?.data || error.message);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchAppointments();
   }, []);
+  console.log(appointments);
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -33,22 +43,24 @@ const ScheduledSessions = () => {
         </div>
 
         <div className="mt-6">
-          {appointments.length === 0 ? (
+          {loading ? (
+            <p className="text-gray-600">Loading...</p>
+          ) : appointments.length === 0 ? (
             <p className="text-gray-600">No upcoming sessions scheduled.</p>
           ) : (
             appointments.map((appointment) => (
               <div
-                key={appointment.appointmentNumber}
+                key={appointment._id}
                 className="mt-4 sm:mt-6 flex flex-col sm:flex-row sm:justify-between"
               >
                 <div className="bg-white p-4 rounded-md shadow-md w-full sm:w-2/3 lg:w-1/2">
-                  <p className="text-lg font-bold">{appointment.sessionTitle}</p>
-                  <p className="text-gray-600">Doctor: {appointment.doctorName}</p>
+                <p className="text-lg font-bold">Doctor: {appointment.doctorName || "Unknown"}</p>
+                  <p className="text-gray-600">Reason: {appointment.reason}</p>
                   <p className="text-gray-600">
-                    Date: {new Date(appointment.scheduledDateTime).toLocaleString()}
+                    Date: {new Date(appointment.scheduledDateTime).toLocaleDateString()}
+                    <p className="text-gray-600"> Time: {appointment.timeSlot}</p>
                   </p>
-                  <p className="text-sm text-gray-500">
-                    Appointment #: {appointment.appointmentNumber}
+                  <p className="text-sm text-gray-500"> Status: {appointment.status || "Pending" }
                   </p>
                 </div>
               </div>
