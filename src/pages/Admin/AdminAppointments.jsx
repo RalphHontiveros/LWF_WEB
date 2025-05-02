@@ -31,22 +31,6 @@ const AdminAppointments = () => {
     handleGetAppointments();
   }, [handleGetAppointments]);
 
-  const handleConfirmAppointment = useCallback(
-    async (appointmentId) => {
-      try {
-        setLoading(true);
-        await axios.post(`/api/admin/appointments/confirm/${appointmentId}`);
-        // Optionally refresh appointments after confirmation
-        handleGetAppointments();
-      } catch (error) {
-        console.error("Error confirming appointment:", error);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [handleGetAppointments]
-  );
-
   const handleRescheduleClick = (appointment) => {
     setSelectedAppointment(appointment);
     setShowModal(true);
@@ -70,6 +54,7 @@ const AdminAppointments = () => {
     setSelectedAppointment(appointment);
     setConfirmAction(actionType); // 'confirm' or 'cancel'
     setShowConfirmModal(true);
+    console.log("Selected appointment for confirmation:", appointment);
   };
 
   const handleConfirmAction = async () => {
@@ -79,9 +64,10 @@ const AdminAppointments = () => {
       setLoading(true);
 
       if (confirmAction === "confirm") {
-        await axios.post(
-          `/api/admin/appointments/confirm/${selectedAppointment.id}`
+        await axios.patch(
+          `/api/admin/appointments/confirm/${selectedAppointment.appointmentId}`
         );
+
         console.log(
           `Appointment ${selectedAppointment.id} confirmed successfully.`
         );
@@ -89,8 +75,11 @@ const AdminAppointments = () => {
 
       // You can optionally handle cancel logic here (if your API supports it)
       if (confirmAction === "cancel") {
+        await axios.patch(
+          `/api/admin/appointments/cancel/${selectedAppointment.appointmentId}`
+        );
         console.log(
-          `Appointment ${selectedAppointment.id} cancelled (local update only).`
+          `Appointment ${selectedAppointment.id} cancelled successfully.`
         );
       }
 
@@ -141,7 +130,10 @@ const AdminAppointments = () => {
                   }`;
 
                 return (
-                  <tr key={key} className="border-t hover:bg-gray-50">
+                  <tr
+                    key={appt.appointmentId}
+                    className="border-t hover:bg-gray-50"
+                  >
                     <td className="px-6 py-4">
                       {appt.patient?.fullName || "N/A"}
                     </td>
@@ -178,6 +170,7 @@ const AdminAppointments = () => {
                       >
                         Cancel
                       </button>
+
                       <button
                         onClick={() => handleRescheduleClick(appt)}
                         type="button"
@@ -254,8 +247,12 @@ const AdminAppointments = () => {
                   {confirmAction === "confirm" ? "confirm" : "cancel"}
                 </strong>{" "}
                 this appointment for{" "}
-                <strong>{selectedAppointment?.patient}</strong>?
+                <strong>
+                  {selectedAppointment?.patient?.fullName || "Unknown Patient"}
+                </strong>
+                ?
               </p>
+
               <div className="flex justify-end gap-2">
                 <button
                   onClick={() => setShowConfirmModal(false)}
