@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import AdminSidebar from "../../components/AdminSidebar";
 import { FaCheckCircle, FaClock, FaRegClock, FaStopCircle, FaUserMd } from "react-icons/fa";
 import { createQueue, getCurrentQueueEntry, getQueues, cancelQueueEntry, nextQueueEntry } from "../../api";
+import DateFormat from "../../utils/dateFormat";
+
 
 const AdminQueueing = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -214,6 +216,8 @@ const AdminQueueing = () => {
                                                             <th className="px-4 py-1 text-left">Department</th>
                                                             <th className="px-4 py-1 text-left">Patient Name</th>
                                                             <th className="px-4 py-1 text-left">Status</th>
+                                                            <th className="px-4 py-1 text-left">Date & Time</th>
+        
                                                     </tr>
                                             </thead>
                                             <tbody>
@@ -244,7 +248,9 @@ const AdminQueueing = () => {
                                                                                     )
                                                                                 }
                                                                             </td>
+                                                                            <td className="px-4 py-2 text-center">{DateFormat(queue.date)}</td>
                                                                     </tr>
+                                                                
                                                             ))
                                                     ) : (
                                                             <tr>
