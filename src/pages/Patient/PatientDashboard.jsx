@@ -112,7 +112,7 @@ const PatientDashboard = () => {
   };
 
   const getStatusClass = (status) => {
-    switch (status.toLowerCase()) {
+    switch (status) {
       case "pending":
         return "bg-yellow-100 text-yellow-800";
       case "confirmed":
@@ -125,7 +125,6 @@ const PatientDashboard = () => {
         return "bg-gray-100 text-gray-800";
     }
   };
-  
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-gray-50">
@@ -294,7 +293,7 @@ const PatientDashboard = () => {
 
         {/* Appointments List */}
         <section className="mt-10">
-  <h2 className="text-xl font-bold mb-4">My Appointments</h2>
+  <h2 className="text-xl font-bold mb-4">Upcoming Appointments</h2>
   {Array.isArray(appointments) && appointments.length ? ( // Ensure appointments is an array
     <ul className="space-y-4">
       {appointments.map((appt) => (

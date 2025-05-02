@@ -22,7 +22,6 @@ import AdminActivityLogs from "../pages/Admin/AdminActivityLogs";
 // Doctor
 import DoctorDashboard from "../pages/Doctor/DoctorDashboard";
 import DoctorAppointments from "../pages/Doctor/DoctorAppointments";
-import DoctorSessions from "../pages/Doctor/DoctorSessions";
 import DoctorPatients from "../pages/Doctor/DoctorPatients";
 import DoctorSettings from "../pages/Doctor/DoctorSettings";
 import DoctorProfile from "../pages/Doctor/DoctorProfile";
@@ -138,14 +137,6 @@ const AppRoutes = () => {
           element={
             <ProtectedRoute role="doctor">
               <DoctorAppointments />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/doctor-sessions"
-          element={
-            <ProtectedRoute role="doctor">
-              <DoctorSessions />
             </ProtectedRoute>
           }
         />
