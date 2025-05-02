@@ -15,6 +15,9 @@ const PatientDashboard = () => {
   const [notes, setNotes] = useState("");
   const [contactInfo, setContactInfo] = useState({ phone: "", email: "" });
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 10;
+
   const toggleModal = () => setIsModalOpen(!isModalOpen);
 
   const getCookie = (name) => {
@@ -30,13 +33,13 @@ const PatientDashboard = () => {
         const res = await fetch("/api/patient/dashboard");
         const data = await res.json();
         setDashboardData(data);
-        setAppointments(data.upcomingAppointments || []);  // Ensure it's always an array
+        setAppointments(data.upcomingAppointments || []); // Ensure it's always an array
       } catch (err) {
         console.error("Dashboard fetch error:", err);
-        setAppointments([]);  // Fallback to an empty array if there is an error
+        setAppointments([]); // Fallback to an empty array if there is an error
       }
     };
-  
+
     const fetchDoctors = async () => {
       try {
         const res = await fetch("/api/patient/available-doctors");
@@ -46,23 +49,23 @@ const PatientDashboard = () => {
         console.error("Available doctors fetch error:", err);
       }
     };
-  
+
     const fetchAppointmentStatus = async () => {
       try {
         const res = await fetch("/api/patient/my-appointments/status");
         if (res.status === 404) {
           console.log("No appointments found for this patient");
-          setAppointments([]);  // Fallback to an empty array if no appointments exist
+          setAppointments([]); // Fallback to an empty array if no appointments exist
           return;
         }
         const data = await res.json();
-        setAppointments(data.appointments || []);  // Ensure it's always an array
+        setAppointments(data.appointments || []); // Ensure it's always an array
       } catch (err) {
         console.error("Error fetching appointment status:", err);
-        setAppointments([]);  // Fallback to an empty array if there's an error
+        setAppointments([]); // Fallback to an empty array if there's an error
       }
     };
-  
+
     fetchDashboardData();
     fetchDoctors();
     fetchAppointmentStatus();
@@ -123,6 +126,17 @@ const PatientDashboard = () => {
         return "bg-blue-100 text-blue-800";
       default:
         return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  // Pagination Logic
+  const indexOfLastAppointment = currentPage * rowsPerPage;
+  const indexOfFirstAppointment = indexOfLastAppointment - rowsPerPage;
+  const currentAppointments = appointments.slice(indexOfFirstAppointment, indexOfLastAppointment);
+
+  const handleNextPage = () => {
+    if (currentAppointments.length === rowsPerPage && currentAppointments.length < appointments.length) {
+      setCurrentPage((prev) => prev + 1);
     }
   };
 
@@ -199,122 +213,118 @@ const PatientDashboard = () => {
               <h2 className="text-xl font-bold mb-6 text-center">Book New Appointment</h2>
               <form onSubmit={handleSubmitAppointment} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Select Doctor</label>
+                  <label className="block text-sm font-semibold">Select Doctor</label>
                   <select
                     value={selectedDoctor}
                     onChange={(e) => setSelectedDoctor(e.target.value)}
-                    className="w-full border rounded-md p-2"
-                    required
+                    className="w-full p-2 border rounded-md"
                   >
-                    <option value="">-- Choose Doctor --</option>
-                    {availableDoctors.map((doc) => (
-                      <option key={doc.doctor?._id} value={doc.doctor?._id}>
-                        Dr. {doc.fullName} ({doc.specialization})
+                    <option value="">Choose a doctor</option>
+                    {availableDoctors.map((doctor) => (
+                      <option key={doctor.id} value={doctor.id}>
+                        Dr. {doctor.name}
                       </option>
                     ))}
                   </select>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium mb-1">Select Schedule</label>
-                  <select
-                    value={selectedSchedule}
-                    onChange={(e) => setSelectedSchedule(e.target.value)}
-                    className="w-full border rounded-md p-2"
-                    required
-                  >
-                    <option value="">-- Choose Schedule --</option>
-                    {availableSchedules
-                      .sort((a, b) => new Date(a) - new Date(b))
-                      .map((schedule, idx) => (
-                        <option key={idx} value={schedule}>
-                          {new Date(schedule).toLocaleString("en-US", {
-                            weekday: "short",
-                            month: "short",
-                            day: "numeric",
-                            hour: "numeric",
-                            minute: "2-digit",
-                          })}
+                {selectedDoctor && (
+                  <div>
+                    <label className="block text-sm font-semibold">Select Schedule</label>
+                    <select
+                      value={selectedSchedule}
+                      onChange={(e) => setSelectedSchedule(e.target.value)}
+                      className="w-full p-2 border rounded-md"
+                    >
+                      <option value="">Choose a schedule</option>
+                      {availableSchedules.map((schedule) => (
+                        <option key={schedule.id} value={schedule.dateTime}>
+                          {new Date(schedule.dateTime).toLocaleString()}
                         </option>
                       ))}
-                  </select>
-                </div>
+                    </select>
+                  </div>
+                )}
 
                 <div>
-                  <label className="block text-sm font-medium mb-1">Reason</label>
+                  <label className="block text-sm font-semibold">Reason</label>
                   <input
                     type="text"
                     value={reason}
                     onChange={(e) => setReason(e.target.value)}
-                    className="w-full border rounded-md p-2"
                     required
+                    className="w-full p-2 border rounded-md"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1">Notes (optional)</label>
-                  <textarea
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    className="w-full border rounded-md p-2"
-                    rows="2"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <label className="block text-sm font-semibold">Contact Info</label>
                   <input
                     type="text"
-                    placeholder="Phone"
-                    value={contactInfo.phone}
+                    placeholder="Phone or Email"
+                    value={contactInfo.phone || contactInfo.email}
                     onChange={(e) => setContactInfo({ ...contactInfo, phone: e.target.value })}
-                    className="border rounded-md p-2"
-                    required
-                  />
-                  <input
-                    type="email"
-                    placeholder="Email"
-                    value={contactInfo.email}
-                    onChange={(e) => setContactInfo({ ...contactInfo, email: e.target.value })}
-                    className="border rounded-md p-2"
-                    required
+                    className="w-full p-2 border rounded-md"
                   />
                 </div>
 
-                <button
-                  type="submit"
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-md"
-                >
-                  Confirm Appointment
-                </button>
+                <div className="flex justify-end mt-4">
+                  <button
+                    type="submit"
+                    disabled={!selectedDoctor || !selectedSchedule || !reason}
+                    className="bg-blue-600 text-white py-2 px-6 rounded-md"
+                  >
+                    Submit
+                  </button>
+                </div>
               </form>
             </div>
           </div>
         )}
 
-        {/* Appointments List */}
-        <section className="mt-10">
-  <h2 className="text-xl font-bold mb-4">Upcoming Appointments</h2>
-  {Array.isArray(appointments) && appointments.length ? ( // Ensure appointments is an array
-    <ul className="space-y-4">
-      {appointments.map((appt) => (
-        <li
-          key={appt.appointmentId}
-          className={`bg-white p-4 rounded-lg shadow flex flex-col ${getStatusClass(appt.status)}`}
-        >
-          <span className="text-lg font-semibold text-blue-700">
-            {appt.reason} - Dr. {appt.doctorName || 'Unknown'} {/* Default to 'Unknown' */}
-          </span>
-          <span className="text-sm text-gray-600 mt-1">
-            {new Date(appt.scheduledDateTime).toLocaleString()}
-          </span>
-          <span className="text-xs text-gray-500 mt-1">Status: {appt.status}</span>
-        </li>
-      ))}
-    </ul>
-  ) : (
-    <p className="text-gray-500">No upcoming appointments yet.</p>
-  )}
-</section>
+        {/* Upcoming Appointments */}
+        {appointments.length > 0 && (
+          <div>
+            <h3 className="text-xl font-semibold mb-4">Upcoming Appointments</h3>
+            <table className="w-full border-separate border border-gray-300 rounded-lg overflow-hidden">
+              <thead className="bg-gray-100">
+                <tr>
+                  <th className="text-left border-b-2 border-gray-300 py-3 px-6 font-semibold text-sm text-gray-700">Doctor</th>
+                  <th className="text-left border-b-2 border-gray-300 py-3 px-6 font-semibold text-sm text-gray-700">Date/Time</th>
+                  <th className="text-left border-b-2 border-gray-300 py-3 px-6 font-semibold text-sm text-gray-700">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {currentAppointments.map((appointment, index) => (
+                  <tr key={appointment.id} className={`hover:bg-gray-50 ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`}>
+                    <td className="border-b border-gray-300 py-3 px-6 text-sm text-gray-800">{appointment.doctorName}</td>
+                    <td className="border-b border-gray-300 py-3 px-6 text-sm text-gray-800">{new Date(appointment.scheduledDateTime).toLocaleString()}</td>
+                    <td
+                      className={`border-b border-gray-300 py-3 px-6 text-sm font-medium ${getStatusClass(appointment.status)}`}
+                    >
+                      {appointment.status}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {/* Pagination Controls */}
+            <div className="flex justify-between mt-4">
+              <button
+                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                className="bg-gray-300 text-gray-700 py-1 px-4 rounded-md"
+              >
+                Previous
+              </button>
+              <button
+                onClick={handleNextPage}
+                className="bg-gray-300 text-gray-700 py-1 px-4 rounded-md"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
