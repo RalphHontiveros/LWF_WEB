@@ -36,18 +36,32 @@ const AdminAppointments = () => {
     setShowModal(true);
   };
 
-  const handleRescheduleSubmit = (e) => {
+  const handleRescheduleSubmit = async (e) => {
     e.preventDefault();
-    setAppointments((prev) =>
-      prev.map((appt) =>
-        appt.id === selectedAppointment.id
-          ? { ...appt, date: newDate, time: newTime }
-          : appt
-      )
-    );
-    setShowModal(false);
-    setNewDate("");
-    setNewTime("");
+
+    const newScheduledDateTime = `${newDate}T${newTime}`;
+
+    try {
+      setLoading(true);
+
+      await axios.patch(
+        `/api/admin/appointments/reschedule/${selectedAppointment.appointmentId}`,
+        {
+          newScheduledDateTime,
+        }
+      );
+
+      // Refresh from backend
+      await handleGetAppointments();
+
+      setShowModal(false);
+      setNewDate("");
+      setNewTime("");
+    } catch (error) {
+      console.error("Error rescheduling appointment:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const openConfirmModal = (appointment, actionType) => {
@@ -116,7 +130,7 @@ const AdminAppointments = () => {
                 <th className="px-6 py-3">Patient</th>
                 <th className="px-6 py-3">Doctor</th>
                 <th className="px-6 py-3">Date</th>
-                <th className="px-6 py-3">Time</th>
+                <th className="px-6 py-3">Time Slot Booked</th>
                 <th className="px-6 py-3">Status</th>
                 <th className="px-6 py-3">Actions</th>
               </tr>
@@ -149,6 +163,8 @@ const AdminAppointments = () => {
                             ? "bg-green-200 text-green-800"
                             : appt.status === "cancelled"
                             ? "bg-red-200 text-red-800"
+                            : appt.status === "rescheduled"
+                            ? "bg-blue-200 text-blue-800"
                             : "bg-yellow-200 text-yellow-800"
                         }`}
                       >
