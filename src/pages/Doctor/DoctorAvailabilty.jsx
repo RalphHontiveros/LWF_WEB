@@ -5,6 +5,19 @@ const DoctorAvailability = () => {
   const initialData = [
     { id: 1, date: "2025-05-01", timeSlots: "09:00, 13:00", availability: "Available" },
     { id: 2, date: "2025-05-02", timeSlots: "10:00, 14:00", availability: "Unavailable" },
+    { id: 3, date: "2025-05-03", timeSlots: "09:00, 11:00", availability: "Available" },
+    { id: 4, date: "2025-05-04", timeSlots: "08:00, 12:00", availability: "Unavailable" },
+    { id: 5, date: "2025-05-05", timeSlots: "10:00, 14:00", availability: "Available" },
+    { id: 6, date: "2025-05-06", timeSlots: "09:00, 13:00", availability: "Available" },
+    { id: 7, date: "2025-05-07", timeSlots: "11:00, 15:00", availability: "Unavailable" },
+    { id: 8, date: "2025-05-08", timeSlots: "09:00, 13:00", availability: "Available" },
+    { id: 9, date: "2025-05-09", timeSlots: "10:00, 14:00", availability: "Unavailable" },
+    { id: 10, date: "2025-05-10", timeSlots: "09:00, 13:00", availability: "Available" },
+    { id: 11, date: "2025-05-11", timeSlots: "10:00, 14:00", availability: "Unavailable" },
+    { id: 12, date: "2025-05-12", timeSlots: "09:00, 13:00", availability: "Available" },
+    { id: 13, date: "2025-05-13", timeSlots: "08:00, 12:00", availability: "Unavailable" },
+    { id: 14, date: "2025-05-14", timeSlots: "09:00, 13:00", availability: "Available" },
+    { id: 15, date: "2025-05-15", timeSlots: "10:00, 14:00", availability: "Unavailable" },
   ];
 
   const [schedules, setSchedules] = useState(initialData);
@@ -13,6 +26,10 @@ const DoctorAvailability = () => {
   const [editDate, setEditDate] = useState("");
   const [editTimeSlots, setEditTimeSlots] = useState("");
   const [editAvailability, setEditAvailability] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const rowsPerPage = 10;
 
   const openModal = (schedule) => {
     setSelectedSchedule(schedule);
@@ -47,6 +64,29 @@ const DoctorAvailability = () => {
     setSchedules(filtered);
   };
 
+  const filteredSchedules = schedules.filter((schedule) =>
+    schedule.date.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    schedule.timeSlots.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    schedule.availability.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const paginatedSchedules = filteredSchedules.slice(
+    (currentPage - 1) * rowsPerPage,
+    currentPage * rowsPerPage
+  );
+
+  const handleNextPage = () => {
+    if (currentPage * rowsPerPage < filteredSchedules.length) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
@@ -55,6 +95,18 @@ const DoctorAvailability = () => {
 
         <div className="bg-white shadow rounded-lg p-6">
           <h3 className="text-xl font-semibold text-gray-700 mb-4">Schedule History</h3>
+
+          {/* Search Box - Positioned outside the table */}
+          <div className="mb-4">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by Date, Time Slots, or Availability"
+              className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+          </div>
+
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-100">
               <tr>
@@ -65,7 +117,7 @@ const DoctorAvailability = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {schedules.map((schedule) => (
+              {paginatedSchedules.map((schedule) => (
                 <tr key={schedule.id}>
                   <td className="px-4 py-3">{schedule.date}</td>
                   <td className="px-4 py-3">{schedule.timeSlots}</td>
@@ -98,6 +150,25 @@ const DoctorAvailability = () => {
               ))}
             </tbody>
           </table>
+
+          {/* Pagination Controls */}
+          <div className="flex justify-between items-center mt-4">
+            <button
+              onClick={handlePrevPage}
+              disabled={currentPage === 1}
+              className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400"
+            >
+              Prev
+            </button>
+            <span className="text-gray-700">{`Page ${currentPage} of ${Math.ceil(filteredSchedules.length / rowsPerPage)}`}</span>
+            <button
+              onClick={handleNextPage}
+              disabled={currentPage * rowsPerPage >= filteredSchedules.length}
+              className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400"
+            >
+              Next
+            </button>
+          </div>
         </div>
       </div>
 

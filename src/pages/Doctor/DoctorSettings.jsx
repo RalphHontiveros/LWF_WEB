@@ -17,7 +17,7 @@ const SimpleDoctorSettings = () => {
   });
 
   const getCookie = (name) => {
-    const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+    const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
     return match ? match[2] : null;
   };
 
@@ -77,87 +77,47 @@ const SimpleDoctorSettings = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-100">
       <Sidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
-      <main className="flex-1 p-8 transition-all duration-300">
-        <h1 className="text-3xl font-bold mb-8">Settings</h1>
+      <main className="flex-1 flex justify-center items-center p-6">
+        <div className="bg-white w-full max-w-lg p-8 rounded-xl shadow-lg transition-all duration-300">
+          <h1 className="text-2xl md:text-3xl font-semibold text-gray-800 mb-6">
+            Change Password
+          </h1>
+          <form onSubmit={handleChangePassword} className="space-y-5">
+            {["currentPassword", "newPassword", "confirmPassword"].map((field) => (
+              <div key={field}>
+                <label className="block text-gray-700 font-medium capitalize mb-1">
+                  {field.replace(/([A-Z])/g, " $1")}
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPasswords[field] ? "text" : "password"}
+                    name={field}
+                    value={passwords[field]}
+                    onChange={handlePasswordChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none pr-10"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => toggleShowPassword(field)}
+                    className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-blue-600 focus:outline-none"
+                  >
+                    {showPasswords[field] ? (
+                      <AiOutlineEyeInvisible size={20} />
+                    ) : (
+                      <AiOutlineEye size={20} />
+                    )}
+                  </button>
+                </div>
+              </div>
+            ))}
 
-        <div className="bg-white p-6 rounded-md shadow-md max-w-md">
-          <h2 className="text-xl font-bold mb-4">Change Password</h2>
-          <form onSubmit={handleChangePassword}>
-            {/* Current Password */}
-            <div className="mb-4 relative">
-              <label className="block text-gray-600 mb-1">Current Password</label>
-              <input
-                type={showPasswords.currentPassword ? "text" : "password"}
-                name="currentPassword"
-                value={passwords.currentPassword}
-                onChange={handlePasswordChange}
-                className="w-full p-2 border border-gray-300 rounded-md pr-10"
-                required
-              />
-              <button
-                type="button"
-                onClick={() => toggleShowPassword("currentPassword")}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-900"
-              >
-                {showPasswords.currentPassword ? (
-                  <AiOutlineEyeInvisible size={20} />
-                ) : (
-                  <AiOutlineEye size={20} />
-                )}
-              </button>
-            </div>
-
-            {/* New Password */}
-            <div className="mb-4 relative">
-              <label className="block text-gray-600 mb-1">New Password</label>
-              <input
-                type={showPasswords.newPassword ? "text" : "password"}
-                name="newPassword"
-                value={passwords.newPassword}
-                onChange={handlePasswordChange}
-                className="w-full p-2 border border-gray-300 rounded-md pr-10"
-                required
-              />
-              <button
-                type="button"
-                onClick={() => toggleShowPassword("newPassword")}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-900"
-              >
-                {showPasswords.newPassword ? (
-                  <AiOutlineEyeInvisible size={20} />
-                ) : (
-                  <AiOutlineEye size={20} />
-                )}
-              </button>
-            </div>
-
-            {/* Confirm New Password */}
-            <div className="mb-6 relative">
-              <label className="block text-gray-600 mb-1">Confirm New Password</label>
-              <input
-                type={showPasswords.confirmPassword ? "text" : "password"}
-                name="confirmPassword"
-                value={passwords.confirmPassword}
-                onChange={handlePasswordChange}
-                className="w-full p-2 border border-gray-300 rounded-md pr-10"
-                required
-              />
-              <button
-                type="button"
-                onClick={() => toggleShowPassword("confirmPassword")}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-900"
-              >
-                {showPasswords.confirmPassword ? (
-                  <AiOutlineEyeInvisible size={20} />
-                ) : (
-                  <AiOutlineEye size={20} />
-                )}
-              </button>
-            </div>
-
-            <button type="submit" className="bg-blue-600 text-white px-6 py-2 rounded-md">
+            <button
+              type="submit"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md font-medium transition duration-200"
+            >
               Update Password
             </button>
           </form>
