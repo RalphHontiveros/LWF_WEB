@@ -104,6 +104,21 @@ export const nextQueueEntry = async () => {
   }
 }
 
+export const resetQueue = async () => {
+  try {
+    const response = await API.post("/queue/reset", {}, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${getCookie("access_token")}`,
+      },
+    });
+    return response;
+  } catch (error) {
+    console.error("Error resetting queue:", error);
+    throw error;
+  }
+}
+
 export const getCurrentQueueEntry = async () => {
   try {
     const response = await API.get("/queue/current", {

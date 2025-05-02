@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from "react";
 import AdminSidebar from "../../components/AdminSidebar";
 import { FaCheckCircle, FaClock, FaRegClock, FaStopCircle, FaUserMd } from "react-icons/fa";
-import { createQueue, getCurrentQueueEntry, getQueues, cancelQueueEntry, nextQueueEntry } from "../../api";
-import DateFormat from "../../utils/dateFormat";
-
+import { createQueue, getCurrentQueueEntry, getQueues, cancelQueueEntry, nextQueueEntry, resetQueue } from "../../api";
 
 const AdminQueueing = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -59,6 +57,23 @@ const AdminQueueing = () => {
             console.error("Error fetching queue data:", error);
             setError("An error occurred while fetching queue data.");
             setLoading(false);
+        }
+    };
+
+    const handleResetQueue = async () => {
+        try {
+            const response = await resetQueue();
+            if (response.status === 200) {
+                alert("Queue reset successfully!");
+                fetchQueueData(); // Refresh queue data after resetting
+                fetchCurrentQueue(); // Refresh current queue data
+            } else {
+                alert("Failed to reset queue. Please try again.");
+
+            }
+        } catch (error) {
+            console.error("Error resetting queue:", error);
+            alert("An error occurred while resetting the queue. Please try again.");
         }
     };
 
@@ -267,12 +282,15 @@ const AdminQueueing = () => {
                                 </div>
                         </div>
 
-                        <div className="grid grid-cols-2 mt-5 gap-2">
+                        <div className="grid grid-cols-3 mt-5 gap-2">
                                 <button className="bg-white p-5 rounded-md shadow-md hover:shadow-lg transition text-center hover:cursor-pointer" onClick={handleNextQueue}>
                                         Next
                                 </button>
                                 <button className="bg-white p-5 rounded-md shadow-md hover:shadow-lg transition text-center hover:cursor-pointer" onClick={() => handleCancelQueue(currentQueue.queueNumber)}>
                                         Cancel
+                                </button>
+                                <button className="bg-white p-5 rounded-md shadow-md hover:shadow-lg transition text-center hover:cursor-pointer" onClick={() => handleResetQueue()}>
+                                        Reset
                                 </button>
                         </div>
 
