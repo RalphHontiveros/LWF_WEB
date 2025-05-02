@@ -30,7 +30,6 @@ const Sidebar = ({ children }) => {
   const navItems = [
     { to: "/doctor-dashboard", icon: <FaHome />, label: "Home" },
     { to: "/doctor-appointments", icon: <FaUserMd />, label: "My Appointments" },
-    { to: "/doctor-sessions", icon: <FaCalendarCheck />, label: "My Sessions" },
     { to: "/doctor-patients", icon: <FaWheelchair />, label: "My Patients" },
     { to: "/doctor-settings", icon: <FaCog />, label: "Settings" },
     { to: "/doctor-profile", icon: <FaWpforms />, label: "Profile" },
