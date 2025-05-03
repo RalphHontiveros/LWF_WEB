@@ -40,7 +40,6 @@ const DoctorAppointments = () => {
       console.error("Error fetching appointments:", error);
     }
   };
-  console.log(appointments);
 
   const handleCancel = async (id) => {
     const confirmed = window.confirm("Are you sure you want to cancel this appointment?");
