@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../../components/PatientSidebar";
-import { FaUserMd, FaUserInjured, FaCalendarCheck, FaClock } from "react-icons/fa";
+import {
+  FaUserMd,
+  FaUserInjured,
+  FaCalendarCheck,
+  FaClock,
+} from "react-icons/fa";
 
 const PatientDashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -34,7 +39,6 @@ const PatientDashboard = () => {
         const res = await fetch("/api/patient/dashboard");
         const data = await res.json();
         setDashboardData(data);
-        setAppointments(data.upcomingAppointments || []);
       } catch (err) {
         console.error("Dashboard fetch error:", err);
         setAppointments([]);
@@ -76,7 +80,9 @@ const PatientDashboard = () => {
     const fetchSchedules = async () => {
       if (!selectedDoctor) return;
       try {
-        const res = await fetch(`/api/patient/available-schedules/${selectedDoctor}`);
+        const res = await fetch(
+          `/api/patient/available-schedules/${selectedDoctor}`
+        );
         const data = await res.json();
         setAvailableSchedules(data.availableSchedules || []);
         setSelectedSchedule("");
@@ -93,7 +99,9 @@ const PatientDashboard = () => {
 
     const hasPending = appointments.some((appt) => appt.status === "pending");
     if (hasPending) {
-      setWarningMessage("You already have a pending appointment. Please wait for it to be confirmed.");
+      setWarningMessage(
+        "You already have a pending appointment. Please wait for it to be confirmed."
+      );
       return;
     }
 
@@ -140,14 +148,21 @@ const PatientDashboard = () => {
 
   const getStatusReminder = (status) => {
     if (status === "pending") {
-      return <span className="text-xs text-red-600 mt-1">Reminder: Your appointment is still pending confirmation.</span>;
+      return (
+        <span className="text-xs text-red-600 mt-1">
+          Reminder: Your appointment is still pending confirmation.
+        </span>
+      );
     }
     return null;
   };
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-gray-50">
-      <Sidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
+      <Sidebar
+        isSidebarOpen={isSidebarOpen}
+        setIsSidebarOpen={setIsSidebarOpen}
+      />
 
       <main className="flex-1 transition-all duration-300 overflow-y-auto px-6 mt-0 md:mt-8 mr-0 md:mr-4">
         {/* Header */}
@@ -162,20 +177,14 @@ const PatientDashboard = () => {
         <div className="bg-gradient-to-r from-blue-100 via-blue-50 to-blue-100 p-6 rounded-lg shadow mb-8">
           <h2 className="text-xl font-semibold mb-2">Welcome!</h2>
           <p className="text-gray-600 text-sm">
-            Don't know which doctor to consult? Visit{" "}
-            <span className="font-medium text-blue-600 cursor-pointer hover:underline">
-              All Doctors
-            </span>{" "}
-            or{" "}
-            <span className="font-medium text-blue-600 cursor-pointer hover:underline">
-              Sessions
-            </span>{" "}
-            to see your appointment history.
+            To book an appointment, please verify your account. Visit your
+            Patient Profile, fill out the required form, and complete email
+            verification.
           </p>
         </div>
 
         {/* Stats */}
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+        {/* <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
           {[
             { icon: FaUserMd, count: dashboardData.doctorsCount, label: "All Doctors" },
             { icon: FaUserInjured, count: dashboardData.patientsCount, label: "All Patients" },
@@ -190,7 +199,7 @@ const PatientDashboard = () => {
               <Icon className="text-blue-500 text-3xl" />
             </div>
           ))}
-        </section>
+        </section> */}
 
         {/* Book Button */}
         <div className="flex justify-end mb-6">
@@ -212,7 +221,9 @@ const PatientDashboard = () => {
               >
                 &times;
               </button>
-              <h2 className="text-xl font-bold mb-6 text-center">Book New Appointment</h2>
+              <h2 className="text-xl font-bold mb-6 text-center">
+                Book New Appointment
+              </h2>
 
               {/* Warning Message */}
               {warningMessage && (
@@ -223,7 +234,9 @@ const PatientDashboard = () => {
 
               <form onSubmit={handleSubmitAppointment} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Select Doctor</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Select Doctor
+                  </label>
                   <select
                     value={selectedDoctor}
                     onChange={(e) => setSelectedDoctor(e.target.value)}
@@ -242,7 +255,9 @@ const PatientDashboard = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1">Select Schedule</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Select Schedule
+                  </label>
                   <select
                     value={selectedSchedule}
                     onChange={(e) => setSelectedSchedule(e.target.value)}
@@ -267,7 +282,9 @@ const PatientDashboard = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1">Reason</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Reason
+                  </label>
                   <input
                     type="text"
                     value={reason}
@@ -277,7 +294,7 @@ const PatientDashboard = () => {
                   />
                 </div>
 
-                <div>
+                {/* <div>
                   <label className="block text-sm font-medium mb-1">Notes (optional)</label>
                   <textarea
                     value={notes}
@@ -285,14 +302,16 @@ const PatientDashboard = () => {
                     className="w-full border rounded-md p-2"
                     rows="2"
                   />
-                </div>
+                </div> */}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <input
                     type="text"
                     placeholder="Phone"
                     value={contactInfo.phone}
-                    onChange={(e) => setContactInfo({ ...contactInfo, phone: e.target.value })}
+                    onChange={(e) =>
+                      setContactInfo({ ...contactInfo, phone: e.target.value })
+                    }
                     className="border rounded-md p-2"
                     required
                   />
@@ -300,7 +319,9 @@ const PatientDashboard = () => {
                     type="email"
                     placeholder="Email"
                     value={contactInfo.email}
-                    onChange={(e) => setContactInfo({ ...contactInfo, email: e.target.value })}
+                    onChange={(e) =>
+                      setContactInfo({ ...contactInfo, email: e.target.value })
+                    }
                     className="border rounded-md p-2"
                     required
                   />
@@ -322,21 +343,27 @@ const PatientDashboard = () => {
           <h2 className="text-xl font-bold mb-4">Appointments</h2>
           {Array.isArray(appointments) && appointments.length ? (
             <ul className="space-y-4">
-              {appointments.map((appt) => (
-                <li
-                  key={appt.appointmentId}
-                  className={`bg-white p-4 rounded-lg shadow flex flex-col ${getStatusClass(appt.status)}`}
-                >
-                  <span className="text-lg font-semibold text-blue-700">
-                    {appt.reason} - Dr. {appt.doctorName || 'Unknown'}
-                  </span>
-                  <span className="text-sm text-gray-600 mt-1">
-                    {new Date(appt.scheduledDateTime).toLocaleString()}
-                  </span>
-                  <span className="text-xs text-gray-500 mt-1">Status: {appt.status}</span>
-                  {getStatusReminder(appt.status)}
-                </li>
-              ))}
+              {appointments
+                .filter((appt) => appt.status === "pending")
+                .map((appt) => (
+                  <li
+                    key={appt.appointmentId}
+                    className={`bg-white p-4 rounded-lg shadow flex flex-col ${getStatusClass(
+                      appt.status
+                    )}`}
+                  >
+                    <span className="text-lg font-semibold text-blue-700">
+                      {appt.reason} - Dr. {appt.doctorName || "Unknown"}
+                    </span>
+                    <span className="text-sm text-gray-600 mt-1">
+                      {new Date(appt.scheduledDateTime).toLocaleString()}
+                    </span>
+                    <span className="text-xs text-gray-500 mt-1">
+                      Status: {appt.status}
+                    </span>
+                    {getStatusReminder(appt.status)}
+                  </li>
+                ))}
             </ul>
           ) : (
             <p className="text-gray-500">No Appointments yet.</p>
