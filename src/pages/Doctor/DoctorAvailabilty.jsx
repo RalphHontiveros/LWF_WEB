@@ -1,40 +1,53 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Sidebar from "../../components/DoctorSidebar";
+import axios from "axios"; // Import axios for API calls
 
 const DoctorAvailability = () => {
-  const initialData = [
-    { id: 1, date: "2025-05-01", timeSlots: "09:00, 13:00", availability: "Available" },
-    { id: 2, date: "2025-05-02", timeSlots: "10:00, 14:00", availability: "Unavailable" },
-    { id: 3, date: "2025-05-03", timeSlots: "09:00, 11:00", availability: "Available" },
-    { id: 4, date: "2025-05-04", timeSlots: "08:00, 12:00", availability: "Unavailable" },
-    { id: 5, date: "2025-05-05", timeSlots: "10:00, 14:00", availability: "Available" },
-    { id: 6, date: "2025-05-06", timeSlots: "09:00, 13:00", availability: "Available" },
-    { id: 7, date: "2025-05-07", timeSlots: "11:00, 15:00", availability: "Unavailable" },
-    { id: 8, date: "2025-05-08", timeSlots: "09:00, 13:00", availability: "Available" },
-    { id: 9, date: "2025-05-09", timeSlots: "10:00, 14:00", availability: "Unavailable" },
-    { id: 10, date: "2025-05-10", timeSlots: "09:00, 13:00", availability: "Available" },
-    { id: 11, date: "2025-05-11", timeSlots: "10:00, 14:00", availability: "Unavailable" },
-    { id: 12, date: "2025-05-12", timeSlots: "09:00, 13:00", availability: "Available" },
-    { id: 13, date: "2025-05-13", timeSlots: "08:00, 12:00", availability: "Unavailable" },
-    { id: 14, date: "2025-05-14", timeSlots: "09:00, 13:00", availability: "Available" },
-    { id: 15, date: "2025-05-15", timeSlots: "10:00, 14:00", availability: "Unavailable" },
-  ];
-
-  const [schedules, setSchedules] = useState(initialData);
+  const [schedules, setSchedules] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSchedule, setSelectedSchedule] = useState(null);
   const [editDate, setEditDate] = useState("");
-  const [editTimeSlots, setEditTimeSlots] = useState("");
+  const [editTimeSlots, setEditTimeSlots] = useState([]);
   const [editAvailability, setEditAvailability] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);  // State for the confirmation modal
 
   const rowsPerPage = 10;
+
+  // Fetch doctor's availability schedule from backend
+  useEffect(() => {
+    const fetchAvailability = async () => {
+      try {
+        const response = await axios.get("/api/doctor/my-availability", {
+          withCredentials: true,  // Include credentials (cookies) if necessary
+        });
+
+        // Combine available and unavailable schedules, keeping track of their status
+        const combinedSchedules = [
+          ...response.data.availability.available.map((slot) => ({
+            ...slot,
+            availability: "Available",
+          })),
+          ...response.data.availability.unavailable.map((slot) => ({
+            ...slot,
+            availability: "Unavailable",
+          })),
+        ];
+
+        setSchedules(combinedSchedules);  // Set the schedules state
+      } catch (error) {
+        console.error("Error fetching availability:", error);
+      }
+    };
+
+    fetchAvailability();
+  }, []);
 
   const openModal = (schedule) => {
     setSelectedSchedule(schedule);
     setEditDate(schedule.date);
-    setEditTimeSlots(schedule.timeSlots);
+    setEditTimeSlots(schedule.timeSlots); // Ensure time slots are an array
     setEditAvailability(schedule.availability);
     setIsModalOpen(true);
   };
@@ -44,29 +57,83 @@ const DoctorAvailability = () => {
     setSelectedSchedule(null);
   };
 
-  const handleSave = () => {
-    const updated = schedules.map((item) =>
-      item.id === selectedSchedule.id
-        ? {
-            ...item,
-            date: editDate,
-            timeSlots: editTimeSlots,
-            availability: editAvailability,
-          }
-        : item
-    );
-    setSchedules(updated);
-    closeModal();
+  const handleSave = async () => {
+    try {
+      // Ensure timeSlots is an array (in case it's empty or malformed)
+      const updatedTimeSlots = Array.isArray(editTimeSlots)
+        ? editTimeSlots
+        : editTimeSlots.split(",").map((slot) => slot.trim());
+  
+      // Prepare the data to be sent
+      const updatedSchedule = {
+        date: editDate,
+        timeSlots: updatedTimeSlots,  // Now we're sure it's an array
+        availability: editAvailability,
+      };
+  
+      // Send PUT request to update the schedule
+      const response = await axios.put(
+        `/api/doctor/reschedule/${selectedSchedule._id}`,
+        updatedSchedule,
+        { withCredentials: true } // Include credentials (cookies) if necessary
+      );
+  
+      // Log response to check if update was successful
+      console.log("Schedule updated:", response.data);
+  
+      // Update the state with the new schedule
+      const updatedSchedules = schedules.map((schedule) =>
+        schedule._id === selectedSchedule._id ? { ...schedule, ...updatedSchedule } : schedule
+      );
+  
+      setSchedules(updatedSchedules);
+      closeModal();
+    } catch (error) {
+      console.error("Error updating schedule:", error);
+    }
   };
 
-  const handleDelete = (id) => {
-    const filtered = schedules.filter((item) => item.id !== id);
-    setSchedules(filtered);
+  const openDeleteModal = (id) => {
+    setSelectedSchedule(schedules.find((schedule) => schedule._id === id));
+    setIsDeleteModalOpen(true);
+  };
+
+  const closeDeleteModal = () => {
+    setIsDeleteModalOpen(false);
+    setSelectedSchedule(null);
+  };
+
+  const handleDelete = async () => {
+    try {
+      const scheduleToDelete = selectedSchedule;
+
+      const deleteData = {
+        date: scheduleToDelete.date,
+        timeSlots: scheduleToDelete.timeSlots,
+      };
+
+      // Send DELETE request to delete the schedule or its time slots
+      const response = await axios.delete(`/api/doctor/delete/${scheduleToDelete._id}`, {
+        data: deleteData,  // Send data (date and timeSlots) in the body
+        withCredentials: true,
+      });
+
+      console.log("Schedule deleted:", response.data);
+
+      // Update the state to remove the deleted schedule
+      const filteredSchedules = schedules.filter(
+        (schedule) => schedule._id !== scheduleToDelete._id
+      );
+      setSchedules(filteredSchedules);
+      closeDeleteModal();  // Close modal after deletion
+    } catch (error) {
+      console.error("Error deleting schedule:", error);
+    }
   };
 
   const filteredSchedules = schedules.filter((schedule) =>
     schedule.date.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    schedule.timeSlots.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    schedule.timeSlots.join(", ").toLowerCase().includes(searchQuery.toLowerCase()) ||
     schedule.availability.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -96,7 +163,7 @@ const DoctorAvailability = () => {
         <div className="bg-white shadow rounded-lg p-6">
           <h3 className="text-xl font-semibold text-gray-700 mb-4">Schedule History</h3>
 
-          {/* Search Box - Positioned outside the table */}
+          {/* Search Box */}
           <div className="mb-4">
             <input
               type="text"
@@ -118,9 +185,9 @@ const DoctorAvailability = () => {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {paginatedSchedules.map((schedule) => (
-                <tr key={schedule.id}>
+                <tr key={schedule._id}>
                   <td className="px-4 py-3">{schedule.date}</td>
-                  <td className="px-4 py-3">{schedule.timeSlots}</td>
+                  <td className="px-4 py-3">{schedule.timeSlots.join(", ")}</td>
                   <td className="px-4 py-3">
                     <span
                       className={`px-3 py-1 rounded-full text-sm font-medium ${
@@ -141,7 +208,7 @@ const DoctorAvailability = () => {
                     </button>
                     <button
                       className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded transition"
-                      onClick={() => handleDelete(schedule.id)}
+                      onClick={() => openDeleteModal(schedule._id)}  // Open delete confirmation modal
                     >
                       Delete
                     </button>
@@ -173,58 +240,79 @@ const DoctorAvailability = () => {
       </div>
 
       {/* Edit Modal */}
-      {isModalOpen && selectedSchedule && (
-        <div className="fixed inset-0 bg-black/50 bg-opacity-40 flex items-center justify-center z-50 p-4">
-          <div className="bg-white w-full max-w-md rounded-lg shadow-lg p-6">
-            <h3 className="text-2xl font-bold text-gray-800 mb-4">Edit Schedule</h3>
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">Edit Schedule</h3>
 
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
-                <input
-                  type="date"
-                  value={editDate}
-                  onChange={(e) => setEditDate(e.target.value)}
-                  className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Time Slots</label>
-                <input
-                  type="text"
-                  value={editTimeSlots}
-                  onChange={(e) => setEditTimeSlots(e.target.value)}
-                  placeholder="e.g. 09:00, 13:00"
-                  className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Availability</label>
-                <select
-                  value={editAvailability}
-                  onChange={(e) => setEditAvailability(e.target.value)}
-                  className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                >
-                  <option>Available</option>
-                  <option>Unavailable</option>
-                </select>
-              </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700">Date</label>
+              <input
+                type="date"
+                value={editDate}
+                onChange={(e) => setEditDate(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+              />
             </div>
 
-            <div className="flex justify-end mt-6 space-x-3">
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700">Time Slots</label>
+              <input
+  type="text"
+  value={editTimeSlots.join(", ")}  // Display time slots as a comma-separated string
+  onChange={(e) => setEditTimeSlots(e.target.value.split(",").map(slot => slot.trim()))}  // Ensure timeSlots is an array
+  className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+/>
+
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700">Availability</label>
+              <select
+                value={editAvailability}
+                onChange={(e) => setEditAvailability(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+              >
+                <option value="Available">Available</option>
+                <option value="Unavailable">Unavailable</option>
+              </select>
+            </div>
+
+            <div className="flex justify-end space-x-4">
               <button
+                className="bg-gray-300 text-gray-800 px-4 py-2 rounded"
                 onClick={closeModal}
-                className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 transition"
               >
                 Cancel
               </button>
               <button
-                onClick={handleSave}
-                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
+                className="bg-blue-500 text-white px-4 py-2 rounded"
+                onClick={handleSave}  // Save the updated schedule
               >
                 Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">Are you sure you want to delete this schedule?</h3>
+            <div className="flex justify-end space-x-4">
+              <button
+                className="bg-gray-300 text-gray-800 px-4 py-2 rounded"
+                onClick={closeDeleteModal}
+              >
+                Cancel
+              </button>
+              <button
+                className="bg-red-500 text-white px-4 py-2 rounded"
+                onClick={handleDelete}  // Confirm delete
+              >
+                Delete
               </button>
             </div>
           </div>

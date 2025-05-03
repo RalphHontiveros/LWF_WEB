@@ -14,11 +14,12 @@ const PatientDashboard = () => {
   const [reason, setReason] = useState("");
   const [notes, setNotes] = useState("");
   const [contactInfo, setContactInfo] = useState({ phone: "", email: "" });
+  const [warningMessage, setWarningMessage] = useState(""); // 👈 NEW
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const rowsPerPage = 10;
-
-  const toggleModal = () => setIsModalOpen(!isModalOpen);
+  const toggleModal = () => {
+    setIsModalOpen(!isModalOpen);
+    setWarningMessage(""); // Clear warning on modal close/open
+  };
 
   const getCookie = (name) => {
     const match = document.cookie.match(new RegExp(`(^| )${name}=([^;]+)`));
@@ -33,10 +34,10 @@ const PatientDashboard = () => {
         const res = await fetch("/api/patient/dashboard");
         const data = await res.json();
         setDashboardData(data);
-        setAppointments(data.upcomingAppointments || []); // Ensure it's always an array
+        setAppointments(data.upcomingAppointments || []);
       } catch (err) {
         console.error("Dashboard fetch error:", err);
-        setAppointments([]); // Fallback to an empty array if there is an error
+        setAppointments([]);
       }
     };
 
@@ -55,14 +56,14 @@ const PatientDashboard = () => {
         const res = await fetch("/api/patient/my-appointments/status");
         if (res.status === 404) {
           console.log("No appointments found for this patient");
-          setAppointments([]); // Fallback to an empty array if no appointments exist
+          setAppointments([]);
           return;
         }
         const data = await res.json();
-        setAppointments(data.appointments || []); // Ensure it's always an array
+        setAppointments(data.appointments || []);
       } catch (err) {
         console.error("Error fetching appointment status:", err);
-        setAppointments([]); // Fallback to an empty array if there's an error
+        setAppointments([]);
       }
     };
 
@@ -78,7 +79,7 @@ const PatientDashboard = () => {
         const res = await fetch(`/api/patient/available-schedules/${selectedDoctor}`);
         const data = await res.json();
         setAvailableSchedules(data.availableSchedules || []);
-        setSelectedSchedule(""); // Reset selection when doctor changes
+        setSelectedSchedule("");
       } catch (err) {
         console.error("Schedule fetch error:", err);
       }
@@ -89,6 +90,14 @@ const PatientDashboard = () => {
   const handleSubmitAppointment = async (e) => {
     e.preventDefault();
     if (!userId) return console.error("Missing patient ID in cookie");
+
+    const hasPending = appointments.some((appt) => appt.status === "pending");
+    if (hasPending) {
+      setWarningMessage("You already have a pending appointment. Please wait for it to be confirmed.");
+      return;
+    }
+
+    setWarningMessage(""); // clear warning
 
     try {
       const res = await fetch(`/api/patient/book-appointment/${userId}`, {
@@ -129,15 +138,11 @@ const PatientDashboard = () => {
     }
   };
 
-  // Pagination Logic
-  const indexOfLastAppointment = currentPage * rowsPerPage;
-  const indexOfFirstAppointment = indexOfLastAppointment - rowsPerPage;
-  const currentAppointments = appointments.slice(indexOfFirstAppointment, indexOfLastAppointment);
-
-  const handleNextPage = () => {
-    if (currentAppointments.length === rowsPerPage && currentAppointments.length < appointments.length) {
-      setCurrentPage((prev) => prev + 1);
+  const getStatusReminder = (status) => {
+    if (status === "pending") {
+      return <span className="text-xs text-red-600 mt-1">Reminder: Your appointment is still pending confirmation.</span>;
     }
+    return null;
   };
 
   return (
@@ -171,16 +176,13 @@ const PatientDashboard = () => {
 
         {/* Stats */}
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-          {[ 
+          {[
             { icon: FaUserMd, count: dashboardData.doctorsCount, label: "All Doctors" },
             { icon: FaUserInjured, count: dashboardData.patientsCount, label: "All Patients" },
             { icon: FaCalendarCheck, count: dashboardData.newBookingsCount, label: "New Bookings" },
             { icon: FaClock, count: dashboardData.todaySessionsCount, label: "Today's Sessions" },
           ].map(({ icon: Icon, count, label }, idx) => (
-            <div
-              key={idx}
-              className="bg-white p-5 rounded-lg shadow hover:shadow-lg transition flex items-center justify-between"
-            >
+            <div key={idx} className="bg-white p-5 rounded-lg shadow hover:shadow-lg transition flex items-center justify-between">
               <div>
                 <p className="text-2xl font-bold text-gray-800">{count ?? 0}</p>
                 <p className="text-gray-500">{label}</p>
@@ -211,120 +213,135 @@ const PatientDashboard = () => {
                 &times;
               </button>
               <h2 className="text-xl font-bold mb-6 text-center">Book New Appointment</h2>
+
+              {/* Warning Message */}
+              {warningMessage && (
+                <div className="bg-yellow-100 text-yellow-800 p-3 rounded mb-4 text-sm">
+                  {warningMessage}
+                </div>
+              )}
+
               <form onSubmit={handleSubmitAppointment} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-semibold">Select Doctor</label>
+                  <label className="block text-sm font-medium mb-1">Select Doctor</label>
                   <select
                     value={selectedDoctor}
                     onChange={(e) => setSelectedDoctor(e.target.value)}
-                    className="w-full p-2 border rounded-md"
+                    className="w-full border rounded-md p-2"
+                    required
                   >
-                    <option value="">Choose a doctor</option>
-                    {availableDoctors.map((doctor) => (
-                      <option key={doctor.id} value={doctor.id}>
-                        Dr. {doctor.name}
-                      </option>
-                    ))}
+                    <option value="">-- Choose Doctor --</option>
+                    {availableDoctors
+                      .filter((doc) => doc?.doctor?._id)
+                      .map((doc) => (
+                        <option key={doc.doctor._id} value={doc.doctor._id}>
+                          Dr. {doc.fullName} ({doc.specialization})
+                        </option>
+                      ))}
                   </select>
                 </div>
 
-                {selectedDoctor && (
-                  <div>
-                    <label className="block text-sm font-semibold">Select Schedule</label>
-                    <select
-                      value={selectedSchedule}
-                      onChange={(e) => setSelectedSchedule(e.target.value)}
-                      className="w-full p-2 border rounded-md"
-                    >
-                      <option value="">Choose a schedule</option>
-                      {availableSchedules.map((schedule) => (
-                        <option key={schedule.id} value={schedule.dateTime}>
-                          {new Date(schedule.dateTime).toLocaleString()}
+                <div>
+                  <label className="block text-sm font-medium mb-1">Select Schedule</label>
+                  <select
+                    value={selectedSchedule}
+                    onChange={(e) => setSelectedSchedule(e.target.value)}
+                    className="w-full border rounded-md p-2"
+                    required
+                  >
+                    <option value="">-- Choose Schedule --</option>
+                    {availableSchedules
+                      .sort((a, b) => new Date(a) - new Date(b))
+                      .map((schedule, idx) => (
+                        <option key={idx} value={schedule}>
+                          {new Date(schedule).toLocaleString("en-US", {
+                            weekday: "short",
+                            month: "short",
+                            day: "numeric",
+                            hour: "numeric",
+                            minute: "2-digit",
+                          })}
                         </option>
                       ))}
-                    </select>
-                  </div>
-                )}
+                  </select>
+                </div>
 
                 <div>
-                  <label className="block text-sm font-semibold">Reason</label>
+                  <label className="block text-sm font-medium mb-1">Reason</label>
                   <input
                     type="text"
                     value={reason}
                     onChange={(e) => setReason(e.target.value)}
+                    className="w-full border rounded-md p-2"
                     required
-                    className="w-full p-2 border rounded-md"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold">Contact Info</label>
-                  <input
-                    type="text"
-                    placeholder="Phone or Email"
-                    value={contactInfo.phone || contactInfo.email}
-                    onChange={(e) => setContactInfo({ ...contactInfo, phone: e.target.value })}
-                    className="w-full p-2 border rounded-md"
+                  <label className="block text-sm font-medium mb-1">Notes (optional)</label>
+                  <textarea
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    className="w-full border rounded-md p-2"
+                    rows="2"
                   />
                 </div>
 
-                <div className="flex justify-end mt-4">
-                  <button
-                    type="submit"
-                    disabled={!selectedDoctor || !selectedSchedule || !reason}
-                    className="bg-blue-600 text-white py-2 px-6 rounded-md"
-                  >
-                    Submit
-                  </button>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <input
+                    type="text"
+                    placeholder="Phone"
+                    value={contactInfo.phone}
+                    onChange={(e) => setContactInfo({ ...contactInfo, phone: e.target.value })}
+                    className="border rounded-md p-2"
+                    required
+                  />
+                  <input
+                    type="email"
+                    placeholder="Email"
+                    value={contactInfo.email}
+                    onChange={(e) => setContactInfo({ ...contactInfo, email: e.target.value })}
+                    className="border rounded-md p-2"
+                    required
+                  />
                 </div>
+
+                <button
+                  type="submit"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-md"
+                >
+                  Confirm Appointment
+                </button>
               </form>
             </div>
           </div>
         )}
 
-        {/* Upcoming Appointments */}
-        {appointments.length > 0 && (
-          <div>
-            <h3 className="text-xl font-semibold mb-4">Upcoming Appointments</h3>
-            <table className="w-full border-separate border border-gray-300 rounded-lg overflow-hidden">
-              <thead className="bg-gray-100">
-                <tr>
-                  <th className="text-left border-b-2 border-gray-300 py-3 px-6 font-semibold text-sm text-gray-700">Doctor</th>
-                  <th className="text-left border-b-2 border-gray-300 py-3 px-6 font-semibold text-sm text-gray-700">Date/Time</th>
-                  <th className="text-left border-b-2 border-gray-300 py-3 px-6 font-semibold text-sm text-gray-700">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentAppointments.map((appointment, index) => (
-                  <tr key={appointment.id} className={`hover:bg-gray-50 ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`}>
-                    <td className="border-b border-gray-300 py-3 px-6 text-sm text-gray-800">{appointment.doctorName}</td>
-                    <td className="border-b border-gray-300 py-3 px-6 text-sm text-gray-800">{new Date(appointment.scheduledDateTime).toLocaleString()}</td>
-                    <td
-                      className={`border-b border-gray-300 py-3 px-6 text-sm font-medium ${getStatusClass(appointment.status)}`}
-                    >
-                      {appointment.status}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            {/* Pagination Controls */}
-            <div className="flex justify-between mt-4">
-              <button
-                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                className="bg-gray-300 text-gray-700 py-1 px-4 rounded-md"
-              >
-                Previous
-              </button>
-              <button
-                onClick={handleNextPage}
-                className="bg-gray-300 text-gray-700 py-1 px-4 rounded-md"
-              >
-                Next
-              </button>
-            </div>
-          </div>
-        )}
+        {/* Appointments List */}
+        <section className="mt-10">
+          <h2 className="text-xl font-bold mb-4">Upcoming Appointments</h2>
+          {Array.isArray(appointments) && appointments.length ? (
+            <ul className="space-y-4">
+              {appointments.map((appt) => (
+                <li
+                  key={appt.appointmentId}
+                  className={`bg-white p-4 rounded-lg shadow flex flex-col ${getStatusClass(appt.status)}`}
+                >
+                  <span className="text-lg font-semibold text-blue-700">
+                    {appt.reason} - Dr. {appt.doctorName || 'Unknown'}
+                  </span>
+                  <span className="text-sm text-gray-600 mt-1">
+                    {new Date(appt.scheduledDateTime).toLocaleString()}
+                  </span>
+                  <span className="text-xs text-gray-500 mt-1">Status: {appt.status}</span>
+                  {getStatusReminder(appt.status)}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-gray-500">No upcoming appointments yet.</p>
+          )}
+        </section>
       </main>
     </div>
   );

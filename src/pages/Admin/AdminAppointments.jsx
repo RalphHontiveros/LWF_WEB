@@ -13,6 +13,7 @@ const AdminAppointments = () => {
   const [loading, setLoading] = useState(false);
   const [confirmAction, setConfirmAction] = useState(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false); // Add delete confirmation modal state
   const [appointments, setAppointments] = useState([]);
 
   // Pagination
@@ -85,6 +86,20 @@ const AdminAppointments = () => {
     }
   };
 
+  const handleDeleteAppointment = async () => {
+    if (!selectedAppointment) return;
+    try {
+      setLoading(true);
+      await axios.delete(`/api/admin/delete-appointment/${selectedAppointment.appointmentId}`);
+      await handleGetAppointments();  // Refresh appointments list
+      setShowDeleteConfirmModal(false); // Close delete confirmation modal
+    } catch (error) {
+      console.error("Error deleting appointment:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Pagination calculation
   const indexOfLastAppointment = currentPage * appointmentsPerPage;
   const indexOfFirstAppointment = indexOfLastAppointment - appointmentsPerPage;
@@ -153,6 +168,16 @@ const AdminAppointments = () => {
                       className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-sm"
                     >
                       Reschedule
+                    </button>
+                    {/* Delete Button */}
+                    <button
+                      onClick={() => {
+                        setSelectedAppointment(appt);
+                        setShowDeleteConfirmModal(true); // Open delete confirmation modal
+                      }}
+                      className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm"
+                    >
+                      Delete
                     </button>
                   </td>
                 </tr>
@@ -259,6 +284,32 @@ const AdminAppointments = () => {
                   className={`${
                     confirmAction === "confirm" ? "bg-green-600" : "bg-red-600"
                   } text-white px-4 py-2 rounded`}
+                >
+                  Yes
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteConfirmModal && (
+          <div className="fixed inset-0 bg-black/50 bg-opacity-50 flex justify-center items-center z-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+              <h2 className="text-xl font-bold mb-4">Delete Appointment</h2>
+              <p>Are you sure you want to delete this appointment?</p>
+              <div className="flex justify-end gap-2 mt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowDeleteConfirmModal(false)}
+                  className="bg-gray-300 px-4 py-2 rounded"
+                >
+                  No
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDeleteAppointment}
+                  className="bg-red-600 text-white px-4 py-2 rounded"
                 >
                   Yes
                 </button>
