@@ -29,9 +29,9 @@ const Sidebar = ({ children }) => {
 
   const navItems = [
     { to: "/patient-dashboard", icon: <FaHome />, label: "Home" },
-    { to: "/patient-doctors", icon: <FaUserMd />, label: "All Doctors" },
+    // { to: "/patient-doctors", icon: <FaUserMd />, label: "All Doctors" },
     { to: "/patient-scheduled", icon: <FaCalendarCheck />, label: "Scheduled Sessions" },
-    { to: "/patient-bookings", icon: <FaBookmark />, label: "My Bookings" },
+    // { to: "/patient-bookings", icon: <FaBookmark />, label: "My Bookings" },
     { to: "/patient-settings", icon: <FaCog />, label: "Settings" },
     { to: "/patient-profile", icon: <FaWpforms />, label: "Patient Profile" },
     { to: "/patient-emr", icon: <FaUser />, label: "EMR" },

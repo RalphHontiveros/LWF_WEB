@@ -34,7 +34,7 @@ const Sidebar = ({ children }) => {
     { to: "/admin-schedule", icon: <FaCalendarCheck />, label: "Scheduled" },
     { to: "/admin-appointment", icon: <FaBookmark />, label: "Appointment" },
     { to: "/admin-patients", icon: <FaWheelchair />, label: "Patients" },
-    { to: "/admin-patient-emr", icon: <FaWpforms />, label: "Patient EMR" }, // ✅ Added this line
+    { to: "/admin-patient-emr", icon: <FaWpforms />, label: "Patient EMR" },
     { to: "/admin-queueing", icon: <FaWalking />, label: "Queueing" },
     { to: "/admin-profile", icon: <FaUser />, label: "Profile" },
     { to: "/admin-activity-logs", icon: <FaHistory />, label: "Activity Logs" },

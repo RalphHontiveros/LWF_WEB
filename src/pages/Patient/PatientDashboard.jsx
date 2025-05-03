@@ -319,7 +319,7 @@ const PatientDashboard = () => {
 
         {/* Appointments List */}
         <section className="mt-10">
-          <h2 className="text-xl font-bold mb-4">Upcoming Appointments</h2>
+          <h2 className="text-xl font-bold mb-4">Appointments</h2>
           {Array.isArray(appointments) && appointments.length ? (
             <ul className="space-y-4">
               {appointments.map((appt) => (
@@ -339,7 +339,7 @@ const PatientDashboard = () => {
               ))}
             </ul>
           ) : (
-            <p className="text-gray-500">No upcoming appointments yet.</p>
+            <p className="text-gray-500">No Appointments yet.</p>
           )}
         </section>
       </main>

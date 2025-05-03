@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Sidebar from "../../components/AdminSidebar";
+import Sidebar from "../../components/DoctorSidebar";
 import { FaEye } from "react-icons/fa";
 // Modal Component (Details View)
 const Modal = ({ emr, onClose, onEditClick }) => {

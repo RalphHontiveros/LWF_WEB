@@ -31,7 +31,7 @@ const Sidebar = ({ children }) => {
     { to: "/doctor-dashboard", icon: <FaHome />, label: "Home" },
     { to: "/doctor-availabilty", icon: <FaHome />, label: "My Availabilty" },
     { to: "/doctor-appointments", icon: <FaUserMd />, label: "My Appointments" },
-    { to: "/doctor-patients", icon: <FaWheelchair />, label: "My Patients" },
+    { to: "/doctor-patients", icon: <FaWheelchair />, label: "Patients" },
     { to: "/doctor-settings", icon: <FaCog />, label: "Settings" },
     { to: "/doctor-profile", icon: <FaWpforms />, label: "Profile" },
   ];
