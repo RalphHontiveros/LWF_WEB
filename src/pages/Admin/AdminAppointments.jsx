@@ -121,9 +121,11 @@ const AdminAppointments = () => {
             <thead className="bg-gray-200 text-gray-700">
               <tr>
                 <th className="px-6 py-3">Patient</th>
+                <th className="px-6 py-3">Email</th>
+                <th className="px-6 py-3">Contact</th>
                 <th className="px-6 py-3">Doctor</th>
                 <th className="px-6 py-3">Date</th>
-                <th className="px-6 py-3">Time Slot Booked</th>
+                <th className="px-6 py-3">Reason</th>
                 <th className="px-6 py-3">Status</th>
                 <th className="px-6 py-3">Actions</th>
               </tr>
@@ -132,9 +134,11 @@ const AdminAppointments = () => {
               {currentAppointments.map((appt, index) => (
                 <tr key={appt.appointmentId} className="border-t hover:bg-gray-50">
                   <td className="px-6 py-4">{appt.patient?.fullName || "N/A"}</td>
+                  <td className="px-6 py-4">{appt.patient.email}</td>
+                  <td className="px-6 py-4">{appt.patient.contactNumber}</td>
                   <td className="px-6 py-4">{appt.doctorName}</td>
                   <td className="px-6 py-4">{DateFormat(appt.scheduledDateTime)}</td>
-                  <td className="px-6 py-4">{appt.timeSlot}</td>
+                  <td className="px-6 py-4">{appt.reason}</td>
                   <td className="px-6 py-4">
                     <span
                       className={`px-2 py-1 rounded-full text-xs font-medium ${

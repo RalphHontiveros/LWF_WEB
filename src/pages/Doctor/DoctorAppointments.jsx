@@ -40,6 +40,7 @@ const DoctorAppointments = () => {
       console.error("Error fetching appointments:", error);
     }
   };
+  console.log(appointments);
 
   const handleCancel = async (id) => {
     const confirmed = window.confirm("Are you sure you want to cancel this appointment?");
@@ -138,8 +139,9 @@ const DoctorAppointments = () => {
                 >
                   <header className="mb-4">
                     <h2 className="text-xl font-semibold">{session.patientProfile?.name || "Unknown Patient"}</h2>
+                    <p className="text-gray-700 text-sm">Reason: {session.reason}</p>
                     <p className="text-gray-700 text-sm">Email: {session.patient?.email}</p>
-                    <p className="text-gray-700 text-sm">Contact: {session.patient?.contactNumber}</p>
+                    <p className="text-gray-700 text-sm">Contact: {session.contactInfo?.phone || "N/A"}</p>
                     {session.patientProfile && (
                       <>
                         <p className="text-gray-600 text-sm">Age: {session.patientProfile.age}</p>
