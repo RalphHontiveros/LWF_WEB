@@ -70,15 +70,19 @@ const DoctorAppointments = () => {
 
   const handleRescheduleSubmit = async (e) => {
     e.preventDefault();
-
+  
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
-
+  
+      // Convert to ISO string in UTC to avoid timezone issues
+      const localDate = new Date(newDateTime);
+      const isoString = localDate.toISOString(); // This ensures it's in UTC (Render-compatible)
+  
       await axios.patch(
         `/api/admin/appointments/reschedule/${rescheduleModal.appointmentId}`,
         {
-          newScheduledDateTime: newDateTime,
+          newScheduledDateTime: isoString,
         },
         {
           headers: {
@@ -87,8 +91,8 @@ const DoctorAppointments = () => {
           },
         }
       );
-
-      await fetchAppointments(); // refresh the updated list
+  
+      await fetchAppointments(); // Refresh the updated list
       setRescheduleModal({ open: false, appointmentId: null });
       setNewDateTime("");
     } catch (error) {
