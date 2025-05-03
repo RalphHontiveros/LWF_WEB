@@ -31,7 +31,7 @@ const Sidebar = ({ children }) => {
   const navItems = [
     { to: "/admin-dashboard", icon: <FaHome />, label: "Home" },
     { to: "/admin-doctors", icon: <FaUserMd />, label: "Doctors" },
-    { to: "/admin-schedule", icon: <FaCalendarCheck />, label: "Scheduled" },
+    // { to: "/admin-schedule", icon: <FaCalendarCheck />, label: "Scheduled" },
     { to: "/admin-appointment", icon: <FaBookmark />, label: "Appointment" },
     { to: "/admin-patients", icon: <FaWheelchair />, label: "Patients" },
     { to: "/admin-patient-emr", icon: <FaWpforms />, label: "Patient EMR" },
