@@ -8,7 +8,6 @@ const DoctorAvailability = () => {
   const [selectedSchedule, setSelectedSchedule] = useState(null);
   const [editDate, setEditDate] = useState("");
   const [editTimeSlots, setEditTimeSlots] = useState([]);
-  const [editAvailability, setEditAvailability] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);  // State for the confirmation modal
@@ -48,7 +47,6 @@ const DoctorAvailability = () => {
     setSelectedSchedule(schedule);
     setEditDate(schedule.date);
     setEditTimeSlots(schedule.timeSlots); // Ensure time slots are an array
-    setEditAvailability(schedule.availability);
     setIsModalOpen(true);
   };
 
@@ -68,7 +66,6 @@ const DoctorAvailability = () => {
       const updatedSchedule = {
         date: editDate,
         timeSlots: updatedTimeSlots,  // Now we're sure it's an array
-        availability: editAvailability,
       };
   
       // Send PUT request to update the schedule
@@ -179,7 +176,6 @@ const DoctorAvailability = () => {
               <tr>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Date</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Time Slots</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Availability</th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Actions</th>
               </tr>
             </thead>
@@ -188,17 +184,6 @@ const DoctorAvailability = () => {
                 <tr key={schedule._id}>
                   <td className="px-4 py-3">{schedule.date}</td>
                   <td className="px-4 py-3">{schedule.timeSlots.join(", ")}</td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`px-3 py-1 rounded-full text-sm font-medium ${
-                        schedule.availability === "Available"
-                          ? "bg-green-100 text-green-700"
-                          : "bg-red-100 text-red-700"
-                      }`}
-                    >
-                      {schedule.availability}
-                    </span>
-                  </td>
                   <td className="px-4 py-3 space-x-2">
                     <button
                       className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded transition"
@@ -266,17 +251,6 @@ const DoctorAvailability = () => {
 
             </div>
 
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">Availability</label>
-              <select
-                value={editAvailability}
-                onChange={(e) => setEditAvailability(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-              >
-                <option value="Available">Available</option>
-                <option value="Unavailable">Unavailable</option>
-              </select>
-            </div>
 
             <div className="flex justify-end space-x-4">
               <button
