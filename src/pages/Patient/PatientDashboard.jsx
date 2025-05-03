@@ -269,12 +269,13 @@ const PatientDashboard = () => {
                       .sort((a, b) => new Date(a) - new Date(b))
                       .map((schedule, idx) => (
                         <option key={idx} value={schedule}>
-                          {new Date(schedule).toLocaleString("en-US", {
+                          {new Date(schedule).toLocaleString("en-PH", {
                             weekday: "short",
                             month: "short",
                             day: "numeric",
                             hour: "numeric",
                             minute: "2-digit",
+                            timeZone: "Asia/Manila",
                           })}
                         </option>
                       ))}
