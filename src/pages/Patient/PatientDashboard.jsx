@@ -270,12 +270,13 @@ const PatientDashboard = () => {
                       .map((schedule, idx) => (
                         <option key={idx} value={schedule}>
                           {new Date(schedule).toLocaleString("en-PH", {
-                            weekday: "short",
-                            month: "short",
-                            day: "numeric",
-                            hour: "numeric",
-                            minute: "2-digit",
-                            timeZone: "Asia/Manila",
+                            hour12: true,     
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit',
                           })}
                         </option>
                       ))}
