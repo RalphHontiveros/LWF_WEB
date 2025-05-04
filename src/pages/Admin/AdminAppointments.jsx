@@ -38,18 +38,21 @@ const AdminAppointments = () => {
 
   const handleRescheduleClick = (appointment) => {
     setSelectedAppointment(appointment);
+    const existingDate = new Date(appointment.scheduledDateTime);
+    setNewDate(existingDate.toISOString().split("T")[0]);  // Set date in YYYY-MM-DD format
+    setNewTime(existingDate.toISOString().split("T")[1].substring(0, 5)); // Set time in HH:MM format
     setShowModal(true);
   };
 
   const handleRescheduleSubmit = async (e) => {
     e.preventDefault();
-    const newScheduledDateTime = `${newDate}T${newTime}`;
+    const newScheduledDateTime = `${newDate}T${newTime}:00`;  // Adding seconds for proper ISO 8601 format
     try {
       setLoading(true);
       await axios.patch(`/api/admin/appointments/reschedule/${selectedAppointment.appointmentId}`, {
         newScheduledDateTime,
       });
-      await handleGetAppointments();
+      await handleGetAppointments();  // Refresh the appointments after rescheduling
       setShowModal(false);
       setNewDate("");
       setNewTime("");
@@ -58,7 +61,8 @@ const AdminAppointments = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }; 
+  console.log(newTime);
 
   const openConfirmModal = (appointment, actionType) => {
     setSelectedAppointment(appointment);
@@ -141,15 +145,7 @@ const AdminAppointments = () => {
                   <td className="px-6 py-4">{appt.reason}</td>
                   <td className="px-6 py-4">
                     <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        appt.status === "confirmed"
-                          ? "bg-green-200 text-green-800"
-                          : appt.status === "cancelled"
-                          ? "bg-red-200 text-red-800"
-                          : appt.status === "rescheduled"
-                          ? "bg-blue-200 text-blue-800"
-                          : "bg-yellow-200 text-yellow-800"
-                      }`}
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${appt.status === "confirmed" ? "bg-green-200 text-green-800" : appt.status === "cancelled" ? "bg-red-200 text-red-800" : appt.status === "rescheduled" ? "bg-blue-200 text-blue-800" : "bg-yellow-200 text-yellow-800"}`}
                     >
                       {appt.status}
                     </span>
@@ -203,9 +199,7 @@ const AdminAppointments = () => {
             <button
               key={i}
               onClick={() => setCurrentPage(i + 1)}
-              className={`px-3 py-1 rounded ${
-                currentPage === i + 1 ? "bg-blue-500 text-white" : "bg-gray-200"
-              }`}
+              className={`px-3 py-1 rounded ${currentPage === i + 1 ? "bg-blue-500 text-white" : "bg-gray-200"}`}
             >
               {i + 1}
             </button>
@@ -326,4 +320,4 @@ const AdminAppointments = () => {
   );
 };
 
-export default AdminAppointments;
+export default AdminAppointments; 
