@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../../components/DoctorSidebar";
 import { FaPhoneAlt, FaUserMd, FaRegSave, FaRegEdit } from 'react-icons/fa';
+import axios from "axios";
 
 const DoctorProfile = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -25,22 +26,45 @@ const DoctorProfile = () => {
       console.error("User ID is not available.");
       return;
     }
+  
     try {
-      const response = await fetch(`/api/doctor/profile/${userId}`, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-        credentials: 'include',
+      const response = await axios.get(`/api/doctor/profile/${userId}`, {
+        withCredentials: true,
       });
-
-      const data = await response.json();
-      if (response.ok) {
-        setProfile(data);
-        setEditProfile(data); // Initialize edit form with current data
-      } else {
-        console.error("Error fetching doctor profile:", data.message);
-      }
+  
+      setProfile(response.data);
+      setEditProfile(response.data);
+  
     } catch (error) {
-      console.error("Error fetching doctor profile:", error);
+      if (error.response && error.response.status === 404) {
+        console.warn("Profile not found. Attempting to create a new one...");
+  
+        // You can change these defaults or prompt the user later
+        const defaultProfile = {
+          fullName: "Dr. New User",
+          specialization: "General",
+          phone: "000-000-0000",
+        };
+  
+        try {
+          const createResponse = await axios.post(
+            `/api/doctor/create-profile/${userId}`,
+            defaultProfile,
+            {
+              headers: { "Content-Type": "application/json" },
+              withCredentials: true,
+            }
+          );
+  
+          setProfile(createResponse.data);
+          setEditProfile(createResponse.data);
+  
+        } catch (createError) {
+          console.error("Failed to create profile:", createError.response?.data?.message || createError.message);
+        }
+      } else {
+        console.error("Error fetching doctor profile:", error.response?.data?.message || error.message);
+      }
     }
   };
 

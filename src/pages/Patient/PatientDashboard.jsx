@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../../components/PatientSidebar";
+import DateFormat from "../../utils/dateFormat"; // Adjust the import path as necessary
 import {
   FaUserMd,
   FaUserInjured,
@@ -269,15 +270,7 @@ const PatientDashboard = () => {
                       .sort((a, b) => new Date(a) - new Date(b))
                       .map((schedule, idx) => (
                         <option key={idx} value={schedule}>
-                          {new Date(schedule).toLocaleString("en-PH", {
-                            hour12: true,     
-                            year: 'numeric',
-                            month: '2-digit',
-                            day: '2-digit',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                            second: '2-digit',
-                          })}
+                          {DateFormat(schedule)}
                         </option>
                       ))}
                   </select>
