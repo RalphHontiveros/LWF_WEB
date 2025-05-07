@@ -64,8 +64,7 @@ const AdminDashboard = () => {
               <DashboardCard label="Sessions Today" value={dashboardData?.sessionsToday || 0} icon={FaStethoscope} />
               <DashboardCard label="Pending Reports" value={dashboardData?.pendingReports || 0} icon={FaClipboardList} />
             </div>
-
-            {/* <div className="mt-8">
+            <div className="mt-8">
               <h2 className="text-xl font-bold mb-4">Upcoming Appointments</h2>
               {appointments.length === 0 ? (
                 <p className="text-gray-600">No upcoming appointments.</p>
@@ -79,7 +78,7 @@ const AdminDashboard = () => {
                   </div>
                 ))
               )}
-            </div> */}
+            </div>
           </>
         )}
       </main>
