@@ -7,36 +7,15 @@ import {
   FaClipboardList,
 } from "react-icons/fa";
 
-const AdminDashboard = () => {    
+const AdminDashboard = () => {
+  const formatDate = (dateStr) => new Date(dateStr).toLocaleString();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [dashboardData, setDashboardData] = useState(null);
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [dashboardRes, apptRes] = await Promise.all([
-          fetch("/api/admin-dashboard"),
-          fetch("/api/admin-appointments"),
-        ]);
-
-        const dashboardJson = await dashboardRes.json();
-        const apptJson = await apptRes.json();
-
-        setDashboardData(dashboardJson);
-        setAppointments(apptJson);
-      } catch (err) {
-        console.error("Error loading dashboard:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  const formatDate = (dateStr) => new Date(dateStr).toLocaleString();
+  useEffect(() => {}, [
+    
+  ]);
 
   return (
     <div className="flex flex-col lg:flex-row h-screen bg-gray-100">
