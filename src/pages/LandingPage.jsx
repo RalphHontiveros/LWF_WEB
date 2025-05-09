@@ -6,8 +6,8 @@ export default function LandingPage() {
 
   const navLinks = [
     { href: "#about", label: "About Us" },
-    { href: "#instruction", label: "Instructions" },
-    { href: "#comments", label: "Comments" },
+    { href: "#instructions", label: "Instructions" },
+    { href: "#services", label: "Service" },
     { href: "#contact", label: "Contact" },
     { href: "/queue", label: "Queue Monitor" },
   ];
@@ -130,45 +130,215 @@ export default function LandingPage() {
       </section>
 
       {/* About Us */}
-      <section id="about" className="py-16 px-6 bg-white">
-        <h2 className="text-3xl font-semibold mb-4 text-center">About Us</h2>
-        <p className="text-gray-700 text-center max-w-2xl mx-auto">
-          We provide a digital solution for hospital appointments and queuing to reduce wait times and enhance patient experience.
-        </p>
-      </section>
+      <section id="about" className="py-24 px-6 bg-gradient-to-b from-gray-800 to-gray-900 text-white">
+        <div className="max-w-7xl mx-auto text-center">
+          <h2 className="text-5xl font-extrabold text-white mb-6">
+            About Hospital QueueSys
+          </h2>
+          <p className="text-lg text-gray-300 max-w-3xl mx-auto mb-16">
+            Hospital QueueSys is an innovative queuing management platform tailored for healthcare institutions. 
+            We streamline the patient journey from check-in to consultation with modern tools that improve efficiency and user experience.
+          </p>
 
-      {/* Instructions */}
-      <section id="instruction" className="py-16 px-6 bg-gray-100">
-        <h2 className="text-3xl font-semibold mb-4 text-center">
-          Appointment and Queue Instructions
-        </h2>
-        <ol className="list-decimal list-inside text-gray-700 space-y-2 mx-auto max-w-2xl">
-          <li>Click Login or Signup to create an account.</li>
-          <li>Select your service and book an appointment.</li>
-          <li>Receive your queue number and monitor it live.</li>
-          <li>Be present when your number is called.</li>
-        </ol>
-      </section>
+          <div className="grid gap-10 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            <div className="bg-gray-800 border border-gray-700 rounded-2xl shadow-md p-8 hover:shadow-xl transition-transform transform hover:-translate-y-1">
+              <div className="text-blue-400 text-4xl mb-4">🎯</div>
+              <h3 className="text-xl font-semibold text-white mb-3">Our Mission</h3>
+              <p className="text-gray-400">
+                To simplify hospital visits by optimizing queues and reducing patient wait times through smart digital tools.
+              </p>
+            </div>
 
-      {/* Comments */}
-      <section id="comments" className="py-16 px-6 bg-white">
-        <h2 className="text-3xl font-semibold mb-4 text-center">Comments</h2>
-        <div className="text-gray-700 text-center space-y-2">
-          <p>"Great system, very convenient!" - Patient A</p>
-          <p>"Helped me avoid long lines." - Patient B</p>
+            <div className="bg-gray-800 border border-gray-700 rounded-2xl shadow-md p-8 hover:shadow-xl transition-transform transform hover:-translate-y-1">
+              <div className="text-blue-400 text-4xl mb-4">🛠️</div>
+              <h3 className="text-xl font-semibold text-white mb-3">What We Offer</h3>
+              <p className="text-gray-400">
+                Customizable modules for kiosks, queue monitors, service counters, and transaction management with real-time updates.
+              </p>
+            </div>
+
+            <div className="bg-gray-800 border border-gray-700 rounded-2xl shadow-md p-8 hover:shadow-xl transition-transform transform hover:-translate-y-1">
+              <div className="text-blue-400 text-4xl mb-4">🌍</div>
+              <h3 className="text-xl font-semibold text-white mb-3">Global Impact</h3>
+              <p className="text-gray-400">
+                We aim to expand globally by adapting our platform to various healthcare institutions and hospitals worldwide.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Contact */}
-      <section id="contact" className="py-16 px-6 bg-gray-100">
-        <h2 className="text-3xl font-semibold mb-4 text-center">Contact Us</h2>
-        <p className="text-gray-700 text-center">Email: support@hospitalqueuesys.com</p>
-        <p className="text-gray-700 text-center">Phone: +63 912 345 6789</p>
+      {/* Instructions Section */}
+      <section id="instructions" class="py-24 px-6 bg-gray-800 text-white">
+        <div class="max-w-7xl mx-auto text-center">
+          <h2 class="text-4xl font-extrabold mb-6 text-yellow-400">How It Works</h2>
+          <p class="text-lg text-gray-400 mb-16 max-w-3xl mx-auto">
+            Our easy-to-use system helps streamline the hospital visit process, making it simple to book an appointment and get checked in.
+          </p>
+
+          <div class="grid gap-10 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
+            <div class="bg-gray-700 border border-gray-600 rounded-xl p-8 transform transition duration-500 hover:scale-105 hover:bg-gray-600">
+              <h3 class="text-xl font-semibold text-white mb-4">Step 1: Create an Account</h3>
+              <p class="text-gray-400">
+                Create an account. If you already have one, proceed to login and access your dashboard.
+              </p>
+            </div>
+
+            <div class="bg-gray-700 border border-gray-600 rounded-xl p-8 transform transition duration-500 hover:scale-105 hover:bg-gray-600">
+              <h3 class="text-xl font-semibold text-white mb-4">Step 2: Verify Your Account</h3>
+              <p class="text-gray-400">
+                Verify your account by checking the email linked to your patient profile.
+              </p>
+            </div>
+
+            <div class="bg-gray-700 border border-gray-600 rounded-xl p-8 transform transition duration-500 hover:scale-105 hover:bg-gray-600">
+              <h3 class="text-xl font-semibold text-white mb-4">Step 3: Book an Appointment</h3>
+              <p class="text-gray-400">
+                Once verified, go to the homepage and book your appointment.
+              </p>
+            </div>
+
+            <div class="bg-gray-700 border border-gray-600 rounded-xl p-8 transform transition duration-500 hover:scale-105 hover:bg-gray-600">
+              <h3 class="text-xl font-semibold text-white mb-4">Step 4: Choose Doctor and Schedule</h3>
+              <p class="text-gray-400">
+                Select your doctor and specialization, then pick a suitable schedule.
+              </p>
+            </div>
+
+            <div class="bg-gray-700 border border-gray-600 rounded-xl p-8 transform transition duration-500 hover:scale-105 hover:bg-gray-600">
+              <h3 class="text-xl font-semibold text-white mb-4">Step 5: Await Doctor Approval</h3>
+              <p class="text-gray-400">
+                After booking, your appointment will be under "Schedule Session." Wait for the doctor to approve based on availability.
+              </p>
+            </div>
+
+            <div class="bg-gray-700 border border-gray-600 rounded-xl p-8 transform transition duration-500 hover:scale-105 hover:bg-gray-600">
+              <h3 class="text-xl font-semibold text-white mb-4">Step 6: Appointment Confirmation</h3>
+              <p class="text-gray-400">
+                Once approved, you can proceed with your appointment as scheduled.
+              </p>
+            </div>
+          </div>
+        </div>
       </section>
 
+
+      {/* Services Section */}
+      {/* Services Section */}
+<section id="services" className="py-24 px-6 bg-gradient-to-b from-gray-900 to-gray-700 text-white">
+  <div className="max-w-7xl mx-auto text-center">
+    <h2 className="text-4xl font-extrabold mb-6">Our Services</h2>
+    <p className="text-lg text-gray-400 mb-16">
+      We offer a variety of services to ensure that your visit to the hospital is as seamless and efficient as possible. From quick consultations to essential medical tests, we are here to provide comprehensive healthcare.
+    </p>
+
+    <div className="grid gap-10 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+      
+      <div className="bg-gray-800 border border-gray-700 rounded-2xl shadow-lg p-8 transform transition duration-300 hover:scale-105 hover:shadow-xl">
+        <h3 className="text-xl font-semibold text-white mb-4">OPD Services</h3>
+        <p className="text-gray-400 mb-6">
+          Our Outpatient Department (OPD) provides a range of medical consultations and treatments. With quick and efficient queuing systems, we aim to reduce your wait time and ensure that you receive the care you need without unnecessary delays.
+        </p>
+        <p className="text-gray-500">
+          Whether it’s a routine check-up or specialized consultation, our doctors are here to provide the highest quality of care.
+        </p>
+      </div>
+
+      <div className="bg-gray-800 border border-gray-700 rounded-2xl shadow-lg p-8 transform transition duration-300 hover:scale-105 hover:shadow-xl">
+        <h3 className="text-xl font-semibold text-white mb-4">Pharmacy</h3>
+        <p className="text-gray-400 mb-6">
+          Our pharmacy service ensures that you can quickly pick up your prescribed medications. With a streamlined process, our pharmacy counters are equipped to handle your needs with ease, and we offer notifications to keep you updated on your prescriptions.
+        </p>
+        <p className="text-gray-500">
+          Whether it's refilling a prescription or obtaining new medications, our pharmacy team is dedicated to providing accurate and timely service.
+        </p>
+      </div>
+
+      <div className="bg-gray-800 border border-gray-700 rounded-2xl shadow-lg p-8 transform transition duration-300 hover:scale-105 hover:shadow-xl">
+        <h3 className="text-xl font-semibold text-white mb-4">X-Ray Services</h3>
+        <p className="text-gray-400 mb-6">
+          Our advanced X-ray services help in diagnosing various conditions with precise imaging. We provide quick turnaround times to ensure that your results are available promptly, aiding in swift decision-making for your treatment.
+        </p>
+        <p className="text-gray-500">
+          From routine scans to more specialized imaging, our team works diligently to ensure your X-ray process is as efficient and comfortable as possible.
+        </p>
+      </div>
+      
+    </div>
+  </div>
+</section>
+
+
+
+      {/* Contact Section */}
+      <section id="contact" className="py-24 px-6 bg-gray-900 text-white">
+      <div className="max-w-7xl mx-auto text-center">
+        <h2 className="text-4xl font-extrabold text-yellow-400 mb-6">Contact Us</h2>
+        <p className="text-lg text-gray-400 mb-16 max-w-3xl mx-auto">
+          Have questions? Feel free to reach out to us. We are here to help you!
+        </p>
+
+        <div className="max-w-2xl mx-auto bg-gray-800 p-8 rounded-lg shadow-xl hover:shadow-2xl transition duration-300">
+          <div className="mb-6">
+            <h3 className="text-xl font-semibold text-white mb-4">Contact Information</h3>
+            <p className="text-lg text-gray-400 mb-4">You can reach us at:</p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+              <div className="flex items-center space-x-3 hover:text-yellow-400 transition duration-300">
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.745a9.002 9.002 0 10-12.856 0m4.308-2.524a5.5 5.5 0 11-6.416-6.416m9.804 3.053a9.003 9.003 0 01-4.696-4.72" />
+                </svg>
+                <p className="text-lg text-gray-300">contact@hospital.com</p>
+              </div>
+              <div className="flex items-center space-x-3 hover:text-yellow-400 transition duration-300">
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8a5 5 0 015-5h8a5 5 0 015 5v8a5 5 0 01-5 5H8a5 5 0 01-5-5V8z" />
+                </svg>
+                <p className="text-lg text-gray-300">(123) 456-7890</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-center mt-8">
+            <p className="text-sm text-gray-400">We look forward to hearing from you!</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
       {/* Footer */}
-      <footer className="bg-blue-800 text-white text-center p-6">
-        <p>&copy; 2025 Hospital QueueSys. All rights reserved.</p>
+      <footer className="bg-gray-800 text-white py-10">
+        <div className="max-w-7xl mx-auto text-center">
+          <p>&copy; 2025 Hospital QueueSys. All rights reserved.</p>
+          <div className="mt-4">
+            <a
+              href="https://www.facebook.com"
+              className="text-blue-400 hover:text-blue-600 transition duration-200"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Facebook
+            </a>
+            <span className="mx-4">|</span>
+            <a
+              href="https://www.twitter.com"
+              className="text-blue-400 hover:text-blue-600 transition duration-200"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Twitter
+            </a>
+            <span className="mx-4">|</span>
+            <a
+              href="https://www.instagram.com"
+              className="text-blue-400 hover:text-blue-600 transition duration-200"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Instagram
+            </a>
+          </div>
+        </div>
       </footer>
     </div>
   );
