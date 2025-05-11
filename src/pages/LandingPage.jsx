@@ -224,51 +224,48 @@ export default function LandingPage() {
 
 
       {/* Services Section */}
-      {/* Services Section */}
-<section id="services" className="py-24 px-6 bg-gradient-to-b from-gray-900 to-gray-700 text-white">
-  <div className="max-w-7xl mx-auto text-center">
-    <h2 className="text-4xl font-extrabold mb-6">Our Services</h2>
-    <p className="text-lg text-gray-400 mb-16">
-      We offer a variety of services to ensure that your visit to the hospital is as seamless and efficient as possible. From quick consultations to essential medical tests, we are here to provide comprehensive healthcare.
-    </p>
+      <section id="services" className="py-24 px-6 bg-gradient-to-b from-gray-900 to-gray-700 text-white">
+        <div className="max-w-7xl mx-auto text-center">
+          <h2 className="text-4xl font-extrabold mb-6">Our Services</h2>
+          <p className="text-lg text-gray-400 mb-16">
+            We offer a variety of services to ensure that your visit to the hospital is as seamless and efficient as possible. From quick consultations to essential medical tests, we are here to provide comprehensive healthcare.
+          </p>
 
-    <div className="grid gap-10 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-      
-      <div className="bg-gray-800 border border-gray-700 rounded-2xl shadow-lg p-8 transform transition duration-300 hover:scale-105 hover:shadow-xl">
-        <h3 className="text-xl font-semibold text-white mb-4">OPD Services</h3>
-        <p className="text-gray-400 mb-6">
-          Our Outpatient Department (OPD) provides a range of medical consultations and treatments. With quick and efficient queuing systems, we aim to reduce your wait time and ensure that you receive the care you need without unnecessary delays.
-        </p>
-        <p className="text-gray-500">
-          Whether it’s a routine check-up or specialized consultation, our doctors are here to provide the highest quality of care.
-        </p>
-      </div>
+          <div className="grid gap-10 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            
+            <div className="bg-gray-800 border border-gray-700 rounded-2xl shadow-lg p-8 transform transition duration-300 hover:scale-105 hover:shadow-xl">
+              <h3 className="text-xl font-semibold text-white mb-4">OPD Services</h3>
+              <p className="text-gray-400 mb-6">
+                Our Outpatient Department (OPD) provides a range of medical consultations and treatments. With quick and efficient queuing systems, we aim to reduce your wait time and ensure that you receive the care you need without unnecessary delays.
+              </p>
+              <p className="text-gray-500">
+                Whether it’s a routine check-up or specialized consultation, our doctors are here to provide the highest quality of care.
+              </p>
+            </div>
 
-      <div className="bg-gray-800 border border-gray-700 rounded-2xl shadow-lg p-8 transform transition duration-300 hover:scale-105 hover:shadow-xl">
-        <h3 className="text-xl font-semibold text-white mb-4">Pharmacy</h3>
-        <p className="text-gray-400 mb-6">
-          Our pharmacy service ensures that you can quickly pick up your prescribed medications. With a streamlined process, our pharmacy counters are equipped to handle your needs with ease, and we offer notifications to keep you updated on your prescriptions.
-        </p>
-        <p className="text-gray-500">
-          Whether it's refilling a prescription or obtaining new medications, our pharmacy team is dedicated to providing accurate and timely service.
-        </p>
-      </div>
+            <div className="bg-gray-800 border border-gray-700 rounded-2xl shadow-lg p-8 transform transition duration-300 hover:scale-105 hover:shadow-xl">
+              <h3 className="text-xl font-semibold text-white mb-4">Pharmacy</h3>
+              <p className="text-gray-400 mb-6">
+                Our pharmacy service ensures that you can quickly pick up your prescribed medications. With a streamlined process, our pharmacy counters are equipped to handle your needs with ease, and we offer notifications to keep you updated on your prescriptions.
+              </p>
+              <p className="text-gray-500">
+                Whether it's refilling a prescription or obtaining new medications, our pharmacy team is dedicated to providing accurate and timely service.
+              </p>
+            </div>
 
-      <div className="bg-gray-800 border border-gray-700 rounded-2xl shadow-lg p-8 transform transition duration-300 hover:scale-105 hover:shadow-xl">
-        <h3 className="text-xl font-semibold text-white mb-4">X-Ray Services</h3>
-        <p className="text-gray-400 mb-6">
-          Our advanced X-ray services help in diagnosing various conditions with precise imaging. We provide quick turnaround times to ensure that your results are available promptly, aiding in swift decision-making for your treatment.
-        </p>
-        <p className="text-gray-500">
-          From routine scans to more specialized imaging, our team works diligently to ensure your X-ray process is as efficient and comfortable as possible.
-        </p>
-      </div>
-      
-    </div>
-  </div>
-</section>
-
-
+            <div className="bg-gray-800 border border-gray-700 rounded-2xl shadow-lg p-8 transform transition duration-300 hover:scale-105 hover:shadow-xl">
+              <h3 className="text-xl font-semibold text-white mb-4">X-Ray Services</h3>
+              <p className="text-gray-400 mb-6">
+                Our advanced X-ray services help in diagnosing various conditions with precise imaging. We provide quick turnaround times to ensure that your results are available promptly, aiding in swift decision-making for your treatment.
+              </p>
+              <p className="text-gray-500">
+                From routine scans to more specialized imaging, our team works diligently to ensure your X-ray process is as efficient and comfortable as possible.
+              </p>
+            </div>
+            
+          </div>
+        </div>
+      </section>
 
       {/* Contact Section */}
       <section id="contact" className="py-24 px-6 bg-gray-900 text-white">

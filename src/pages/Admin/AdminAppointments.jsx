@@ -13,10 +13,10 @@ const AdminAppointments = () => {
   const [loading, setLoading] = useState(false);
   const [confirmAction, setConfirmAction] = useState(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false); // Add delete confirmation modal state
+  const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
   const [appointments, setAppointments] = useState([]);
+  const [cancelNote, setCancelNote] = useState("");
 
-  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const appointmentsPerPage = 5;
 
@@ -39,20 +39,20 @@ const AdminAppointments = () => {
   const handleRescheduleClick = (appointment) => {
     setSelectedAppointment(appointment);
     const existingDate = new Date(appointment.scheduledDateTime);
-    setNewDate(existingDate.toISOString().split("T")[0]);  // Set date in YYYY-MM-DD format
-    setNewTime(existingDate.toISOString().split("T")[1].substring(0, 5)); // Set time in HH:MM format
+    setNewDate(existingDate.toISOString().split("T")[0]);
+    setNewTime(existingDate.toISOString().split("T")[1].substring(0, 5));
     setShowModal(true);
   };
 
   const handleRescheduleSubmit = async (e) => {
     e.preventDefault();
-    const newScheduledDateTime = `${newDate}T${newTime}:00`;  // Adding seconds for proper ISO 8601 format
+    const newScheduledDateTime = `${newDate}T${newTime}:00`;
     try {
       setLoading(true);
       await axios.patch(`/api/admin/appointments/reschedule/${selectedAppointment.appointmentId}`, {
         newScheduledDateTime,
       });
-      await handleGetAppointments();  // Refresh the appointments after rescheduling
+      await handleGetAppointments();
       setShowModal(false);
       setNewDate("");
       setNewTime("");
@@ -61,12 +61,14 @@ const AdminAppointments = () => {
     } finally {
       setLoading(false);
     }
-  }; 
-  console.log(newTime);
+  };
 
   const openConfirmModal = (appointment, actionType) => {
     setSelectedAppointment(appointment);
     setConfirmAction(actionType);
+    if (actionType === "cancel") {
+      setCancelNote("");
+    }
     setShowConfirmModal(true);
   };
 
@@ -77,7 +79,9 @@ const AdminAppointments = () => {
       if (confirmAction === "confirm") {
         await axios.patch(`/api/admin/appointments/confirm/${selectedAppointment.appointmentId}`);
       } else if (confirmAction === "cancel") {
-        await axios.patch(`/api/admin/appointments/cancel/${selectedAppointment.appointmentId}`);
+        await axios.patch(`/api/admin/appointments/cancel/${selectedAppointment.appointmentId}`, {
+          note: cancelNote,
+        });
       }
       await handleGetAppointments();
     } catch (error) {
@@ -86,6 +90,7 @@ const AdminAppointments = () => {
       setShowConfirmModal(false);
       setSelectedAppointment(null);
       setConfirmAction(null);
+      setCancelNote("");
       setLoading(false);
     }
   };
@@ -95,8 +100,8 @@ const AdminAppointments = () => {
     try {
       setLoading(true);
       await axios.delete(`/api/admin/delete-appointment/${selectedAppointment.appointmentId}`);
-      await handleGetAppointments();  // Refresh appointments list
-      setShowDeleteConfirmModal(false); // Close delete confirmation modal
+      await handleGetAppointments();
+      setShowDeleteConfirmModal(false);
     } catch (error) {
       console.error("Error deleting appointment:", error);
     } finally {
@@ -104,7 +109,6 @@ const AdminAppointments = () => {
     }
   };
 
-  // Pagination calculation
   const indexOfLastAppointment = currentPage * appointmentsPerPage;
   const indexOfFirstAppointment = indexOfLastAppointment - appointmentsPerPage;
   const currentAppointments = appointments.slice(indexOfFirstAppointment, indexOfLastAppointment);
@@ -113,7 +117,7 @@ const AdminAppointments = () => {
   return (
     <div className="flex h-screen bg-gray-100">
       <AdminSidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
-      <main className="flex-1 p-4 lg:p-8 transition-all duration-300">
+      <main className="flex-1 p-4 lg:p-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold flex items-center gap-2">
             <FaClipboardList className="text-blue-600" /> Appointments
@@ -135,7 +139,7 @@ const AdminAppointments = () => {
               </tr>
             </thead>
             <tbody>
-              {currentAppointments.map((appt, index) => (
+              {currentAppointments.map((appt) => (
                 <tr key={appt.appointmentId} className="border-t hover:bg-gray-50">
                   <td className="px-6 py-4">{appt.patient?.fullName || "N/A"}</td>
                   <td className="px-6 py-4">{appt.patient.email}</td>
@@ -145,7 +149,15 @@ const AdminAppointments = () => {
                   <td className="px-6 py-4">{appt.reason}</td>
                   <td className="px-6 py-4">
                     <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${appt.status === "confirmed" ? "bg-green-200 text-green-800" : appt.status === "cancelled" ? "bg-red-200 text-red-800" : appt.status === "rescheduled" ? "bg-blue-200 text-blue-800" : "bg-yellow-200 text-yellow-800"}`}
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        appt.status === "confirmed"
+                          ? "bg-green-200 text-green-800"
+                          : appt.status === "cancelled"
+                          ? "bg-red-200 text-red-800"
+                          : appt.status === "rescheduled"
+                          ? "bg-blue-200 text-blue-800"
+                          : "bg-yellow-200 text-yellow-800"
+                      }`}
                     >
                       {appt.status}
                     </span>
@@ -169,11 +181,10 @@ const AdminAppointments = () => {
                     >
                       Reschedule
                     </button>
-                    {/* Delete Button */}
                     <button
                       onClick={() => {
                         setSelectedAppointment(appt);
-                        setShowDeleteConfirmModal(true); // Open delete confirmation modal
+                        setShowDeleteConfirmModal(true);
                       }}
                       className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm"
                     >
@@ -186,7 +197,7 @@ const AdminAppointments = () => {
           </table>
         </div>
 
-        {/* Pagination Controls */}
+        {/* Pagination */}
         <div className="flex justify-center mt-4 space-x-2">
           <button
             onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
@@ -199,7 +210,9 @@ const AdminAppointments = () => {
             <button
               key={i}
               onClick={() => setCurrentPage(i + 1)}
-              className={`px-3 py-1 rounded ${currentPage === i + 1 ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+              className={`px-3 py-1 rounded ${
+                currentPage === i + 1 ? "bg-blue-500 text-white" : "bg-gray-200"
+              }`}
             >
               {i + 1}
             </button>
@@ -220,34 +233,34 @@ const AdminAppointments = () => {
               <h2 className="text-xl font-bold mb-4">Reschedule Appointment</h2>
               <form onSubmit={handleRescheduleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">New Date</label>
+                  <label className="block text-sm font-medium">New Date</label>
                   <input
                     type="date"
                     value={newDate}
                     onChange={(e) => setNewDate(e.target.value)}
                     required
-                    className="w-full border px-3 py-2 rounded mt-1"
+                    className="w-full border px-3 py-2 rounded"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">New Time</label>
+                  <label className="block text-sm font-medium">New Time</label>
                   <input
                     type="time"
                     value={newTime}
                     onChange={(e) => setNewTime(e.target.value)}
                     required
-                    className="w-full border px-3 py-2 rounded mt-1"
+                    className="w-full border px-3 py-2 rounded"
                   />
                 </div>
-                <div className="flex justify-end gap-2">
+                <div className="flex justify-end gap-2 mt-4">
                   <button
                     type="button"
                     onClick={() => setShowModal(false)}
-                    className="bg-gray-300 px-4 py-2 rounded"
+                    className="px-4 py-2 bg-gray-300 rounded"
                   >
                     Cancel
                   </button>
-                  <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
+                  <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded">
                     Save
                   </button>
                 </div>
@@ -260,30 +273,33 @@ const AdminAppointments = () => {
         {showConfirmModal && (
           <div className="fixed inset-0 bg-black/50 bg-opacity-50 flex justify-center items-center z-50">
             <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
-              <h2 className="text-xl font-bold mb-4">
+              <h2 className="text-lg font-bold mb-4">
                 {confirmAction === "confirm" ? "Confirm" : "Cancel"} Appointment
               </h2>
-              <p>
-                Are you sure you want to{" "}
-                <strong>{confirmAction === "confirm" ? "confirm" : "cancel"}</strong> this
-                appointment?
-              </p>
-              <div className="flex justify-end gap-2 mt-4">
+              {confirmAction === "cancel" && (
+                <div className="mb-4">
+                  <label className="block text-sm font-medium mb-1">Cancellation Note</label>
+                  <textarea
+                    value={cancelNote}
+                    onChange={(e) => setCancelNote(e.target.value)}
+                    className="w-full border px-3 py-2 rounded"
+                    rows={3}
+                    placeholder="Optional note for cancellation"
+                  />
+                </div>
+              )}
+              <div className="flex justify-end gap-2">
                 <button
-                  type="button"
                   onClick={() => setShowConfirmModal(false)}
-                  className="bg-gray-300 px-4 py-2 rounded"
+                  className="px-4 py-2 bg-gray-300 rounded"
                 >
-                  No
+                  Cancel
                 </button>
                 <button
-                  type="button"
                   onClick={handleConfirmAction}
-                  className={`${
-                    confirmAction === "confirm" ? "bg-green-600" : "bg-red-600"
-                  } text-white px-4 py-2 rounded`}
+                  className="px-4 py-2 bg-blue-500 text-white rounded"
                 >
-                  Yes
+                  Confirm
                 </button>
               </div>
             </div>
@@ -294,22 +310,20 @@ const AdminAppointments = () => {
         {showDeleteConfirmModal && (
           <div className="fixed inset-0 bg-black/50 bg-opacity-50 flex justify-center items-center z-50">
             <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
-              <h2 className="text-xl font-bold mb-4">Delete Appointment</h2>
-              <p>Are you sure you want to delete this appointment?</p>
-              <div className="flex justify-end gap-2 mt-4">
+              <h2 className="text-lg font-bold mb-4">Delete Appointment</h2>
+              <p className="mb-4">Are you sure you want to delete this appointment?</p>
+              <div className="flex justify-end gap-2">
                 <button
-                  type="button"
                   onClick={() => setShowDeleteConfirmModal(false)}
-                  className="bg-gray-300 px-4 py-2 rounded"
+                  className="px-4 py-2 bg-gray-300 rounded"
                 >
-                  No
+                  Cancel
                 </button>
                 <button
-                  type="button"
                   onClick={handleDeleteAppointment}
-                  className="bg-red-600 text-white px-4 py-2 rounded"
+                  className="px-4 py-2 bg-red-600 text-white rounded"
                 >
-                  Yes
+                  Delete
                 </button>
               </div>
             </div>
@@ -320,4 +334,4 @@ const AdminAppointments = () => {
   );
 };
 
-export default AdminAppointments; 
+export default AdminAppointments;
