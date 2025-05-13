@@ -19,8 +19,9 @@ import {
   Legend,
 } from "recharts";
 
-const AdminDashboard = () => {    
+const AdminDashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [dashboardData, setDashboardData] = useState(null);
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -48,6 +49,23 @@ const AdminDashboard = () => {
   }, []);
 
   const formatDate = (dateStr) => new Date(dateStr).toLocaleString();
+
+  const barData = [
+    { month: "Jan", appointments: 20 },
+    { month: "Feb", appointments: 35 },
+    { month: "Mar", appointments: 50 },
+    { month: "Apr", appointments: 25 },
+    { month: "May", appointments: 40 },
+    { month: "Jun", appointments: 30 },
+  ];
+
+  const pieData = [
+    { name: "Completed", value: 100 },
+    { name: "Pending", value: 50 },
+    { name: "Cancelled", value: 20 },
+  ];
+
+  const COLORS = ["#4ade80", "#facc15", "#f87171"];
 
   return (
     <div className="flex flex-col lg:flex-row h-screen bg-gray-100">
