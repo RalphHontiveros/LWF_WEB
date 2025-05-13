@@ -11,6 +11,9 @@ const ScheduledSessions = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [selectedAppointmentId, setSelectedAppointmentId] = useState(null);
+  const [cancelReason, setCancelReason] = useState("");
 
   useEffect(() => {
     const fetchAppointments = async () => {
@@ -28,7 +31,7 @@ const ScheduledSessions = () => {
 
     fetchAppointments();
   }, []);
-
+console.log("Appointments:", appointments);
   const filteredAppointments = appointments.filter((appointment) => {
     const lowerSearch = searchTerm.toLowerCase();
     return (
@@ -51,9 +54,77 @@ const ScheduledSessions = () => {
     }
   };
 
+
+  const handleCancel = (id) => {
+  setSelectedAppointmentId(id);
+  setCancelReason("");
+  setShowCancelModal(true);
+};
+
+const confirmCancel = async () => {
+  console.log("confirmCancel function called");
+
+  if (!cancelReason.trim()) {
+    alert("Please provide a reason for cancellation.");
+    return;
+  }
+
+  try {
+    await axios.post(
+      `/appointments/cancel/${selectedAppointmentId}`,
+      { reason: cancelReason },
+      { withCredentials: true }
+    );
+
+    console.log("Cancel successful:", cancelReason, selectedAppointmentId);
+
+    setAppointments((prev) =>
+      prev.map((appt) =>
+        appt._id === selectedAppointmentId
+          ? { ...appt, status: "Cancelled", cancelNote: cancelReason }
+          : appt
+      )
+    );
+
+    setShowCancelModal(false);
+  } catch (error) {
+    console.error("Cancel error:", error.response?.data || error.message);
+  }
+};
+
+
+
   return (
     <div className="flex h-screen bg-gray-50">
       <Sidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
+      {showCancelModal && (
+        <div className="fixed inset-0 bg-black/50 bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
+            <h2 className="text-xl font-semibold mb-4">Cancel Appointment</h2>
+            <textarea
+              value={cancelReason}
+              onChange={(e) => setCancelReason(e.target.value)}
+              placeholder="Enter reason for cancellation..."
+              className="w-full h-24 p-2 border rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={() => setShowCancelModal(false)}
+                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+              >
+                Close
+              </button>
+              <button
+                onClick={confirmCancel}
+                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+              >
+                Confirm Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <main className="flex-1 p-4 sm:p-6 md:p-8 overflow-auto">
         <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-gray-800">Scheduled Sessions</h1>
@@ -99,6 +170,12 @@ const ScheduledSessions = () => {
                   <p className="text-sm text-gray-500 mt-1">
                     Status: <span className="font-medium">{appointment.status || "Pending"}</span>
                   </p>
+                  <button
+                    onClick={() => handleCancel(appointment._id)}
+                    className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition duration-300 mt-4"
+                  >
+                    Cancel
+                  </button>
                 </div>
               ))}
             </div>
