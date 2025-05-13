@@ -24,7 +24,7 @@ const PatientDashboard = () => {
 
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
-    setWarningMessage(""); // Clear warning on modal close/open
+    setWarningMessage("");
   };
 
   const getCookie = (name) => {
@@ -106,7 +106,7 @@ const PatientDashboard = () => {
       return;
     }
 
-    setWarningMessage(""); // clear warning
+    setWarningMessage("");
 
     try {
       const res = await fetch(`/api/patient/book-appointment/${userId}`, {
@@ -185,7 +185,7 @@ const PatientDashboard = () => {
         </div>
 
         {/* Stats */}
-        {/* <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
           {[
             { icon: FaUserMd, count: dashboardData.doctorsCount, label: "All Doctors" },
             { icon: FaUserInjured, count: dashboardData.patientsCount, label: "All Patients" },
@@ -200,7 +200,7 @@ const PatientDashboard = () => {
               <Icon className="text-blue-500 text-3xl" />
             </div>
           ))}
-        </section> */}
+        </section>
 
         {/* Book Button */}
         <div className="flex justify-end mb-6">

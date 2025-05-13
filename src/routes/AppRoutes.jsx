@@ -7,6 +7,7 @@ import Register from "../pages/Register";
 import ForgotPassword from "../pages/ForgotPassword";
 import Queue from "../pages/Queue";
 import CreateQueue from "../pages/CreateQueue";
+import LandingPage from "../pages/LandingPage";
 
 // Admin
 import AdminDashboard from "../pages/Admin/AdminDashboard";
@@ -42,7 +43,7 @@ const AppRoutes = () => {
     <Router>
       <Routes>
         {/* Auth routes */}
-        <Route path="/" element={<Login />} />
+        <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/queue" element={<Queue />} />
         <Route path="/create-queue" element={<CreateQueue />} />
