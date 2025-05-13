@@ -27,18 +27,16 @@ const PatientDashboard = () => {
 
   // Dummy Data for UI Mockup
   const pieChartData = [
-    { name: "Confirmed", value: 10 },
-    { name: "Cancelled", value: 5 },
+    { name: "Confirmed", value: 24 },
+    { name: "Cancelled", value: 8 },
   ];
 
   const barChartData = [
-    { name: "January", bookings: 3 },
-    { name: "February", bookings: 4 },
-    { name: "March", bookings: 6 },
-    { name: "April", bookings: 7 },
-    { name: "May", bookings: 2 },
-    { name: "June", bookings: 8 },
-    { name: "July", bookings: 5 },
+    { name: "January", bookings: 11 },
+    { name: "February", bookings: 23 },
+    { name: "March", bookings: 14 },
+    { name: "April", bookings: 15 },
+    { name: "May", bookings: 21 },
   ];
 
   return (
@@ -72,18 +70,18 @@ const PatientDashboard = () => {
             },
             {
               icon: FaUserInjured,
-              count: 200,
+              count: 14,
               label: "All Patients",
             },
             {
               icon: FaCalendarCheck,
               count: 5,
-              label: "New Bookings",
+              label: "My Bookings",
             },
             {
               icon: FaClock,
-              count: 3,
-              label: "Today's Sessions",
+              count: 1,
+              label: "Today's Appointment",
             },
           ].map(({ icon: Icon, count, label }, idx) => (
             <div
@@ -175,7 +173,7 @@ const PatientDashboard = () => {
           </div>
         </section>
 
-        {/* Appointments Section */}
+        {/* Appointments Section
         <section className="mb-6">
           <h2 className="text-xl font-semibold mb-4 text-gray-800">
             My Appointments
@@ -208,7 +206,7 @@ const PatientDashboard = () => {
               </tbody>
             </table>
           </div>
-        </section>
+        </section> */}
       </main>
     </div>
   );

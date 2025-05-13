@@ -93,17 +93,14 @@ const DoctorDashboard = () => {
     {
       name: "Today",
       Appointments: dashboardData.todayAppointments || 5,
-      Sessions: dashboardData.sessionsToday || 3,
     },
     {
       name: "This Week",
       Appointments: 22,
-      Sessions: 15,
     },
     {
       name: "This Month",
-      Appointments: 80,
-      Sessions: 45,
+      Appointments: 22,
     },
   ];
 

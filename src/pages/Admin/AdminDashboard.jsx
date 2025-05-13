@@ -95,22 +95,22 @@ const AdminDashboard = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               <DashboardCard
                 label="Today’s Appointments"
-                value={dashboardData?.todayAppointments || 0}
+                value={dashboardData?.todayAppointments || 12}
                 icon={FaCalendarAlt}
               />
               <DashboardCard
-                label="Patients Seen"
-                value={dashboardData?.totalPatients || 0}
+                label="All Patients"
+                value={dashboardData?.totalPatients || 4}
                 icon={FaUserInjured}
               />
               <DashboardCard
-                label="Sessions Today"
-                value={dashboardData?.sessionsToday || 0}
+                label="Today's Appointments"
+                value={dashboardData?.sessionsToday || 5}
                 icon={FaStethoscope}
               />
               <DashboardCard
-                label="Pending Reports"
-                value={dashboardData?.pendingReports || 0}
+                label="Pending Appointments"
+                value={dashboardData?.pendingReports || 6}
                 icon={FaClipboardList}
               />
             </div>
@@ -154,7 +154,7 @@ const AdminDashboard = () => {
               </div>
             </div>
 
-            <div className="mt-8">
+            {/* <div className="mt-8">
               <h2 className="text-xl font-bold mb-4">Upcoming Appointments</h2>
               {appointments.length === 0 ? (
                 <p className="text-gray-600">No upcoming appointments.</p>
@@ -175,7 +175,7 @@ const AdminDashboard = () => {
                   </div>
                 ))
               )}
-            </div>
+            </div> */}
           </>
         )}
       </main>
