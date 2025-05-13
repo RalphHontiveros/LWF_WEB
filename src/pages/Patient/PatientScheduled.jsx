@@ -17,12 +17,26 @@ const ScheduledSessions = () => {
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
-        const response = await axios.get("/api/patient/my-appointments/status", {
-          withCredentials: true,
-        });
-        setAppointments(response.data.appointments || []);
+        const response = await axios.get(
+          "/api/patient/my-appointments/status",
+          {
+            withCredentials: true,
+          }
+        );
+        setAppointments((response.data.appointments || []).map(appt => {
+  const normalizedId = appt.appointmentId;
+  return {
+    ...appt,
+    _id: normalizedId, // Use for consistency
+    id: normalizedId,
+  };
+}));
+
       } catch (error) {
-        console.error("Error fetching appointments:", error.response?.data || error.message);
+        console.error(
+          "Error fetching appointments:",
+          error.response?.data || error.message
+        );
       } finally {
         setLoading(false);
       }
@@ -30,7 +44,6 @@ const ScheduledSessions = () => {
 
     fetchAppointments();
   }, []);
-console.log("Appointments:", appointments);
   const filteredAppointments = appointments.filter((appointment) => {
     const lowerSearch = searchTerm.toLowerCase();
     return (
@@ -42,10 +55,12 @@ console.log("Appointments:", appointments);
         .includes(lowerSearch)
     );
   });
-
   const totalPages = Math.ceil(filteredAppointments.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedAppointments = filteredAppointments.slice(startIndex, startIndex + itemsPerPage);
+  const paginatedAppointments = filteredAppointments.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
 
   const handlePageChange = (pageNumber) => {
     if (pageNumber >= 1 && pageNumber <= totalPages) {
@@ -53,15 +68,18 @@ console.log("Appointments:", appointments);
     }
   };
 
-
-  const handleCancel = (id) => {
+ const handleCancel = (id) => {
   setSelectedAppointmentId(id);
   setCancelReason("");
   setShowCancelModal(true);
 };
 
-const confirmCancel = async () => {
-  console.log("confirmCancel function called");
+
+  const confirmCancel = async () => {
+  if (!selectedAppointmentId) {
+    alert("No appointment selected.");
+    return;
+  }
 
   if (!cancelReason.trim()) {
     alert("Please provide a reason for cancellation.");
@@ -69,18 +87,16 @@ const confirmCancel = async () => {
   }
 
   try {
-    await axios.post(
-      `/appointments/cancel/${selectedAppointmentId}`,
-      { reason: cancelReason },
+    await axios.patch(
+      `/api/patient/cancel-appointment/${selectedAppointmentId}`,
+      { message: cancelReason },
       { withCredentials: true }
     );
-
-    console.log("Cancel successful:", cancelReason, selectedAppointmentId);
 
     setAppointments((prev) =>
       prev.map((appt) =>
         appt._id === selectedAppointmentId
-          ? { ...appt, status: "Cancelled", cancelNote: cancelReason }
+          ? { ...appt, status: "cancelled", cancelNote: cancelReason }
           : appt
       )
     );
@@ -91,11 +107,15 @@ const confirmCancel = async () => {
   }
 };
 
+console.log("Appointments:", appointments);
 
 
   return (
     <div className="flex h-screen bg-gray-50">
-      <Sidebar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
+      <Sidebar
+        isSidebarOpen={isSidebarOpen}
+        setIsSidebarOpen={setIsSidebarOpen}
+      />
       {showCancelModal && (
         <div className="fixed inset-0 bg-black/50 bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
@@ -126,7 +146,9 @@ const confirmCancel = async () => {
 
       <main className="flex-1 p-4 sm:p-6 md:p-8 overflow-auto">
         <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-800">Scheduled Sessions</h1>
+          <h1 className="text-2xl font-bold text-gray-800">
+            Scheduled Sessions
+          </h1>
           <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-md shadow text-gray-600 mt-4 sm:mt-0">
             <FaCalendarAlt className="text-blue-500" />
             <span>{new Date().toLocaleDateString()}</span>
@@ -149,33 +171,64 @@ const confirmCancel = async () => {
             <div className="w-6 h-6 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
           </div>
         ) : filteredAppointments.length === 0 ? (
-          <p className="text-center text-gray-600">No matching sessions found.</p>
+          <p className="text-center text-gray-600">
+            No matching sessions found.
+          </p>
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
               {paginatedAppointments.map((appointment) => (
                 <div
-                  key={appointment._id}
-                  className="bg-white p-5 rounded-lg shadow hover:shadow-lg transition-shadow duration-300"
-                >
-                  <p className="text-lg font-semibold text-blue-700 mb-1">
-                    Doctor: {appointment.doctorName || "Unknown"}
-                  </p>
-                  <p className="text-gray-700">Reason: {appointment.reason}</p>
-                  <p className="text-gray-700">
-                    Date: {new Date(appointment.scheduledDateTime).toLocaleDateString()}
-                  </p>
-                  <p className="text-gray-700">Time: {appointment.timeSlot}</p>
-                  <p className="text-sm text-gray-500 mt-1">
-                    Status: <span className="font-medium">{appointment.status || "Pending"}</span>
-                  </p>
-                  <button
-                    onClick={() => handleCancel(appointment._id)}
-                    className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition duration-300 mt-4"
-                  >
-                    Cancel
-                  </button>
-                </div>
+  key={appointment.appointmentId}
+  className="bg-white p-5 rounded-lg shadow hover:shadow-lg transition-shadow duration-300"
+>
+  <p className="text-lg font-semibold text-blue-700 mb-1">
+    Doctor: {appointment.doctorName || "Unknown"}
+  </p>
+  <p className="text-gray-700">Reason: {appointment.reason}</p>
+  <p className="text-gray-700">
+    Date: {new Date(appointment.scheduledDateTime).toLocaleDateString()}
+  </p>
+  <p className="text-gray-700">Time: {appointment.timeSlot}</p>
+
+  <p className="text-sm text-gray-500 mt-1">
+    Status:{" "}
+    <span
+      className={`font-medium ${
+        appointment.status === "cancelled"
+          ? "text-red-600"
+          : "text-green-600"
+      }`}
+    >
+      {appointment.status || "Pending"}
+    </span>
+  </p>
+
+  {/* Show cancellation details if status is cancelled */}
+  {appointment.status === "cancelled" && appointment.cancellationDetails && (
+    <div className="mt-3 text-sm bg-red-50 p-3 rounded border border-red-200 text-red-700">
+      <p className="font-semibold">Cancelled Details:</p>
+      <p>Reason: {appointment.cancellationDetails.reasonForCancellation}</p>
+      <p>
+        Date:{" "}
+        {new Date(
+          appointment.cancellationDetails.cancelledOn
+        ).toLocaleString()}
+      </p>
+    </div>
+  )}
+
+  {/* Show cancel button only if not cancelled */}
+  {appointment.status?.toLowerCase() !== "cancelled" && (
+    <button
+      onClick={() => handleCancel(appointment.appointmentId)}
+      className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition duration-300 mt-4"
+    >
+      Cancel
+    </button>
+  )}
+</div>
+
               ))}
             </div>
 

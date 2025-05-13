@@ -16,7 +16,6 @@ const AdminAppointments = () => {
   const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
   const [appointments, setAppointments] = useState([]);
   const [cancelNote, setCancelNote] = useState("");
-
   const [currentPage, setCurrentPage] = useState(1);
   const appointmentsPerPage = 5;
 
@@ -73,27 +72,38 @@ const AdminAppointments = () => {
   };
 
   const handleConfirmAction = async () => {
-    if (!selectedAppointment) return;
-    try {
-      setLoading(true);
-      if (confirmAction === "confirm") {
-        await axios.patch(`/api/admin/appointments/confirm/${selectedAppointment.appointmentId}`);
-      } else if (confirmAction === "cancel") {
-        await axios.patch(`/api/admin/appointments/cancel/${selectedAppointment.appointmentId}`, {
-          note: cancelNote,
-        });
-      }
-      await handleGetAppointments();
-    } catch (error) {
-      console.error("Error during confirm/cancel action:", error);
-    } finally {
-      setShowConfirmModal(false);
-      setSelectedAppointment(null);
-      setConfirmAction(null);
-      setCancelNote("");
-      setLoading(false);
+  if (!selectedAppointment) return;
+  try {
+    setLoading(true);
+
+    // Confirm appointment action
+    if (confirmAction === "confirm") {
+      await axios.patch(`/api/admin/appointments/confirm/${selectedAppointment.appointmentId}`);
     }
-  };
+
+    // Cancel appointment action
+    else if (confirmAction === "cancel") {
+      // Sending the cancellation note to the correct endpoint
+      await axios.patch(`/api/patient/cancel-appointment/${selectedAppointment.appointmentId}`, {
+        message: cancelNote, // Send cancellation message/note
+      });
+    }
+
+    // Refresh the appointments after the action
+    await handleGetAppointments();
+
+  } catch (error) {
+    console.error("Error during confirm/cancel action:", error);
+  } finally {
+    // Close the modal and reset states
+    setShowConfirmModal(false);
+    setSelectedAppointment(null);
+    setConfirmAction(null);
+    setCancelNote(""); // Reset the cancellation note
+    setLoading(false);
+  }
+};
+
 
   const handleDeleteAppointment = async () => {
     if (!selectedAppointment) return;
@@ -164,6 +174,7 @@ const AdminAppointments = () => {
                   </td>
                   <td className="px-6 py-4 space-x-2">
                     <button
+                    disabled={loading}
                       onClick={() => openConfirmModal(appt, "confirm")}
                       className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm"
                     >
