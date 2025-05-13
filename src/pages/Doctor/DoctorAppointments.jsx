@@ -9,11 +9,9 @@ const DoctorAppointments = () => {
   const [rescheduleModal, setRescheduleModal] = useState({ open: false, appointmentId: null });
   const [newDateTime, setNewDateTime] = useState("");
   const [loading, setLoading] = useState(false);
-
-  // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [appointmentsPerPage] = useState(5);
-  const [totalAppointments, setTotalAppointments] = useState(0); // New state for total appointments
+  const [totalAppointments, setTotalAppointments] = useState(0);
 
   useEffect(() => {
     fetchAppointments();

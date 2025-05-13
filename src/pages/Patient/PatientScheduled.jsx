@@ -7,7 +7,6 @@ const ScheduledSessions = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
-
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
