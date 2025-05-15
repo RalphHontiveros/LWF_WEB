@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Sidebar from "../../components/PatientSidebar";
 import {
   FaUserMd,
@@ -24,6 +24,72 @@ import {
 const PatientDashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [availableDoctors, setAvailableDoctors] = useState([]);
+  const [selectedDoctor, setSelectedDoctor] = useState("");
+  const [availableSchedules, setAvailableSchedules] = useState([]);
+  const [selectedSchedule, setSelectedSchedule] = useState("");
+  const [reason, setReason] = useState("");
+  const [notes, setNotes] = useState("");
+  const [contactInfo, setContactInfo] = useState({ phone: "", email: "" });
+  const [warningMessage, setWarningMessage] = useState("");
+
+  useEffect(() => {
+    const fetchDoctors = async () => {
+      try {
+        const res = await fetch("/api/patient/available-doctors");
+        const data = await res.json();
+        setAvailableDoctors(data);
+      } catch (err) {
+        console.error("Error fetching doctors:", err);
+      }
+    };
+    fetchDoctors();
+  }, []);
+
+  useEffect(() => {
+    const fetchSchedules = async () => {
+      if (!selectedDoctor) return;
+      try {
+        const res = await fetch(
+          `/api/patient/available-schedules/${selectedDoctor}`
+        );
+        const data = await res.json();
+        setAvailableSchedules(data.availableSchedules || []);
+      } catch (err) {
+        console.error("Error fetching schedules:", err);
+      }
+    };
+    fetchSchedules();
+  }, [selectedDoctor]);
+
+  const handleSubmitAppointment = async (e) => {
+    e.preventDefault();
+    const userId = document.cookie.match(/(^| )UserID=([^;]+)/)?.[2];
+    if (!userId) return console.error("Missing patient ID");
+
+    try {
+      const res = await fetch(`/api/patient/book-appointment/${userId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          doctorId: selectedDoctor,
+          scheduledDateTime: selectedSchedule,
+          reason,
+          notes,
+          contactInfo,
+        }),
+      });
+
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.message || "Unknown error");
+
+      setIsModalOpen(false);
+      // optionally refresh appointments here
+    } catch (err) {
+      setWarningMessage(err.message);
+      console.error("Error booking appointment:", err);
+    }
+  };
 
   // Dummy Data for UI Mockup
   const pieChartData = [
@@ -96,6 +162,15 @@ const PatientDashboard = () => {
             </div>
           ))}
         </section>
+
+        <div className="flex justify-end mb-6">
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg shadow-md"
+          >
+            + Book Appointment
+          </button>
+        </div>
 
         {/* Charts Section */}
         <section className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
@@ -207,6 +282,110 @@ const PatientDashboard = () => {
             </table>
           </div>
         </section> */}
+        {isModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+            <div className="bg-white p-8 rounded-lg w-full max-w-lg shadow-lg relative">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl"
+              >
+                &times;
+              </button>
+              <h2 className="text-xl font-bold mb-6 text-center">
+                Book New Appointment
+              </h2>
+
+              {warningMessage && (
+                <div className="bg-yellow-100 text-yellow-800 p-3 rounded mb-4 text-sm">
+                  {warningMessage}
+                </div>
+              )}
+
+              <form onSubmit={handleSubmitAppointment} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Select Doctor
+                  </label>
+                  <select
+                    value={selectedDoctor}
+                    onChange={(e) => setSelectedDoctor(e.target.value)}
+                    className="w-full border rounded-md p-2"
+                    required
+                  >
+                    <option value="">-- Choose Doctor --</option>
+                    {availableDoctors.map((doc) => (
+                      <option key={doc.doctor._id} value={doc.doctor._id}>
+                        Dr. {doc.fullName} ({doc.specialization})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Select Schedule
+                  </label>
+                  <select
+                    value={selectedSchedule}
+                    onChange={(e) => setSelectedSchedule(e.target.value)}
+                    className="w-full border rounded-md p-2"
+                    required
+                  >
+                    <option value="">-- Choose Schedule --</option>
+                    {availableSchedules.map((schedule, idx) => (
+                      <option key={idx} value={schedule}>
+                        {new Date(schedule).toLocaleString()}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Reason
+                  </label>
+                  <input
+                    type="text"
+                    value={reason}
+                    onChange={(e) => setReason(e.target.value)}
+                    className="w-full border rounded-md p-2"
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <input
+                    type="text"
+                    placeholder="Phone"
+                    value={contactInfo.phone}
+                    onChange={(e) =>
+                      setContactInfo({ ...contactInfo, phone: e.target.value })
+                    }
+                    className="border rounded-md p-2"
+                    required
+                  />
+                  <input
+                    type="email"
+                    placeholder="Email"
+                    value={contactInfo.email}
+                    onChange={(e) =>
+                      setContactInfo({ ...contactInfo, email: e.target.value })
+                    }
+                    className="border rounded-md p-2"
+                    required
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-md"
+                >
+                  Confirm Appointment
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
